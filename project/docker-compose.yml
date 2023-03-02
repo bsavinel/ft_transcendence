@@ -1,0 +1,56 @@
+services:
+
+ database:
+  hostname: postgres
+  container_name: postgres
+  image: postgres:latest
+  env_file:
+   - .env
+  expose:
+   - 5432
+  networks:
+   - nestjs-network
+  volumes:
+    - dbvol:/var/lib/postgresql/data
+
+ backend:
+  hostname: nest
+  container_name: nestjs_dev
+  image: nestjs_dev:alpine
+  build: ./backend
+  env_file:
+   - .env
+  command: npm run start:dev
+  ports:
+   - 5000:5000
+   - 5555:5555
+  networks:
+   - nestjs-network
+  volumes:
+    - ./backend:/usr/src/app
+    - /usr/src/app/node_modules
+  depends_on:
+    database:
+      condition: service_started
+
+ frontend:
+  hostname: react
+  container_name: react
+  image: react:alpine
+  build: ./frontend
+  env_file:
+   - .env
+  command: npm start
+  ports:
+   - 3000:3000
+  networks:
+   - nestjs-network
+  volumes:
+    - ./frontend:/usr/src/app
+    - /usr/src/app/node_modules
+
+networks:
+ nestjs-network:
+
+volumes:
+ dbvol:
