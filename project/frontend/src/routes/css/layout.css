@@ -1,0 +1,44 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.header {
+    position: sticky;
+    background-color: #2E86C1;
+    /* background-image: url(../../header.png); */
+    height: 30%;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    column-gap: 5%;
+    height: auto;
+    width: auto;
+}
+
+.sidecontent {
+    background-color: #2874A6;
+    flex-basis: 20%;
+    /* Utile? */
+    flex-shrink: 2; 
+}
+
+.maincontent {
+    background-color: #EC7063;
+    flex-basis: 70%;
+    /* Utile? */
+    flex-shrink: 1;
+}
+
+.navcontent {
+    background-color: #5DADE2;
+    flex-basis: 10%;
+    /* Utile? */
+    flex-shrink: 2;
+}
