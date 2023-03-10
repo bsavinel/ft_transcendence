@@ -1,0 +1,21 @@
+#Fleche {
+	user-select: none;
+	position: absolute;
+	bottom: 2%;
+	right: 1%;
+	width: 7%; //? pour que la taille soit proportionel a l'ecran
+	max-width: 70px; //? pour que se ne pas puisse etre trop
+	animation: bounce 2.2s linear infinite;
+}
+
+@keyframes bounce {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-25%);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}

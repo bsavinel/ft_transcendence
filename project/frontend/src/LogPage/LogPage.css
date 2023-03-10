@@ -1,0 +1,74 @@
+h1 {
+	user-select: none;
+	color: #ffffff;
+}
+
+body {
+	margin: 0;
+}
+
+/* ? truc sur le quelle se deplace le curseur */
+#ScrollPart::-webkit-scrollbar-track
+{
+	background-color: transparent;
+}
+
+/*? arrier plan de la scrollbar */
+#ScrollPart::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: transparent;
+}
+
+/*? le truc qui bouge*/
+#ScrollPart::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-color: #D62929;
+	background-image: -webkit-linear-gradient(90deg,
+	transparent,
+	rgba(0, 0, 0, 0.4) 50%,
+	transparent,
+	transparent)
+}
+
+/*.ScrollPart::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-image: -webkit-gradient(linear,
+	left bottom,
+	left top,
+	color-stop(0.44, rgb(122,153,217)),
+	color-stop(0.72, rgb(73,125,189)),
+	color-stop(0.86, rgb(28,58,148)));
+} */
+
+#ScrollPart {
+	position:absolute;
+	top:0;
+	left:0;
+	background-color: transparent;
+	height: 100vh;
+	width: 100vw;
+	overflow-y: scroll;
+	scroll-snap-type: y mandatory;
+	scroll-behavior: auto;
+}
+
+#upPage{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: transparent;
+	height: 100%;
+	scroll-snap-align: start;
+}
+
+#downPage{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: transparent;
+	height: 100%;
+	scroll-snap-align: start;
+}

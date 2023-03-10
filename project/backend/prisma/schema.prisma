@@ -13,8 +13,8 @@ datasource db {
 
 // Here we declare the 'User' data model 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  firstName  String
-  lastName  String
+	id    Int     @default(autoincrement()) @id
+	login String  @unique
+	password String
+	isActive Boolean @default(false)
 }

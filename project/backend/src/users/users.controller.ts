@@ -7,16 +7,20 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  findAll(): Promise<User[]> {
-    console.log('HHIHIH');
+  async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Post()
-  createUser(
-    @Body() userData: { firstName: string; lastName: string; email: string },
-  ): Promise<User> {
-    console.log('aakaka');
+  async createUser( @Body() userData: { login: string; password: string}): Promise<User> {
     return this.usersService.createUser(userData);
   }
+
+//   @Post('signup')
+//   async signup( @Body() userData: { login: string; password: string}): Promise<User> {
+//   }
+
+//   @Post('signin')
+//   async signin( @Body() userData: { login: string; password: string}): Promise<User> {
+//   }
 }
