@@ -5,12 +5,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma.module';
-import { UsersService } from './users/users.service';
-import { UsersController } from './users/users.controller';
 
 @Module({
 	imports: [OauthModule, PrismaModule, OauthModule],
-	controllers: [AppController, UsersController, OauthController],
-	providers: [AppService, UsersService, OauthService],
+	controllers: [AppController, OauthController],
+	providers: [AppService, OauthService],
 })
 export class AppModule { }

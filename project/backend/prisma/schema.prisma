@@ -2,19 +2,95 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 // Here we give prisma datas to connect to the database
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 // Here we declare the 'User' data model 
 model User {
-	id    Int     @default(autoincrement()) @id
-	login String  @unique
-	password String
-	isActive Boolean @default(false)
+    id              Int             @id @default(autoincrement())
+    createAt        DateTime        @default(now())
+    updateAt        DateTime        @updatedAt
+    username        String          @unique
+    id42            Int             @unique
+    AvatarUrl       String
+    friends         User[]          @relation("friendsRelation")
+    friendsOf       User[]          @relation("friendsRelation")
+    chanelsProdiles UserOnChannel[]
+    messageUser     Message[]
+    gamePlay        UserOnGame[]
+}
+
+model UserOnChannel {
+    id        Int         @id @default(autoincrement())
+    createAt  DateTime    @default(now())
+    updateAt  DateTime    @updatedAt
+    role      roleChannel @default(USER)
+    userId    Int
+    user      User        @relation(fields: [userId], references: [id])
+    channelId Int
+    Channel   Channel     @relation(fields: [channelId], references: [id])
+}
+
+model Channel {
+    id          Int             @id @default(autoincrement())
+    createAt    DateTime        @default(now())
+    updateAt    DateTime        @updatedAt
+    chanelName  String
+    password    String?
+    mode        channelMode
+    participant UserOnChannel[]
+    messageUser Message[]
+}
+
+model Message {
+    id        Int      @id @default(autoincrement())
+    createAt  DateTime @default(now())
+    content   String
+    creatorId Int
+    createdBy User     @relation(fields: [creatorId], references: [id])
+    channelId Int
+    Channel   Channel  @relation(fields: [channelId], references: [id])
+}
+
+model UserOnGame {
+    id     Int     @id @default(autoincrement())
+    asWin  Boolean
+    userId Int
+    User   User    @relation(fields: [userId], references: [id])
+    gameId Int
+    game   Game    @relation(fields: [gameId], references: [id])
+}
+
+model Game {
+    id       Int          @id @default(autoincrement())
+    createAt DateTime     @default(now())
+    winnerId Int
+    player   UserOnGame[]
+}
+
+model Authetification {
+    id       Int      @id @default(autoincrement())
+    expireAt DateTime
+    code     String
+    userId   Int
+}
+
+enum channelMode {
+    PRIVATE
+    PUBLIC
+    PROTECTED
+}
+
+// peut-etre passer sur  type si besoin de plus stocke d'information
+enum roleChannel {
+    CREATOR
+    ADMIN
+    USER
+    BAN
 }
