@@ -1,5 +1,10 @@
-export default function Setting() {
+import BoutonThemeMode from '../../Component/BoutonThemeMode/BoutonThemeMode';
+
+interface SettingProps {
+    handleTheme: () => void;
+}
+export default function Setting({handleTheme}: SettingProps) {
     return (
-        <h1>SETTING PAGE</h1>
+        <BoutonThemeMode handleTheme={handleTheme}/>
     );
 }

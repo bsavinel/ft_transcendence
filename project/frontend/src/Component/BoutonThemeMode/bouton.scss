@@ -1,0 +1,63 @@
+/* TODO changer la resolution du bouton pour enlever le format en pixels*/
+.modeButton
+{
+	height: 10vw;
+	width: 10vw;
+	max-height: 48px;
+	max-width: 48px;
+	position: relative;
+	padding: 0px;
+	overflow: hidden;
+	outline: none;
+	border-radius: 4px;
+	background: transparent;
+	border: none;
+	&:hover
+	{
+		cursor: pointer;
+		background-color: #5b5b5b1e;
+	}
+}
+
+%iconTheme
+{
+	position: absolute;
+	top: 0px;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#activeThemeIcon
+{
+	@extend %iconTheme;
+	animation: riseIn 0.5s forwards;
+}
+
+#inactiveThemeIcon
+{
+	@extend %iconTheme;
+	animation: riseOut 0.5s forwards;
+}
+
+@keyframes riseIn
+{
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes riseOut
+{
+  from {
+    transform: translateY(0%);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
