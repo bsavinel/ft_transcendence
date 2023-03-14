@@ -22,22 +22,13 @@
     width: auto;
 }
 
-.sidecontent {
-    background-color: #2874A6;
-    flex-basis: 20%;
-    /* Utile? */
-    flex-shrink: 2; 
-}
-
 .maincontent {
-    background-color: #EC7063;
     flex-basis: 70%;
     /* Utile? */
     flex-shrink: 1;
 }
 
 .navcontent {
-    background-color: #5DADE2;
     flex-basis: 10%;
     /* Utile? */
     flex-shrink: 2;

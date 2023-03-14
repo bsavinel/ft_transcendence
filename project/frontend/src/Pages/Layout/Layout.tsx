@@ -1,16 +1,13 @@
 import { Link, Outlet } from 'react-router-dom';
-import NavBar from '../navbar/navbar';
+import NavBar from '../../Component/NavBar/NavBar';
 
-import './css/layout.css';
+import './Layout.css';
 
 export default function Layout() {
     return (
         <div className='layout'>
             <Link to={`/`} className='header'><h1>HEADER</h1></Link>
             <div className='content'>
-                <div className='sidecontent'>
-                    <h1>SIDE MENU</h1>
-                </div>
                 <div className='maincontent'>
                     <Outlet />
                 </div>

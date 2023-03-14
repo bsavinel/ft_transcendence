@@ -5,9 +5,9 @@ import SportsEsportsOutlinedIcon from '@mui/icons-material/SportsEsportsOutlined
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import MuiToggleButton from "@mui/material/ToggleButton";
 import { styled } from "@mui/material/styles";
-import './navbar.css';
 import { Link } from 'react-router-dom';
 import { Badge } from '@mui/material';
+import './NavBar.css';
 
 export default function NavBar() {
     const [focus, setFocus] = useState<string | null>(null);

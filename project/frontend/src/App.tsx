@@ -1,14 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import Layout from './routes/layout';
-import Home from './routes/home';
-import Game from './routes/game';
-import Chat from './routes/chat';
-import NoMatch from './routes/404';
-import Setting from './routes/setting';
-
+import Layout from './Pages/Layout/Layout';
+import Home from './Pages/Home/Home';
+import Game from './Pages/Game/Game';
+import Chat from './Pages/Chat/Chat';
+import NoMatch from './Pages/404';
+import Setting from './Pages/Setting/Setting';
+import LogPage from "./Pages/LogPage/LogPage";
+import CallBackPage from "./Pages/CallBackPage/CallBackPage";
 import './index.css';
-import LogPage from "./LogPage/LogPage";
-import CallBackPage from "./CallBackPage/CallBackPage";
 
 export default function App() {
     return (

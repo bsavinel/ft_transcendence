@@ -1,6 +1,6 @@
 import { Link, Outlet, Route, Routes } from 'react-router-dom'
-import Play from './play';
-import Spectate from './spectate';
+import Play from './Play/Play';
+import Spectate from './Spectate/Spectate';
 
 export default function Game() {
     return (
