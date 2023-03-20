@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 
-import "./LogPage.css";
+import "./LoginPage.css";
 import "./Fleche.scss";
 import "./stars.scss";
 
@@ -13,6 +13,7 @@ interface interfaceBodyApi {
 	state?: string;
 }
 
+// TODO degager de la une fois que le login du back seras ok
 function SignUpButton() {
 	const Fetchkey = async () => {
 		//!########################################################################
@@ -45,40 +46,37 @@ function SignUpButton() {
 	);
 }
 
-//? le scroller est fait en css
-function ScrolLogPage() {
-	let fleche = require("./assets/chevron.png");
-	let ft_scroll_to_bottom = () => {document.getElementById("ScrollPart")!.scrollTo({ top: document.getElementById("ScrollPart")!.scrollHeight, behavior: "smooth" })};
+export default function LoginPage() {
+	let fleche = require("../../assets/chevron.png");
 
-	return (
-		<div id="ScrollPart">
-			<div id="upPage">
-				<h1>TRANSANDANCE</h1>
-				<img id="Fleche" src={fleche} alt="fleche" onClick={ft_scroll_to_bottom} />
-			</div>
-			<div id="downPage">
-				<SignUpButton />
-			</div>
-		</div>
-	);
-}
+	let ft_scroll_to_bottom = () => {
+		document.getElementById("ScrollPart")!.scrollTo({
+			top: document.getElementById("ScrollPart")!.scrollHeight,
+			behavior: "smooth",
+		});
+	};
 
-//? le background est fait en scss
-function BackgoudLogPage() {
-	return (
-		<div id="backgroudStars">
-			<div id="stars"></div>
-			<div id="stars2"></div>
-			<div id="stars3"></div>
-		</div>
-	);
-}
-
-export default function LogPage() {
 	return (
 		<>
-			<BackgoudLogPage />
-			<ScrolLogPage />
+			<div id="backgroudStars">
+				<div id="stars"></div>
+				<div id="stars2"></div>
+				<div id="stars3"></div>
+			</div>
+			<div id="ScrollPart">
+				<div id="upPage">
+					<h1>TRANSANDANCE</h1>
+					<img
+						id="Fleche"
+						src={fleche}
+						alt="fleche"
+						onClick={ft_scroll_to_bottom}
+					/>
+				</div>
+				<div id="downPage">
+					<SignUpButton />
+				</div>
+			</div>
 		</>
 	);
 }
