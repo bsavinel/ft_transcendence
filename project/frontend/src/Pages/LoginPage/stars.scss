@@ -7,18 +7,18 @@
 //? random est un fonction deja pres faite 
 // n is number of stars required
 @function multiple-box-shadow ($n) {
-  $value: '#{random(2000)}px #{random(2000)}px #FFF';
+  $value: '#{random(6000)}px #{random(6000)}px #FFF';
   @for $i from 2 through $n {
-    $value: '#{$value} , #{random(2000)}px #{random(2000)}px #FFF';
+    $value: '#{$value} , #{random(6000)}px #{random(6000)}px #FFF';
   }
 
   @return unquote($value);
 }
 
 // ? le $ set a creer des verrible ici des tableau de coordonner
-$shadows-small: multiple-box-shadow(700);
-$shadows-medium: multiple-box-shadow(200);
-$shadows-big: multiple-box-shadow(100);
+$shadows-small: multiple-box-shadow(6300);
+$shadows-medium: multiple-box-shadow(1800);
+$shadows-big: multiple-box-shadow(900);
 
 #backgroudStars {
   height: 100vh;

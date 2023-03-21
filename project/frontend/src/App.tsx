@@ -6,7 +6,7 @@ import Home from './Pages/Home/Home';
 import Game from './Pages/Game/Game';
 import Chat from './Pages/Chat/Chat';
 import Setting from './Pages/Setting/Setting';
-import LoginPage from './Pages/LogPage/LogPage';
+import LoginPage from './Pages/LoginPage/LoginPage';
 import CallBackPage from './Pages/CallBackPage/CallBackPage';
 import NoMatch from './Pages/404';
 import './index.css';
