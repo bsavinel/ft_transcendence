@@ -1,0 +1,18 @@
+.joiner {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.chanelLayoutSimu, .chatBox {
+    height: 40vh;
+}
+
+.chanelLayoutSimu {
+    width: 20%;
+}
+
+/* Means to be the maincontent box. */
+.chatBox {
+    width: 70%;
+}

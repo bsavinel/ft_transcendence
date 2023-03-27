@@ -1,0 +1,32 @@
+.chanListContainer {
+    border: solid 1px black;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.MuiList-root {
+    /* Permet de faire afficher la scrollbar quand 
+     * trop petit. */
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* For channels names (List>ListItem>ListItemText) */
+/* TODO: trouver sur quel element ajouter un className pour identifier plus facilement */ 
+.MuiTypography-root {
+    max-height: 30px;
+
+    /* Permet de ne pas afficher de scrollbar en x, mais 
+     * plutot de mette les '...' a la fin. */
+    display: inline-block;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actionButtons .MuiButtonBase-root {
+    background-color: var(--bleumoche);
+}

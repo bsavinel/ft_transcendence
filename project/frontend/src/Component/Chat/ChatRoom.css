@@ -1,0 +1,60 @@
+#chatRoom {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+    justify-content: space-between;
+}
+
+h1 {
+    font-size: 15px;
+    text-align: center;
+    width: 100%;
+    max-height: 10%;
+    color: white;
+    white-space: nowrap;
+    font-weight: normal;
+    background-color: var(--bleumoche);
+}
+
+#sendIcon {
+    color: var(--bleumoche);
+}
+
+.messageDisplay {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+    overflow: auto;
+}
+
+#send {
+	align-self: flex-end;
+	background-color: var(--bleumoche);
+	color: white;
+}
+#received {
+}
+
+#send #msgAvatar {
+	color: white;
+}
+
+.MuiChip-root {
+    max-width: 70%;
+    height: fit-content;
+    font-size: 20px;
+    border-radius: 5px;
+    margin: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.MuiChip-label {
+    overflow: visible;
+    white-space: normal;
+    width: 100%;
+    word-break: break-all;
+}
+
