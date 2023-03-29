@@ -1,12 +1,21 @@
 // Chat room related stuff
-import { useState } from 'react';
+import {socket} from '../../Component/Chat/ChatSocketContext';
+import { useState, useEffect } from 'react';
 import ChannelList from '../../Component/Chat/ChannelList';
 import ChatRoom from '../../Component/Chat/ChatRoom';
 import { MessageDto, ChanelDto, hardCodeChannelList } from '../../Component/Chat/hardCodedValues';
 import '../../Component/Chat/chat.css';
 import ChanSettings from '../../Component/Chat/ChanSettings';
+import axios from 'axios';
+
+interface socketMsgDto {
+    user: string;
+    message: string;
+}
 
 export default function Chat() {
+    // const response = axios.get('http://localhost:5000/chat');
+    // console.log(response);
     //TODO: verifier partout si 0 channel (message list aussi)
     const [channelList, setChannelList] = useState<ChanelDto[]>(hardCodeChannelList);
     const [selectedChannel, setSelectedChannel] = useState(channelList[1]);
@@ -30,9 +39,13 @@ export default function Chat() {
     // https://react.dev/learn/updating-arrays-in-state#updating-objects-inside-arrays:~:text=You%20can%20use%20map%20to%20substitute%20an%20old%20item%20with%20its%20updated%20version%20without%20mutation.
     function sendMessage(newMsg: string) {
          if (!newMsg || !newMsg.trim()) return;
+         socket.emit('newMsg', {user: 'Me', message: newMsg});
+     }
+
+     function addMsgToChan(newMsg: socketMsgDto) {
          const newMsgList: MessageDto[] = [
              ...selectedChannel.messages,
-             {user: 'Me', message: newMsg}
+             {user: newMsg.user, message: newMsg.message}
          ];
          setChannelList(channelList.map(chan => {
              if (chan === selectedChannel) {
@@ -45,6 +58,18 @@ export default function Chat() {
              }
          }));
      }
+
+     useEffect(() => {
+         socket.on('connect', () => console.log('Connected from chatroom'));
+         socket.on('afterNewMessage', (data: socketMsgDto) => {
+             console.log('new msg received: ' + data);
+             addMsgToChan(data);
+            }
+         );
+         return () => {
+            socket.off('afterNewMessage');
+         }
+     });
 
     return (
         <div className='joiner'>
