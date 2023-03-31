@@ -9,7 +9,6 @@ import Setting from './Pages/Setting/Setting';
 import LoginPage from './Pages/LoginPage/LoginPage';
 import CallBackPage from './Pages/CallBackPage/CallBackPage';
 import NoMatch from './Pages/404';
-import TestPage from './Pages/Test/TestPage';
 import './index.css';
 
 
@@ -66,7 +65,6 @@ export default function App() {
         <CssBaseline />
             <div className='app'>
                 <Routes>
-					<Route path="/test" element={<TestPage />}/>
                     <Route path="/login" element={<LoginPage />}/>
                     <Route path="/callback" element={<CallBackPage />}/>
                     <Route path="/" element={<Layout />}>

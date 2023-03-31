@@ -1,33 +1,49 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { setAccess } from "../../utils/ApiClient";
+import Cookie from "js-cookie";
+import { addDays } from "date-fns";
 
-async function internAuthentification(): Promise<boolean> {
+//! //BUG les redirect marche pas
+//TODO demander pour le retour et le fait de gere dans la fonction qui apele
+
+async function getToken(): Promise<void> {
+	if (Cookie.get("token")) {
+		console.log("token already exist");
+		// TODO verifier le token avec le back si il a de la merde tu le degage
+		return;
+	}
+
 	let url = new URL(window.location.href);
 	let params = {
 		code: url.searchParams.get("code"),
 	};
+
 	if (!params.code) throw new Error("no code");
 
-	const response = await axios.post<{
-		refreshToken: string;
-		accessToken: string;
-		newUser: boolean;
-	}>(`${import.meta.env.VITE_BACK_URL}/oauth/singin`, params,{withCredentials: true} );
-
-	console.log("data : ", response.data);
-	setAccess(response.data.accessToken);
-	return response.data.newUser;
+	try {
+		const response = await axios.post(
+			`${process.env.REACT_APP_BACK_URL}/oauth`,
+			params
+		);
+		const expire = addDays(new Date(), 10);
+		document.cookie = `token=${
+			response.data.token
+		}; expires=${expire.toString()}; path=/`;
+		return;
+	} catch (e) {
+		if (axios.isAxiosError(e))
+			throw new Error("request failed with the error " + e.status);
+		throw new Error("request failed for unknown reason");
+	}
 }
 
 export default function CallBackPage() {
 	const navigate = useNavigate();
-
+	console.log("render ou rerender de la page de callback");
 	useEffect(() => {
-		internAuthentification()
-			.then((newUser: boolean) => {
-				newUser ? navigate("/profile") : navigate("/home");
+		getToken()
+			.then(() => {
 				navigate("/home");
 			})
 			.catch((e) => {

@@ -15,23 +15,23 @@ interface interfaceBodyApi {
 
 // TODO degager de la une fois que le login du back seras ok
 function SignUpButton() {
-	const handlerClick = () => {
+	const Fetchkey = async () => {
 		//!########################################################################
 		//!	Recuperation du code pour pouvoir avoir le token d'acces dans le back #
 		//!########################################################################
 		const body42: interfaceBodyApi = {
-			client_id: import.meta.env.VITE_API_KEYPUB,
-			redirect_uri: `${import.meta.env.VITE_FRONT_URL}/callback`,
+			client_id: process.env.REACT_APP_API_KEYPUB!,
+			redirect_uri: `${process.env.REACT_APP_FRONT_URL}/callback`,
 			response_type: "code",
 		};
 
-		let pathApi: string = `${
-			import.meta.env.VITE_API42
-		}/oauth/authorize?client_id=${body42.client_id}&redirect_uri=${
-			body42.redirect_uri
-		}&response_type=${body42.response_type}`;
-
+		let pathApi: string = `${process.env.REACT_APP_API_AUTHORIZE}?client_id=${body42.client_id}&redirect_uri=${body42.redirect_uri}&response_type=${body42.response_type}`;
+		console.log(pathApi);
 		document.location = pathApi;
+	};
+
+	const handlerClick = () => {
+		Fetchkey();
 	};
 
 	return (

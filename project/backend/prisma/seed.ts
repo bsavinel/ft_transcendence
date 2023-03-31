@@ -7,7 +7,7 @@ async function main() {
     update: {},
     create: {
       id: 1,
-      channelName: 'Channel 001',
+      chanelName: 'Channel 001',
       mode: 'PUBLIC',
     },
   });
@@ -17,7 +17,7 @@ async function main() {
     update: {},
     create: {
       id: 2,
-      channelName: 'Channel 002',
+      chanelName: 'Channel 002',
       mode: 'PUBLIC',
     },
   });
@@ -28,8 +28,8 @@ async function main() {
     create: {
       username: 'John',
       id42: 42,
-      avatarUrl: 'AVATAR_PATH',
-      messagesUser: {
+      AvatarUrl: 'AVATAR_PATH',
+      messageUser: {
         create: [
           {
             content: 'Message de John',
@@ -50,8 +50,8 @@ async function main() {
     create: {
       username: 'Karen',
       id42: 43,
-      avatarUrl: 'AVATAR_PATH',
-      messagesUser: {
+      AvatarUrl: 'AVATAR_PATH',
+      messageUser: {
         create: [
           {
             content: 'Message de Karen',

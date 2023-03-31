@@ -1,160 +1,48 @@
-import {
-	Controller,
-	Get,
-	Body,
-	Post,
-	BadRequestException,
-	NotFoundException,
-	Req,
-	UseGuards,
-	Delete,
-	Res,
-} from "@nestjs/common";
-import axios from "axios";
-import { RefreshGuard } from "src/guards/refresh.guard";
-import { RequestWithRefresh } from "src/type/token.type";
-import { TokenService } from "./token.service";
-import { reqToken42 } from "src/type/request42.type";
-import { Response } from "express";
-import { addDays } from "date-fns";
-import { UsersService } from "src/users/users.service";
+import { Controller, Body, Post, BadRequestException, NotFoundException } from '@nestjs/common';
+import axios from 'axios';
 
-@Controller("oauth")
+import { OauthService } from './oauth.service';
+
+interface reqToken {
+	grant_type: string /* aucune idee mais obligatoire*/;
+	client_id: string /*id de l'app*/;
+	client_secret: string /*ce aui a ete recus avec la requete depuis le front*/;
+	code: string /*code recu depuis le front*/;
+	redirect_uri?: string /*une url ou est redirige la page apres (optionel et je pense inutile ici)*/;
+	state?: string /*random string*/;
+}
+
+@Controller('oauth')
 export class OauthController {
-	constructor(
-		private readonly tokenManager: TokenService,
-		private readonly userService: UsersService
-	) {}
+	constructor(private OauthService: OauthService) { }
 
-	//!###################################################################################
-	//!###############################     CONNECTION      ###############################
-	//!###################################################################################
+	@Post()
+	async signup(@Body() Data: { code: string }): Promise<{ token: string }> {
+		//!##########################################################################
+		//!# Utilisation du code recu avec le front pour recuperer un token d'acces #
+		//!##########################################################################
 
-	@Post("/singin")
-	async signup(
-		@Body() Data: { code: string },
-		@Res({ passthrough: true }) response: Response
-	): Promise<{
-		accessToken: string;
-		newUser: boolean;
-	}> {
-		let newUser: boolean = false;
-		let pathApi: string = this.buildPath42(Data.code);
-
-		// ***** requete pour avoir le token d'acces pour les requete 42 *****
-		try {
-			var responseApi = await axios.post(pathApi);
-			console.log(responseApi.data);
-		} catch (e) {
-			console.log("error");
-			if (e.status == 404) throw new NotFoundException("Api not found");
-			throw new BadRequestException("Can't get 42token");
-		}
-
-		// ***** Requete pour avoir les info du mec *****
-		try {
-			var responseApi = await axios.get(
-				`${process.env.VITE_API42}/v2/me`,
-				{
-					headers: {
-						Authorization:
-							"Bearer " + responseApi.data.access_token,
-					},
-				}
-			);
-		} catch (e) {
-			if (e.responseApi.status == 404) {
-				console.log("the api probably change");
-				throw new NotFoundException("Api not found");
-			}
-			throw new BadRequestException("Can't get 42 identity");
-		}
-
-		if (!(await this.userService.user42Exist(responseApi.data.id))) {
-			newUser = true;
-			await this.userService.createUser({
-				id42: responseApi.data.id,
-				username: responseApi.data.login,
-				avatarUrl: responseApi.data.image_url,
-			});
-		}
-
-		const refreshToken: string =
-			await this.tokenManager.generateRefreshToken(12);
-		const accessToken: string = await this.tokenManager.generateAccessToken(
-			12
-		);
-
-		const expiration = addDays(new Date(), 6);
-		response.cookie("refreshToken", refreshToken, {
-			expires: expiration,
-			path: "/oauth",
-			httpOnly: true,
-		});
-		return { accessToken, newUser };
-	}
-
-	//!################################################################################
-	//!###############################     REFRESH      ###############################
-	//!################################################################################
-
-	@Get("/refresh")
-	@UseGuards(RefreshGuard)
-	async getNewToken(
-		@Req() request: RequestWithRefresh,
-		@Res({ passthrough: true }) response: Response
-	): Promise<{ accessToken: string }> {
-		//? le timeout est pour eviter de deconecter le user de partout si on s'ammuse a spam des refrechs
-		setTimeout(() => {
-			this.tokenManager.deleteRefreshToken(request.refreshToken.code);
-		}, 1000);
-		const refreshToken: string =
-			await this.tokenManager.generateRefreshToken(
-				request.refreshToken.userId
-			);
-		const accessToken: string = await this.tokenManager.generateAccessToken(
-			request.refreshToken.userId
-		);
-		const expiration = addDays(new Date(), 6);
-		response.cookie("refreshToken", refreshToken, {
-			expires: expiration,
-			path: "/oauth",
-			httpOnly: true,
-		});
-		return { accessToken };
-	}
-
-	//!######################################################################################
-	//!###############################      DISCONECTION      ###############################
-	//!######################################################################################
-
-	@Delete("/disconect")
-	@UseGuards(RefreshGuard)
-	async disconect(@Req() request: RequestWithRefresh): Promise<void> {
-		await this.tokenManager.deleteRefreshToken(request.refreshToken.code);
-	}
-
-	//? est-ce que je renvoie un refresh token pour qu'il reste quand meme log ou il est
-	@Delete("/disconectEveryWhere")
-	@UseGuards(RefreshGuard)
-	async disconectEveryWhere(
-		@Req() request: RequestWithRefresh
-	): Promise<number> {
-		return await this.tokenManager.disconectFromEveryWhere(
-			request.refreshToken.userId
-		);
-	}
-
-	buildPath42(code: string): string {
-		const body42: reqToken42 = {
-			grant_type: "authorization_code" /* aucune idee mais obligatoire*/,
-			client_id: process.env.VITE_API_KEYPUB /*id de l'app*/,
+		const body42: reqToken = {
+			grant_type: 'authorization_code' /* aucune idee mais obligatoire*/,
+			client_id: process.env.REACT_APP_API_KEYPUB /*id de l'app*/,
 			client_secret:
 				process.env
 					.API_KEYPRI /*ce qui a ete recus avec la requete depuis le front*/,
-			redirect_uri: `${process.env.VITE_FRONT_URL}/callback`,
-			code: code,
+			redirect_uri: `${process.env.REACT_APP_FRONT_URL}/callback`,
+			code: Data.code,
 		};
-		return `${process.env.VITE_API42}/oauth/token?grant_type=${body42.grant_type}&client_id=${body42.client_id}&client_secret=${body42.client_secret}&code=${body42.code}&redirect_uri=${body42.redirect_uri}`;
+		let pathApi: string = `${process.env.API_TOKEN}?grant_type=${body42.grant_type}&client_id=${body42.client_id}&client_secret=${body42.client_secret}&code=${body42.code}&redirect_uri=${body42.redirect_uri}`;
+		
+		
+		try {
+			var response = await axios.post(pathApi)
+		} catch(e) {
+			console.log('error');
+			if (e.status == 404)
+				throw new NotFoundException('Api not found');
+			throw new BadRequestException("Can't get token");
+		}
+		//TODO utiliser l'acess token pour recuperer les infos et verrifier si l'utilisateur existe deja
+		return { token: response.data.access_token };
 	}
 }
