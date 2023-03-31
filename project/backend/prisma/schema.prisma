@@ -13,71 +13,71 @@ datasource db {
 
 // Here we declare the 'User' data model 
 model User {
-    id              Int             @id @default(autoincrement())
-    createAt        DateTime        @default(now())
-    updateAt        DateTime        @updatedAt
-    username        String          @unique
-    id42            Int             @unique
-    AvatarUrl       String
-    friends         User[]          @relation("friendsRelation")
-    friendsOf       User[]          @relation("friendsRelation")
-    chanelsProdiles UserOnChannel[]
-    messageUser     Message[]
-    gamePlay        UserOnGame[]
+    id               Int             @id @default(autoincrement())
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+    username         String          @unique
+    id42             Int             @unique
+    avatarUrl        String
+    friends          User[]          @relation("friendsRelation")
+    friendsOf        User[]          @relation("friendsRelation")
+    channelsProfiles UserOnChannel[]
+    messagesUser     Message[]
+    gamesPlay        UserOnGame[]
 }
 
 model UserOnChannel {
     id        Int         @id @default(autoincrement())
-    createAt  DateTime    @default(now())
-    updateAt  DateTime    @updatedAt
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
     role      roleChannel @default(USER)
     userId    Int
     user      User        @relation(fields: [userId], references: [id])
     channelId Int
-    Channel   Channel     @relation(fields: [channelId], references: [id])
+    channel   Channel     @relation(fields: [channelId], references: [id])
 }
 
 model Channel {
-    id          Int             @id @default(autoincrement())
-    createAt    DateTime        @default(now())
-    updateAt    DateTime        @updatedAt
-    chanelName  String
-    password    String?
-    mode        channelMode
-    participant UserOnChannel[]
-    messageUser Message[]
+    id           Int             @id @default(autoincrement())
+    createdAt    DateTime        @default(now())
+    updateAt     DateTime        @updatedAt
+    channelName  String
+    password     String?
+    mode         channelMode
+    participants UserOnChannel[]
+    messagesUser Message[]
 }
 
 model Message {
     id        Int      @id @default(autoincrement())
-    createAt  DateTime @default(now())
+    createdAt DateTime @default(now())
     content   String
     creatorId Int
     createdBy User     @relation(fields: [creatorId], references: [id])
     channelId Int
-    Channel   Channel  @relation(fields: [channelId], references: [id])
+    channel   Channel  @relation(fields: [channelId], references: [id])
 }
 
 model UserOnGame {
     id     Int     @id @default(autoincrement())
     asWin  Boolean
     userId Int
-    User   User    @relation(fields: [userId], references: [id])
+    user   User    @relation(fields: [userId], references: [id])
     gameId Int
     game   Game    @relation(fields: [gameId], references: [id])
 }
 
 model Game {
-    id       Int          @id @default(autoincrement())
-    createAt DateTime     @default(now())
-    winnerId Int
-    player   UserOnGame[]
+    id        Int          @id @default(autoincrement())
+    createdAt DateTime     @default(now())
+    winnerId  Int
+    players   UserOnGame[]
 }
 
-model Authetification {
+model Authentification {
     id       Int      @id @default(autoincrement())
     expireAt DateTime
-    code     String
+    code     String   @unique
     userId   Int
 }
 

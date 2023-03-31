@@ -12,8 +12,8 @@ import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
 
 @Module({
-	imports: [OauthModule, PrismaModule, OauthModule, GatewayModule, ChatModule, UsersModule, ChannelsModule, MessagesModule ],
-	controllers: [AppController, OauthController],
-	providers: [AppService, OauthService],
+	imports: [OauthModule, PrismaModule, GatewayModule, ChatModule, UsersModule, ChannelsModule, MessagesModule ],
+	controllers: [AppController],
+	providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
