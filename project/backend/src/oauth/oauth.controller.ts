@@ -69,20 +69,20 @@ export class OauthController {
 			}
 			throw new BadRequestException("Can't get 42 identity");
 		}
-
 		if (!(await this.userService.user42Exist(responseApi.data.id))) {
 			newUser = true;
 			await this.userService.createUser({
 				id42: responseApi.data.id,
 				username: responseApi.data.login,
-				avatarUrl: responseApi.data.image_url,
+				avatarUrl: responseApi.data.image.link,
 			});
 		}
 
+		const user = await this.userService.findUserWith42(responseApi.data.id);
 		const refreshToken: string =
-			await this.tokenManager.generateRefreshToken(12);
+			await this.tokenManager.generateRefreshToken(user.id);
 		const accessToken: string = await this.tokenManager.generateAccessToken(
-			12
+			user.id
 		);
 
 		const expiration = addDays(new Date(), 6);

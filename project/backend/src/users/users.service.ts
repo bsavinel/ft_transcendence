@@ -23,11 +23,15 @@ export class UsersService {
 	}
 
 	async user42Exist(id42: number): Promise<boolean> {
-		return !!this.prisma.user.findUnique({ where: { id42 } });
+		return !!( await this.prisma.user.findUnique({ where: { id42 } }));
+	}
+
+	async findUserWith42(id42: number): Promise<User> {
+		return await this.prisma.user.findUnique({ where: { id42 } });
 	}
 
 	async createUser(newUser: UserCreation):Promise<void> {
-		this.prisma.user.create({data: newUser})
+		await this.prisma.user.create({data: newUser})
 	}
 
 	// Return all properties for one user

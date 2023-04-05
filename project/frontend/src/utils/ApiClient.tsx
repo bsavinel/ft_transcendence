@@ -10,7 +10,7 @@ export interface AccessToken {
 }
 
 var access: string | undefined;
-var accessContent: AccessToken;
+var accessContent: AccessToken | undefined;
 var ApiClient = axios.create({ baseURL: `${import.meta.env.VITE_BACK_URL}` });
 
 async function refreshAccessToken(): Promise<void> {
@@ -46,16 +46,16 @@ export function setAccess(newAccess: string): void {
 	accessContent = jwt_decode(access);
 }
 
-function getAccess(): string | undefined {
+export function getAccess(): string | undefined {
 	return access;
 }
 
-function getAccessContent(): string | undefined {
-	return access;
+export function getAccessContent(): AccessToken | undefined {
+	return accessContent;
 }
 
 ApiClient.interceptors.request.use(async (config) => {
-	if (!access || accessContent.expireAt >= addSeconds(new Date(), 40))
+	if (!access || !accessContent || accessContent.expireAt >= addSeconds(new Date(), 40))
 		await refreshAccessToken();
 	config.headers["Authorization"] = access;
 	return config;
