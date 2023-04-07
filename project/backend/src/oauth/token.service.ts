@@ -16,7 +16,7 @@ export class TokenService {
 		let payload: Token = {
 			type: "access",
 			code: crypto.randomUUID(),
-			expireAt: addDays(new Date(), 6),
+			expireAt: addMinutes(new Date(), 6),
 			userId: id,
 		};
 		return this.jwt.sign(payload);
@@ -27,7 +27,7 @@ export class TokenService {
 			type: "refresh",
 			code: crypto.randomUUID(),
 			userId: id,
-			expireAt: addMinutes(new Date(), 6),
+			expireAt: addDays(new Date(), 6),
 		};
 
 		await this.prisma.authentification.create({

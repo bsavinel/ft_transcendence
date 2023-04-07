@@ -95,6 +95,39 @@ export class OauthController {
 	}
 
 	//!################################################################################
+	//!#########################     FORCE TO BE SOMEONE      #########################
+	//!################################################################################
+
+	@Post("/force")
+	async force(
+		@Body() Data: { id42: number; username: string; avatarUrl: string },
+		@Res({ passthrough: true }) response: Response
+	): Promise<{
+		accessToken: string;
+	}> {
+		console.log("coucou");
+		if (!(await this.userService.user42Exist(Data.id42))) {
+			await this.userService.createUser(Data);
+		}
+		console.log("truc");
+		const user = await this.userService.findUserWith42(Data.id42);
+		const refreshToken: string =
+			await this.tokenManager.generateRefreshToken(user.id);
+		const accessToken: string = await this.tokenManager.generateAccessToken(
+			user.id
+		);
+		console.log("cookie");
+		const expiration = addDays(new Date(), 6);
+		response.cookie("refreshToken", refreshToken, {
+			expires: expiration,
+			path: "/",
+			httpOnly: true,
+		});
+		console.log("fin");
+		return { accessToken };
+	}
+
+	//!################################################################################
 	//!###############################     REFRESH      ###############################
 	//!################################################################################
 

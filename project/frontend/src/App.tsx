@@ -1,31 +1,31 @@
-import { useState } from "react";
-import { Routes, Route, Navigate, Outlet} from "react-router-dom";
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
-import Layout from "./Pages/Layout/Layout";
-import Home from "./Pages/Home/Home";
-import Game from "./Pages/Game/Game";
-import Chat from "./Pages/Chat/Chat";
-import Setting from "./Pages/Setting/Setting";
-import LoginPage from "./Pages/LoginPage/LoginPage";
-import CallBackPage from "./Pages/CallBackPage/CallBackPage";
-import NoMatch from "./Pages/404";
-import TestPage from "./Pages/Test/TestPage";
-import { getAccess } from "./utils/ApiClient";
-import ApiClient from "./utils/ApiClient";
-import "./index.css";
+import { useState } from 'react';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import Layout from './Pages/Layout/Layout';
+import Home from './Pages/Home/Home';
+import Game from './Pages/Game/Game';
+import Chat from './Pages/Chat/Chat';
+import Setting from './Pages/Setting/Setting';
+import CallBackPage from './Pages/CallBackPage/CallBackPage';
+import NoMatch from './Pages/404';
+import TestPage from './Pages/Test/TestPage';
+import LogGuard from './conditionalRender';
+import BrutForce from './Pages/BrutForce/BrutForce';
+
+import './index.css';
 
 const dark = createTheme({
 	palette: {
-		mode: "dark",
+		mode: 'dark',
 		primary: {
-			main: "#42566a",
+			main: '#42566a',
 		},
 		secondary: {
-			main: "#877861",
+			main: '#877861',
 		},
 		background: {
-			default: "#212f3d",
-			paper: "#516a81",
+			default: '#212f3d',
+			paper: '#516a81',
 		},
 	},
 	shape: {
@@ -35,32 +35,22 @@ const dark = createTheme({
 
 const light = createTheme({
 	palette: {
-		mode: "light",
+		mode: 'light',
 		primary: {
-			main: "#768ca3",
+			main: '#768ca3',
 		},
 		secondary: {
-			main: "#877861",
+			main: '#877861',
 		},
 		background: {
-			default: "#FDEDEC",
-			paper: "#516a81",
+			default: '#FDEDEC',
+			paper: '#516a81',
 		},
 	},
 	shape: {
 		borderRadius: 4,
 	},
 });
-
-// async function LogGuard() {
-	
-// 	if (getAccess()) return <Outlet />;
-// 	else
-// 	{
-// 		await ApiClient.get("/user/me"); //TODO mettre la reponse dans un context
-// 		return <LoginPage />;
-// 	}
-// }
 
 export default function App() {
 	const [theme, setTheme] = useState(dark);
@@ -76,9 +66,9 @@ export default function App() {
 			<div className="app">
 				<Routes>
 					<Route path="/test" element={<TestPage />} />
+					<Route path="/force" element={<BrutForce />} />
 					<Route path="/callback" element={<CallBackPage />} />
-					<Route path="/login" element={<LoginPage />} />
-					{/* <Route path="/" element={<LogGuard />}> */}
+					<Route path="/" element={<LogGuard />}>
 						<Route path="/" element={<Layout />}>
 							<Route index element={<Home />} />
 							<Route path="game/*" element={<Game />} />
@@ -89,7 +79,7 @@ export default function App() {
 							/>
 							<Route path="*" element={<NoMatch />} />
 						</Route>
-					{/* </Route> */}
+					</Route>
 				</Routes>
 			</div>
 		</ThemeProvider>
