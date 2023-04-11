@@ -1,14 +1,22 @@
-import { Logger } from '@nestjs/common';
 import {
-  MessageBody,
-  OnGatewayInit,
-  OnGatewayConnection,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-  OnGatewayDisconnect,
+	ClassSerializerInterceptor,
+	Logger,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
+import {
+	MessageBody,
+	OnGatewayInit,
+	OnGatewayConnection,
+	SubscribeMessage,
+	WebSocketGateway,
+	WebSocketServer,
+	OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AccessGuard } from './guards/access.guard';
+import { CreateMessageDto } from './messages/dto/create-message.dto';
+import { MessagesService } from './messages/messages.service';
 
 /*
  * We can consumme or emit event on the gateway server.
@@ -27,39 +35,43 @@ import { Server, Socket } from 'socket.io';
  *    'acknoledgement' opt.
  */
 
+@UseInterceptors(ClassSerializerInterceptor)
+// @UseGuards(AccessGuard)
 @WebSocketGateway({
-  namespace: 'chatns',
-  cors: { origin: '*' },
+	namespace: 'chatns',
+	cors: { origin: '*' },
 })
 export class AppGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  // Attaches the web socket server to the attribute 'server';
-  @WebSocketServer()
-  server: Server;
+	constructor(private readonly messagesService: MessagesService) {}
+	// Attaches the web socket server to the attribute 'server';
+	@WebSocketServer()
+	server: Server;
 
-  private logger: Logger = new Logger('AppGateway');
+	private logger: Logger = new Logger('AppGateway');
 
-  afterInit() {
-    this.logger.log('Init done');
-  }
+	afterInit() {
+		this.logger.log('Init done');
+	}
 
-  handleConnection(client: Socket) {
-    this.logger.log('Connected: ' + client.id);
-  }
+	handleConnection(client: Socket) {
+		this.logger.log('Connected: ' + client.id);
+	}
 
-  handleDisconnect(client: Socket) {
-    this.logger.log('Disconnected: ' + client.id);
-  }
+	handleDisconnect(client: Socket) {
+		this.logger.log('Disconnected: ' + client.id);
+	}
 
-  // this means we can send events to the server under the 'newMsg'
-  // event name.
-  @SubscribeMessage('newMsg')
-  onNewMessage(@MessageBody() msgbody: any) {
-    console.log(msgbody);
-    this.server.emit('afterNewMessage', {
-      user: msgbody.user,
-      message: msgbody.message,
-    });
-  }
+	// this means we can send events to the server under the 'newMsg'
+	// event name.
+	@SubscribeMessage('newMsg')
+	async onNewMessage(
+		@MessageBody() msgbody: CreateMessageDto
+	): Promise<CreateMessageDto> {
+		this.logger.log(msgbody);
+		this.messagesService.create(msgbody);
+		this.server.emit('afterNewMessage', msgbody);
+		return msgbody;
+	}
 }

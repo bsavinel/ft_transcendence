@@ -1,96 +1,109 @@
-// Chat room related stuff
 import {socket} from '../../Component/Chat/ChatSocketContext';
 import { useState, useEffect } from 'react';
 import ChannelList from '../../Component/Chat/ChannelList';
 import ChatRoom from '../../Component/Chat/ChatRoom';
-import { MessageDto, ChanelDto, hardCodeChannelList } from '../../Component/Chat/hardCodedValues';
+import { MessageDto, ChanelDto } from '../../Component/Chat/hardCodedValues';
 import '../../Component/Chat/chat.css';
-import ChanSettings from '../../Component/Chat/ChanSettings';
-import axios from 'axios';
+import ApiClient, { getAccessContent } from '../../utils/ApiClient';
 
 interface socketMsgDto {
-    user: string;
-    message: string;
+    creatorId: number;
+    content: string;
+    channelId: number;
 }
+/*
+ * Returns (if resolved) a list of channels.
+ */
+async function fetchChannels(): Promise<ChanelDto[]> {
+    try {
+        const subChanRes = (await ApiClient.get('/channels')).data;
+        const chans: ChanelDto[] = subChanRes.map((data: any): ChanelDto => {
+            return {id: data.id, name: data.channelName};
+        });
+        return chans;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des suscribedChannelsList :', error);
+    }
+    return [];
+};
+
+/*
+ * Returns (if resolved) a list of messages for the provided channel identified by its id.
+ */
+async function fetchMessages(chanId: number): Promise<MessageDto[]> {
+    try {
+        const msgsResponse = (await ApiClient.get('/messages/fromchan/' + chanId)).data;
+        const msgs: MessageDto[] = msgsResponse.map((data: any): MessageDto => {
+            return {creatorId: data.creatorId, creatorName: data.createdBy.username, content: data.content};
+        });
+        return msgs;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des messages :', error);
+    }
+    return [];
+};
 
 export default function Chat() {
-    // const response = axios.get('http://localhost:5000/chat');
-    // console.log(response);
     //TODO: verifier partout si 0 channel (message list aussi)
-    const [channelList, setChannelList] = useState<ChanelDto[]>(hardCodeChannelList);
-    const [selectedChannel, setSelectedChannel] = useState(channelList[1]);
-    // For chan settings modal
-    const [openEditChan, setOpenEditChan] = useState(false);
-    const handleEditChanOpen = () => setOpenEditChan(true);
-    const handleEditChanClose = () => setOpenEditChan(false);
+    const [channelList, setChannelList] = useState<ChanelDto[]>([]);
+    const [messagesList, setMessagesList] = useState<MessageDto[]>([]);
+    const [selectedChannel, setSelectedChannel] = useState<ChanelDto | null>(null);
 
-    function changeChanName(e: any) {
-        if (!e.target.value || !e.target.value.trim())
-        {
-            return ;
-        }
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            selectedChannel.name = e.target.value;
-            setOpenEditChan(false);
-        }
-    }
+    useEffect(() => {
+        fetchChannels()
+            .then((chans) => {
+                setChannelList(chans ?? []); }) .catch((error) => {
+                console.error('Erreur lors de la récupération des suscribedChannelsList :', error);
+            });
+    }, []); // Utilise un tableau vide pour s'assurer que l'effet ne se déclenche qu'une seule fois lors du montage du composant
 
-    // https://react.dev/learn/updating-arrays-in-state#updating-objects-inside-arrays:~:text=You%20can%20use%20map%20to%20substitute%20an%20old%20item%20with%20its%20updated%20version%20without%20mutation.
+    useEffect(() => {
+        selectedChannel && fetchMessages(selectedChannel.id)
+            .then((msgs) => {
+                console.log('Setting messages');
+                setMessagesList(msgs);
+            })
+    }, [selectedChannel]);
+
     function sendMessage(newMsg: string) {
          if (!newMsg || !newMsg.trim()) return;
-         socket.emit('newMsg', {user: 'Me', message: newMsg});
-     }
+         const toSend: socketMsgDto = {creatorId: getAccessContent()?.userId, content: newMsg, channelId: selectedChannel?.id};
+         socket.emit('newMsg', toSend);
+     };
 
-     function addMsgToChan(newMsg: socketMsgDto) {
-         const newMsgList: MessageDto[] = [
-             ...selectedChannel.messages,
-             {user: newMsg.user, message: newMsg.message}
-         ];
-         setChannelList(channelList.map(chan => {
-             if (chan === selectedChannel) {
-                 const chanMaj = {...chan, messages: newMsgList};
-                 setSelectedChannel(chanMaj);
-                 return chanMaj;
-             }
-             else {
-                 return chan;
-             }
-         }));
-     }
+     async function addMsg(newMsg: socketMsgDto) {
+         const username = (await ApiClient.get('users/' + newMsg.creatorId)).data.username;
+         setMessagesList([
+             ...messagesList,
+             //TODO: faut mettre le name du gars
+             {creatorId: newMsg.creatorId, creatorName: username, content: newMsg.content}
+         ]);
+     };
 
      useEffect(() => {
-         socket.on('connect', () => console.log('Connected from chatroom'));
-         socket.on('afterNewMessage', (data: socketMsgDto) => {
+         socket.once('connect', () => console.log('Connected from chatroom'));
+         socket.once('afterNewMessage', (data: socketMsgDto) => {
              console.log('new msg received: ' + data);
-             addMsgToChan(data);
+             addMsg(data);
             }
          );
-         return () => {
-            socket.off('afterNewMessage');
-         }
      });
 
     return (
         <div className='joiner'>
-            <ChanSettings
-                openEditChan={openEditChan}
-                handleEditChanClose={handleEditChanClose}
-                changeChanName={changeChanName}
-            />
             <div className='chanelLayoutSimu'>
                 <ChannelList
                     channelList={channelList}
                     setChannelList={setChannelList}
                     selectedChannel={selectedChannel}
                     setSelectedChannel={setSelectedChannel}
-                    handleEditChanOpen={handleEditChanOpen}
                 />
             </div>
             <div className='chatBox'>
                 <ChatRoom
-                    selectedChannel={selectedChannel}
+                    messagesList={messagesList}
                     sendMessage={sendMessage}
+                    inputDisabled={selectedChannel ? false : true}
                 />
             </div>
         </div>

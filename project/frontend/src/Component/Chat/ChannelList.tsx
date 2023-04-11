@@ -1,16 +1,24 @@
 import { Button, ButtonGroup, List, ListItem, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import './ChannelList.css';
-
 import { ChanelDto } from './hardCodedValues';
+import { getAccessContent } from '../../utils/ApiClient';
 
-export default function ChannelList(props: any) {
-    const channelItems = props.channelList.map((data: ChanelDto) =>
+interface ChanListProps {
+    channelList: ChanelDto[];
+    setChannelList: (data: any) => void;
+    selectedChannel: ChanelDto | null;
+    setSelectedChannel: (data: any) => void;
+}
+
+export default function ChannelList({channelList, setChannelList, selectedChannel, setSelectedChannel}: ChanListProps) {
+    //TODO: comment enlever ces warning sur les undefined???
+    const myId: number = getAccessContent()?.userId;
+    const channelItems = channelList?.map((data: ChanelDto) =>
         <ListItemButton
             onClick={() => handleSelectChan(data)}
-            selected={props.selectedChannel===data}
+            selected={selectedChannel===data}
             key={data.id}
         >
             <ListItem divider>
@@ -21,22 +29,22 @@ export default function ChannelList(props: any) {
 
     function addChan(){
         // to replace by new chan backend created id
-        const lastId = props.channelList.slice(-1)[0].id;
-        const newChan: ChanelDto = { name: 'NEW CHAN', id: lastId + 1, messages: [], owner: 'Me', admins: ['Me']};
-        props.setChannelList([...props.channelList, newChan]);
+        const lastId = channelList.slice(-1)[0].id;
+        const newChan: ChanelDto = { name: 'NEW CHAN', id: lastId + 1};
+        setChannelList([...channelList, newChan]);
         // select the new chan
-        props.setSelectedChannel(newChan);
+        setSelectedChannel(newChan);
     }
 
     function delChan() {
-        var chanLst = props.channelList.filter(function(e: ChanelDto) { return e.id !== props.selectedChannel.id });
-        props.setChannelList(chanLst);
-        props.setSelectedChannel(chanLst[0]);
+        var chanLst = channelList.filter(function(e: ChanelDto) { return e.id !== selectedChannel?.id });
+        setChannelList(chanLst);
+        setSelectedChannel(chanLst[0]);
     }
 
     // Set the selected index channel, triggered on mouse click.
     function handleSelectChan(chan: ChanelDto){
-        props.setSelectedChannel(chan);
+        setSelectedChannel(chan);
     }
 
     return (
@@ -51,10 +59,6 @@ export default function ChannelList(props: any) {
                 </ListSubheader>
             </List>
             <ButtonGroup className='actionButtons' variant='contained' size='small'>
-                {/* Only available if the user is the chan owner */}
-                <Button id='editBtn' onClick={e => props.selectedChannel.owner === 'Me' ? props.handleEditChanOpen() : e.preventDefault()}>
-                    <EditIcon />
-                </Button>
                 <Button id='addBtn' onClick={addChan}>
                     <AddIcon/>
                 </Button>

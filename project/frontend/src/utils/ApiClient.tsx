@@ -62,7 +62,7 @@ ApiClient.interceptors.request.use(async (config) => {
 		accessContent.expireAt >= addSeconds(new Date(), 40)
 	)
 		await refreshAccessToken();
-	config.headers['Authorization'] = 'Bearer ' + access;
+	config.headers["Authorization"] = "Bearer " + access;
 	return config;
 });
 

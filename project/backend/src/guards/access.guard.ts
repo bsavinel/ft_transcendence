@@ -23,7 +23,8 @@ export class AccessGuard implements CanActivate {
 		try {
 			var unpackToken = await this.jwt.verify(stringToken);
 		} catch (error) {
-			throw new BadRequestException('Token check failed');
+			console.log(error);
+			throw new BadRequestException("Token check failed");
 		}
 
 		if (!instanceOfToken(unpackToken) || unpackToken.type != 'access')
