@@ -585,4 +585,8 @@ export class UsersController {
 			);
 		}
 	}
+	@Get('/me')
+	me(@Req() req: RequestWithAccess): { id: number } {
+		return { id: req.accessToken.userId };
+	}
 }
