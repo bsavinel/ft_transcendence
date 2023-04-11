@@ -21,6 +21,8 @@ model User {
     avatarUrl        String
     secretOtp       String?
     activeOtp       Boolean         @default(false)
+    blocked          User[]          @relation("blockedRelation")
+    blockedBy        User[]          @relation("blockedRelation")
     friends          User[]          @relation("friendsRelation")
     friendsOf        User[]          @relation("friendsRelation")
     channelsProfiles UserOnChannel[]
@@ -61,18 +63,21 @@ model Message {
 }
 
 model UserOnGame {
-    id     Int     @id @default(autoincrement())
-    asWin  Boolean
+    id     Int      @id @default(autoincrement())
+	score  Int?
+    asWin  Boolean?
     userId Int
-    user   User    @relation(fields: [userId], references: [id])
+    user   User     @relation(fields: [userId], references: [id])
     gameId Int
-    game   Game    @relation(fields: [gameId], references: [id])
+    game   Game     @relation(fields: [gameId], references: [id])
 }
 
 model Game {
     id        Int          @id @default(autoincrement())
     createdAt DateTime     @default(now())
-    winnerId  Int
+    updatedAt DateTime     @updatedAt
+    winnerId  Int?
+    isFinish  Boolean      @default(false)
     players   UserOnGame[]
 }
 

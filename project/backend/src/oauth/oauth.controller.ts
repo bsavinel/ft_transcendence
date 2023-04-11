@@ -9,17 +9,17 @@ import {
 	UseGuards,
 	Delete,
 	Res,
-} from "@nestjs/common";
-import axios from "axios";
-import { RefreshGuard } from "src/guards/refresh.guard";
-import { RequestWithRefresh } from "src/type/token.type";
-import { TokenService } from "./token.service";
-import { reqToken42 } from "src/type/request42.type";
-import { Response } from "express";
-import { addDays } from "date-fns";
-import { UsersService } from "src/users/users.service";
+} from '@nestjs/common';
+import axios from 'axios';
+import { RefreshGuard } from 'src/guards/refresh.guard';
+import { RequestWithRefresh } from 'src/type/token.type';
+import { TokenService } from './token.service';
+import { reqToken42 } from 'src/type/request42.type';
+import { Response } from 'express';
+import { addDays } from 'date-fns';
+import { UsersService } from 'src/users/users.service';
 
-@Controller("oauth")
+@Controller('oauth')
 export class OauthController {
 	constructor(
 		private readonly tokenManager: TokenService,
@@ -30,7 +30,7 @@ export class OauthController {
 	//!###############################     CONNECTION      ###############################
 	//!###################################################################################
 
-	@Post("/singin")
+	@Post('/singin')
 	async signup(
 		@Body() Data: { code: string },
 		@Res({ passthrough: true }) response: Response
@@ -46,8 +46,8 @@ export class OauthController {
 			var responseApi = await axios.post(pathApi);
 			console.log(responseApi.data);
 		} catch (e) {
-			console.log("error");
-			if (e.status == 404) throw new NotFoundException("Api not found");
+			console.log('error');
+			if (e.status == 404) throw new NotFoundException('Api not found');
 			throw new BadRequestException("Can't get 42token");
 		}
 
@@ -58,14 +58,14 @@ export class OauthController {
 				{
 					headers: {
 						Authorization:
-							"Bearer " + responseApi.data.access_token,
+							'Bearer ' + responseApi.data.access_token,
 					},
 				}
 			);
 		} catch (e) {
 			if (e.responseApi.status == 404) {
-				console.log("the api probably change");
-				throw new NotFoundException("Api not found");
+				console.log('the api probably change');
+				throw new NotFoundException('Api not found');
 			}
 			throw new BadRequestException("Can't get 42 identity");
 		}
@@ -86,9 +86,9 @@ export class OauthController {
 		);
 
 		const expiration = addDays(new Date(), 6);
-		response.cookie("refreshToken", refreshToken, {
+		response.cookie('refreshToken', refreshToken, {
 			expires: expiration,
-			path: "/oauth",
+			path: '/oauth',
 			httpOnly: true,
 		});
 		return { accessToken, newUser };
@@ -131,7 +131,7 @@ export class OauthController {
 	//!###############################     REFRESH      ###############################
 	//!################################################################################
 
-	@Get("/refresh")
+	@Get('/refresh')
 	@UseGuards(RefreshGuard)
 	async getNewToken(
 		@Req() request: RequestWithRefresh,
@@ -149,9 +149,9 @@ export class OauthController {
 			request.refreshToken.userId
 		);
 		const expiration = addDays(new Date(), 6);
-		response.cookie("refreshToken", refreshToken, {
+		response.cookie('refreshToken', refreshToken, {
 			expires: expiration,
-			path: "/oauth",
+			path: '/oauth',
 			httpOnly: true,
 		});
 		return { accessToken };
@@ -161,14 +161,14 @@ export class OauthController {
 	//!###############################      DISCONECTION      ###############################
 	//!######################################################################################
 
-	@Delete("/disconect")
+	@Delete('/disconect')
 	@UseGuards(RefreshGuard)
 	async disconect(@Req() request: RequestWithRefresh): Promise<void> {
 		await this.tokenManager.deleteRefreshToken(request.refreshToken.code);
 	}
 
 	//? est-ce que je renvoie un refresh token pour qu'il reste quand meme log ou il est
-	@Delete("/disconectEveryWhere")
+	@Delete('/disconectEveryWhere')
 	@UseGuards(RefreshGuard)
 	async disconectEveryWhere(
 		@Req() request: RequestWithRefresh
@@ -180,7 +180,7 @@ export class OauthController {
 
 	buildPath42(code: string): string {
 		const body42: reqToken42 = {
-			grant_type: "authorization_code" /* aucune idee mais obligatoire*/,
+			grant_type: 'authorization_code' /* aucune idee mais obligatoire*/,
 			client_id: process.env.VITE_API_KEYPUB /*id de l'app*/,
 			client_secret:
 				process.env

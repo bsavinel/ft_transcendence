@@ -44,6 +44,7 @@ async function refreshAccessToken(): Promise<void> {
 export function setAccess(newAccess: string): void {
 	access = newAccess;
 	accessContent = jwt_decode(access);
+	console.log(access);
 }
 
 export function getAccess(): string | undefined {
@@ -61,7 +62,7 @@ ApiClient.interceptors.request.use(async (config) => {
 		accessContent.expireAt >= addSeconds(new Date(), 40)
 	)
 		await refreshAccessToken();
-	config.headers['Authorization'] = access;
+	config.headers['Authorization'] = 'Bearer ' + access;
 	return config;
 });
 

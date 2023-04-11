@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookie from "js-cookie";
 import { addDays } from "date-fns";
 import Button from "@mui/material/Button";
-import backClient from "../../utils/ApiClient";
+import backClient, { getAccess, getAccessContent } from "../../utils/ApiClient";
 
 function setCookieInWindow(value: string): void {
 	const expire = addDays(new Date(), 10);
@@ -30,7 +30,15 @@ async function testInstance(): Promise<void> {
 	backClient.get("/token/test");
 }
 
+async function testFindById() {
+	// backClient.get("/users/1");
+	// backClient.get("/users/1?friend=true&channel=true");
+	backClient.delete("users/1/deleteFriend?friendId=2");
+	console.log(getAccessContent());
+}
+
 export default function TestPage() {
+	console.log(getAccess());
 	return (
 		<>
 			<div>Coucou, tu as pas a etre sur cette tu peut partir stp</div>
@@ -51,6 +59,13 @@ export default function TestPage() {
 				}}
 			>
 				Test instance
+			</Button>
+			<Button
+				variant="contained"
+				size="large"
+				onClick={() => {testFindById()}}
+			>
+				Test findById
 			</Button>
 		</>
 	);

@@ -4,10 +4,10 @@ import {
 	ExecutionContext,
 	ForbiddenException,
 	UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { instanceOfToken, RequestWithRefresh } from "src/type/token.type";
-import { TokenService } from "src/oauth/token.service";
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { instanceOfToken, RequestWithRefresh } from 'src/type/token.type';
+import { TokenService } from 'src/oauth/token.service';
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
@@ -21,7 +21,7 @@ export class RefreshGuard implements CanActivate {
 		const oldRefreshToken = request.cookies.refreshToken;
 		if (!oldRefreshToken) {
 			throw new ForbiddenException(
-				"Please put your refresh token in cookie with the name [refreshToken]"
+				'Please put your refresh token in cookie with the name [refreshToken]'
 			);
 		}
 
@@ -29,19 +29,19 @@ export class RefreshGuard implements CanActivate {
 		try {
 			var unpack = await this.jwt.verify(oldRefreshToken);
 		} catch {
-			throw new ForbiddenException("Key of the token is invalide");
+			throw new ForbiddenException('Key of the token is invalide');
 		}
 
-		if (!instanceOfToken(unpack) || unpack.type != "refresh")
-			throw new ForbiddenException("Bad type of token");
+		if (!instanceOfToken(unpack) || unpack.type != 'refresh')
+			throw new ForbiddenException('Bad type of token');
 
 		if (unpack.expireAt > new Date())
-			throw new UnauthorizedException("Token expire");
+			throw new UnauthorizedException('Token expire');
 
 		if (!(await this.tokenManager.ExistRefreshToken(unpack.code))) {
 			await this.tokenManager.disconectFromEveryWhere(unpack.userId);
 			throw new ForbiddenException(
-				"Refresh token steel, the user has disconect from everywere"
+				'Refresh token steel, the user has disconect from everywere'
 			);
 		}
 

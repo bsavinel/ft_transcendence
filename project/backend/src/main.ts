@@ -15,10 +15,20 @@ async function bootstrap() {
 	};
 	
 	const config = new DocumentBuilder()
-	.setTitle("Cats example")
-	.setDescription("The cats API description")
+	.setTitle("Transandance API")
+	.setDescription("API for Transandance")
 	.setVersion("1.0")
-	.addTag("cats")
+	.addBearerAuth(
+		{
+		  type: 'http',
+		  description: 'Enter access token for transandance',
+		  name: 'JWT',
+		  in: 'header',
+		  scheme: 'bearer',
+		  bearerFormat: 'JWT',
+		},
+		'Transandance Token', // This name here is important for matching up with @ApiBearerAuth() in your controller!
+	  )
 	.build();
 	const document = SwaggerModule.createDocument(app, config);
 	SwaggerModule.setup("api", app, document);

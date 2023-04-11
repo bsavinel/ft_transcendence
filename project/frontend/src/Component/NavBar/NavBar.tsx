@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@mui/material';
 import './NavBar.css';
 import BoutonThemeMode from '../BoutonThemeMode/BoutonThemeMode';
+import BugReportIcon from '@mui/icons-material/BugReport';
 
 interface NavBarProps {
     handleTheme: () => void;
@@ -55,6 +56,9 @@ export default function NavBar({handleTheme}: NavBarProps) {
                 </ToggleButton>
                 <ToggleButton component={Link} to='setting' value="quilt" aria-label="setting">
                     <TuneOutlinedIcon color='warning'/>
+                </ToggleButton>
+                <ToggleButton component={Link} to='test' value="quilt" aria-label="setting">
+                    <BugReportIcon color='warning'/>
                 </ToggleButton>
             </ToggleButtonGroup>
             <BoutonThemeMode handleTheme={handleTheme}/>

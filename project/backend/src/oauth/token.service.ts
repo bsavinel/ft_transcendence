@@ -1,8 +1,8 @@
-import { PrismaService } from "src/prisma.service";
-import { Injectable } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { addDays, addMinutes } from "date-fns";
-import { Token } from "src/type/token.type";
+import { PrismaService } from 'src/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { addDays, addMinutes } from 'date-fns';
+import { Token } from 'src/type/token.type';
 
 @Injectable()
 export class TokenService {
@@ -14,7 +14,7 @@ export class TokenService {
 	// TODO on fait un cookie de session ou on met un champ user
 	async generateAccessToken(id: number): Promise<string> {
 		let payload: Token = {
-			type: "access",
+			type: 'access',
 			code: crypto.randomUUID(),
 			expireAt: addMinutes(new Date(), 6),
 			userId: id,
@@ -24,7 +24,7 @@ export class TokenService {
 
 	async generateRefreshToken(id: number): Promise<string> {
 		let payload: Token = {
-			type: "refresh",
+			type: 'refresh',
 			code: crypto.randomUUID(),
 			userId: id,
 			expireAt: addDays(new Date(), 6),
@@ -54,7 +54,7 @@ export class TokenService {
 	}
 
 	async disconectFromEveryWhere(userId: number): Promise<number> {
-		let res =  await this.prisma.authentification.deleteMany({
+		let res = await this.prisma.authentification.deleteMany({
 			where: { userId },
 		});
 		return res.count;
