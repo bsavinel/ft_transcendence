@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
+import { MessageEntity } from './entities/message.entity';
 
 @Injectable()
 export class MessagesService {
-  create(createMessageDto: CreateMessageDto) {
-    return 'This action adds a new message';
+  constructor(private prisma: PrismaService) {}
+
+  //TODO: verifier que le chan existe, le user existe, et qu'il ait les droits.
+  async create(createMessageDto: CreateMessageDto): Promise<MessageEntity> {
+    return this.prisma.message.create({
+      data: createMessageDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all messages`;
+  async findAllByUser(userId: number): Promise<Partial<MessageEntity>[]> {
+    return this.prisma.message.findMany({
+      where: { creatorId: userId },
+      orderBy: { createdAt: 'asc' },
+      select: { content: true, createdAt: true, channelId: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
+  async findAllByUserInChan(
+    userId: number,
+    chanId: number,
+  ): Promise<Partial<MessageEntity>[]> {
+    return this.prisma.message.findMany({
+      where: { creatorId: userId, channelId: chanId },
+      orderBy: { createdAt: 'asc' },
+      select: { content: true, createdAt: true },
+    });
   }
 
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} message`;
+  // async findAllByChannel(chanId: number): Promise<Partial<MessageEntity>[]> {
+  async findAllByChannel(chanId: number): Promise<Partial<MessageEntity>[]> {
+    return this.prisma.message.findMany({
+      where: { channelId: chanId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        content: true,
+        createdAt: true,
+        createdBy: { select: { username: true } },
+      },
+    });
   }
 }

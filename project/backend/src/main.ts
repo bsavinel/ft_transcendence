@@ -1,16 +1,23 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import * as cookieParser from "cookie-parser";
-import * as session from "express-session";
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { PrismaExceptionFilter } from './prisma-exception/prisma-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-	
-	
+
+	app.useGlobalPipes(
+		new ValidationPipe({ whitelist: true, transform: true })
+	);
+
+	app.useGlobalFilters(new PrismaExceptionFilter());
+
 	const options = {
-		origin: ["http://localhost:3000", process.env.VITE_FRONT_URL],
-		methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+		origin: ['http://localhost:3000', process.env.VITE_FRONT_URL],
+		methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
 		credentials: true,
 	};
 	

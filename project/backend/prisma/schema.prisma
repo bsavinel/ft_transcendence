@@ -36,9 +36,9 @@ model UserOnChannel {
     updatedAt DateTime    @updatedAt
     role      roleChannel @default(USER)
     userId    Int
-    user      User        @relation(fields: [userId], references: [id])
+    user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     channelId Int
-    channel   Channel     @relation(fields: [channelId], references: [id])
+    channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
 }
 
 model Channel {
@@ -57,9 +57,9 @@ model Message {
     createdAt DateTime @default(now())
     content   String
     creatorId Int
-    createdBy User     @relation(fields: [creatorId], references: [id])
+    createdBy User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
     channelId Int
-    channel   Channel  @relation(fields: [channelId], references: [id])
+    channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
 }
 
 model UserOnGame {
@@ -67,9 +67,9 @@ model UserOnGame {
 	score  Int?
     asWin  Boolean?
     userId Int
-    user   User     @relation(fields: [userId], references: [id])
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     gameId Int
-    game   Game     @relation(fields: [gameId], references: [id])
+    game   Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Game {
