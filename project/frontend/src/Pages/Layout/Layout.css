@@ -23,7 +23,7 @@
 }
 
 .maincontent {
-    flex-basis: 70%;
+    flex-basis: 90%;
     /* Utile? */
     flex-shrink: 1;
 }

@@ -3,7 +3,11 @@ import NavBar from '../../Component/NavBar/NavBar';
 
 import './Layout.css';
 
-export default function Layout() {
+interface LayoutProps {
+    handleTheme: () => void;
+}
+
+export default function Layout({handleTheme}: LayoutProps) {
     return (
         <div className='layout'>
             <Link to={`/`} className='header'><h1>HEADER</h1></Link>
@@ -12,7 +16,7 @@ export default function Layout() {
                     <Outlet />
                 </div>
                 <div className='navcontent'>
-                    <NavBar />
+                    <NavBar handleTheme={handleTheme}/>
                 </div>
             </div>
         </div>

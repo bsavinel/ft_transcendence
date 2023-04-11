@@ -8,8 +8,13 @@ import { styled } from "@mui/material/styles";
 import { Link } from 'react-router-dom';
 import { Badge } from '@mui/material';
 import './NavBar.css';
+import BoutonThemeMode from '../BoutonThemeMode/BoutonThemeMode';
 
-export default function NavBar() {
+interface NavBarProps {
+    handleTheme: () => void;
+}
+
+export default function NavBar({handleTheme}: NavBarProps) {
     const [focus, setFocus] = useState<string | null>(null);
 
     const ToggleButton = styled(MuiToggleButton)({
@@ -52,6 +57,7 @@ export default function NavBar() {
                     <TuneOutlinedIcon color='warning'/>
                 </ToggleButton>
             </ToggleButtonGroup>
+            <BoutonThemeMode handleTheme={handleTheme}/>
         </div>
     );
 }

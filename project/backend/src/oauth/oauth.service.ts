@@ -4,13 +4,13 @@ import { User } from "@prisma/client";
 
 @Injectable()
 export class OauthService {
-	constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-	async signUp(login: string, password: string): Promise<User[]> {
-		return this.prisma.user.findMany();
-	}
+  async signUp(login: string, password: string): Promise<User[]> {
+    return this.prisma.user.findMany();
+  }
 
-	async signIn(login: string, password: string): Promise<User[]> {
-		return this.prisma.user.findMany();
-	}
+  async signIn(login: string, password: string): Promise<User[]> {
+    return this.prisma.user.findMany();
+  }
 }

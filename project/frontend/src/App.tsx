@@ -69,13 +69,13 @@ export default function App() {
 					<Route path="/force" element={<BrutForce />} />
 					<Route path="/callback" element={<CallBackPage />} />
 					<Route path="/" element={<LogGuard />}>
-						<Route path="/" element={<Layout />}>
+						<Route path="/" element={<Layout handleTheme={handleTheme}/>}>
 							<Route index element={<Home />} />
 							<Route path="game/*" element={<Game />} />
 							<Route path="chat" element={<Chat />} />
 							<Route
 								path="setting"
-								element={<Setting handleTheme={handleTheme} />}
+								element={<Setting  />}
 							/>
 							<Route path="*" element={<NoMatch />} />
 						</Route>

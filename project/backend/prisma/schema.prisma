@@ -19,6 +19,8 @@ model User {
     username         String          @unique
     id42             Int             @unique
     avatarUrl        String
+    secretOtp       String?
+    activeOtp       Boolean         @default(false)
     friends          User[]          @relation("friendsRelation")
     friendsOf        User[]          @relation("friendsRelation")
     channelsProfiles UserOnChannel[]
