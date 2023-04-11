@@ -28,43 +28,35 @@
 
 ### GET
 
-<!-- - allChannels -->
-<!-- - allPublicChannel -->
-<!-- - allProtectedChannel -->
-<!-- - channelName -->
-<!-- - channelMode -->
-<!-- NOTE: bah du coup non? -->
+- allPublicChannel
+- allProtectedChannel
+- channelName
+- channelMode
 - channelId
-<!-- NOTE: Pas ici mais dans User non? (findMany(where channelId = id)) --> 
 - allUserOnChannel
 - allUserProfil
-<!-- NOTE: pense pas que ce soit ici (pas ds entity) -->
 - allMessage
 
 ### POST
-<!-- NOTE: Fait dans channel, a deplacer dans user. -->
-<!-- - createChannel -->
 
 ### PUT
 
-<!-- NOTE: update name et mode fait en meme temps -->
-<!-- - updateName -->
-<!-- - updateMode -->
+- updateName
+- updateMode
 - updatePassword
 - updateUserProfil
 
 ### DELETE
 
-<!-- - delteChannel -->
+- delteChannel
 
 
 ## MESSAGE
 ### GET
 
-<!-- - allUserMessage -->
-<!-- - allUserMessageInChan -->
-<!-- - allChannelMessage -->
+- allUserMessage
+- allChannelMessage
 
 ### POST
 
-<!-- - addMessage -->
+- addMessage
