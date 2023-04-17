@@ -1,0 +1,23 @@
+post:
+  operationId: ChannelsController_joinChan
+  summary: ''
+  description: >-
+    Join a channel (create a new useronChannel record). Only permitted to
+    non BANNED users.
+  parameters:
+    - name: chanId
+      required: true
+      in: path
+      schema:
+        type: number
+  responses:
+    '201':
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: string
+  tags:
+    - Channels
+  security:
+    - TransandanceToken: []

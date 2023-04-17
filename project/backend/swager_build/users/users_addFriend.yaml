@@ -1,0 +1,52 @@
+post:
+  operationId: UsersController_addFriend
+  summary: ''
+  description: Add new friend
+  parameters: []
+  requestBody:
+    required: true
+    description: ''
+    content:
+      application/json:
+        schema:
+          type: string
+        examples:
+          a:
+            summary: Invalid Body
+            description: '{ friendId: id } required. (id: number)'
+            value: {}
+          b:
+            summary: Valid Body
+            value:
+              friendId: 1
+  responses:
+    '200':
+      description: A FAIRE
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - AvatarUrl
+            properties:
+              id:
+                type: number
+              username:
+                type: string
+              AvatarUrl:
+                type: string
+    '201':
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '../swagShema.yaml#/UserEntity'
+    '400':
+      description: >-
+        This description is for a 400 response. It is returned when
+        additional query params are passed, or when the
+        <b>useExclamation</b>-Argument could not be parsed as a boolean.
+  tags:
+    - Users

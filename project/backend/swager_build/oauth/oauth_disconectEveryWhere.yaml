@@ -1,0 +1,15 @@
+delete:
+  operationId: OauthController_disconectEveryWhere
+  summary: Disconect user from every navigator
+  description: disable all refresh token of the user
+  parameters: []
+  tags:
+    - Oauth
+  responses:
+    '200':
+      description: The disconection work
+    '403':
+      description: >-
+        403 is returned when: <br/>- 'refreshToken' cookie is not set <br/> - 
+        It's false refresh token <br/>- The refresh token is expire <br/> - 
+        The refreshToken is already use (disconectFromEvryWhere is launch)

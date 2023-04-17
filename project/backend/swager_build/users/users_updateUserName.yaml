@@ -1,0 +1,12 @@
+patch:
+  operationId: UsersController_updateUserName
+  parameters: []
+  responses:
+    '200':
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '../swagShema.yaml#/UserEntity'
+  tags:
+    - Users

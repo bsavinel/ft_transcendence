@@ -1,0 +1,70 @@
+get:
+  operationId: GameController_getGame
+  summary: Get game with id
+  parameters:
+    - name: id
+      required: true
+      in: path
+      description: Id of the game to get
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: Game with id 1
+          value: '1'
+        b:
+          summary: Game with id 27
+          value: '27'
+      schema:
+        type: number
+  responses:
+    '200':
+      description: Return the game with the id passed in parameter
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - winnerId
+              - isFinish
+              - createdAt
+              - players
+            properties:
+              id:
+                type: number
+              winnerId:
+                type: number
+              isFinish:
+                type: boolean
+              createdAt:
+                type: string
+                format: date-time
+              players:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - gameId
+                    - userId
+                    - asWin
+                    - score
+                  properties:
+                    id:
+                      type: number
+                    gameId:
+                      type: number
+                    userId:
+                      type: number
+                    asWin:
+                      type: boolean
+                    score:
+                      type: number
+    '400':
+      description: >-
+        400 is returned when : - Argument could not be parsed as number
+        <br/>
+  tags:
+    - Games
+  security:
+    - TransandanceToken: []

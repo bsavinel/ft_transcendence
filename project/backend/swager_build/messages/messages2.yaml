@@ -1,0 +1,31 @@
+get:
+  operationId: MessagesController_findAllByUserInChan
+  summary: ''
+  description: Returns all messages from a user in a specific channel.
+  parameters:
+    - name: userId
+      required: true
+      in: path
+      schema:
+        type: number
+    - name: chanId
+      required: true
+      in: path
+      schema:
+        type: number
+  responses:
+    '200':
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                content:
+                  type: string
+                createdAt:
+                  type: string
+  tags:
+    - Messages

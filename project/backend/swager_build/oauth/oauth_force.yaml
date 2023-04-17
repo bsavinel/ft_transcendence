@@ -1,0 +1,9 @@
+post:
+  operationId: OauthController_force
+  summary: DELETE THIS PATH
+  parameters: []
+  tags:
+    - Oauth
+  responses:
+    '201':
+      description: ''

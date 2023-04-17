@@ -1,0 +1,111 @@
+patch:
+  operationId: ChannelsController_update
+  summary: ''
+  description: >-
+    Update a specified channel: change its password and/or mode. Only
+    CREATOR can do it.
+  parameters:
+    - name: chanId
+      required: true
+      in: path
+      schema:
+        type: number
+  requestBody:
+    required: true
+    description: >-
+      The Description for the Post Body. Please look into the DTO. You will
+      see the @ApiOptionalProperty used to define the Schema.
+    content:
+      application/json:
+        schema:
+          type: string
+        examples:
+          onlyName:
+            summary: Only name update
+            value:
+              channelName: HIHIHIHI
+          onlyPasswd:
+            summary: Only passwd update
+            value:
+              password: niiiiieh
+          pubToProtWithPass:
+            summary: Public chan to Protected with Password
+            value:
+              mode: PROTECTED
+              password: niiiiieh
+          pubToProtNOPass:
+            summary: >-
+              Public chan to Protected WITHOUT Password: should raise an
+              error.
+            value:
+              mode: PROTECTED
+          protToPubWithPass:
+            summary: >-
+              Protected to public/private with password (shouldnt let
+              password in db).
+            value:
+              mode: PUBLIC
+              password: niehpasspouet
+          protToPub:
+            summary: Protected to public/private.
+            value:
+              mode: PUBLIC
+          empty:
+            summary: Empty test
+            value: {}
+          wrongType:
+            summary: wrongType test
+            value:
+              lala: adfs
+              suisworngtye: fdsfsd
+              hashdf: ''
+  responses:
+    '200':
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+  tags:
+    - Channels
+  security:
+    - TransandanceToken: []
+delete:
+  operationId: ChannelsController_remove
+  summary: ''
+  description: >-
+    Delete the specified chan. Upon success, returns the deleted chan. Only
+    CREATOR can do it.
+  parameters:
+    - name: id
+      required: true
+      in: path
+      examples:
+        good:
+          summary: good
+          value: '1'
+        bad:
+          summary: bad
+          value: 43
+        empty:
+          summary: empty
+          value: ''
+        neg:
+          summary: negative
+          value: '-12'
+        string:
+          summary: string
+          value: hahdf
+      schema:
+        type: number
+  responses:
+    '200':
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '../swagShema.yaml#/ChannelEntity'
+  tags:
+    - Channels
+  security:
+    - TransandanceToken: []

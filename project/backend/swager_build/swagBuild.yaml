@@ -1,0 +1,66 @@
+openapi: 3.0.0
+paths:
+  /oauth/refresh:
+    $ref: "./oauth/oauth_refresh.yaml"
+  /oauth/singin:
+    $ref: "./oauth/oauth_singin.yaml"
+  /oauth/force:
+    $ref: "./oauth/oauth_force.yaml"
+  /oauth/disconect:
+    $ref: "./oauth/oauth_disconect.yaml"
+  /oauth/disconectEveryWhere:
+    $ref: "./oauth/oauth_disconectEveryWhere.yaml"
+  /Games:
+    $ref: "./games/games.yaml"
+  /Games/{id}:
+    $ref: "./games/games_id.yaml"
+  /users/{id}:
+    $ref: "./users/users_id.yaml"
+  /users/{id}/friends:
+    $ref: "./users/users_id_friend.yaml"
+  /users/{id}/channel:
+    $ref: "./users/users_id_channel.yaml"
+  /users/addFriend:
+    $ref: "./users/users_addFriend.yaml"
+  /users/addBlockedUser:
+    $ref: "./users/users_addBlockedUser.yaml"
+  /users/deleteFriend/{id}:
+    $ref: "./users/users_deleteFriend_id.yaml"
+  /users/deleteBlockedUser/{id}:
+    $ref: "./users/users_deleteBlockedUser_id.yaml"
+  /users/updateUserName:
+    $ref: "./users/users_updateUserName.yaml"
+  /users/{id}/games:
+    $ref: "./users/users_id_games.yaml"
+  /users/me:
+    $ref: "./users/users_me.yaml"
+  /channels:
+    $ref: "./channels/channels.yaml"
+  /channels/join/{chanId}:
+    $ref: "./channels/channels_join_id.yaml"
+  /channels/{id}:
+    $ref: "./channels/channels_id.yaml"
+  /messages:
+    $ref: "./messages/messages.yaml"
+  /messages/fromuser/{userId}:
+    $ref: "./messages/messages1.yaml"
+  /messages/fromuser/{userId}/inchan/{chanId}:
+    $ref: "./messages/messages2.yaml"
+  /messages/fromchan/{chanId}:
+    $ref: "./messages/messages3.yaml"
+info:
+  title: TRANSCENDENCE
+  description: Our 42 project ft_transcendence API description.
+  version: v1
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    TransandanceToken:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Enter access token for transandance
+  schemas:
+    $ref: "./swagShema.yaml"

@@ -6,7 +6,7 @@
 #    By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/23 10:40:19 by bsavinel          #+#    #+#              #
-#    Updated: 2023/02/25 15:29:24 by bsavinel         ###   ########.fr        #
+#    Updated: 2023/04/14 13:48:22 by bsavinel         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -131,6 +131,13 @@ inFront:
 
 inDatabase:
 	docker-compose exec database /bin/sh
+
+#?###########################################
+#? Regle pour mettre fusionner les swaggers #  
+#?###########################################
+
+swagFusion:
+	docker-compose exec backend npx swagger-cli bundle ./swager_build/swagBuild.yaml --outfile swagger.yaml --type yaml
 
 #!################
 #!     FLAGS     #

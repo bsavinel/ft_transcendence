@@ -1,0 +1,37 @@
+post:
+  operationId: OauthController_signup
+  summary: Connect user to the website
+  description: Use 42 code in the body to create account or connect the user if is already exist 
+  parameters: 
+    - in: body
+      name: code
+      description: The code return by oauth 42
+      schema:
+        type: object
+        required:
+          - code
+        properties:
+          code:
+            type: string
+  tags:
+    - Oauth
+  responses:
+    '201':
+      description: >-
+        Add refreshToken in cokkie in HTTPOnly in path /oauth and give access token
+        and return if is you're first connection
+      content:
+        application/json:
+          schema:
+              type: object
+              required:
+                - accessToken
+                - newUser
+              properties:
+                accessToken:
+                  type: string
+                newUser:
+                  type: boolean 
+    '400':
+      description: >-
+        400 is return if the code is undefined or if is bad or if the 42 api failed

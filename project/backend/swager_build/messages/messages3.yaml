@@ -1,0 +1,32 @@
+get:
+  operationId: MessagesController_findAllByChannel
+  summary: ''
+  description: Returns all messages from a channel.
+  parameters:
+    - name: chanId
+      required: true
+      in: path
+      schema:
+        type: number
+  responses:
+    '200':
+      description: Array of messages.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                content:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+                createdBy:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+  tags:
+    - Messages

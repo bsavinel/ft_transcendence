@@ -1,0 +1,60 @@
+delete:
+  operationId: UsersController_deleteFriend
+  summary: ''
+  description: Delete one friend
+  parameters:
+    - name: id
+      required: true
+      in: path
+      description: Id of the user for whom we want to delete a friend
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: User id is 1
+          value: '1'
+        b:
+          summary: User id is 42
+          value: '42'
+      schema:
+        type: string
+    - name: friendId
+      required: true
+      in: query
+      description: Id of this friend
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: Friend id is 2
+          value: '2'
+        b:
+          summary: Friend id is 42
+          value: '42'
+      schema:
+        type: string
+  responses:
+    '200':
+      description: SUCCESS response
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - AvatarUrl
+            properties:
+              id:
+                type: number
+              updatedAt:
+                type: string
+              username:
+                type: string
+              AvatarUrl:
+                type: string
+    '400':
+      description: >-
+        This description is for a 400 response. It is returned when
+        additional query params are passed, or when the
+        <b>useExclamation</b>-Argument could not be parsed as a boolean.
+  tags:
+    - Users

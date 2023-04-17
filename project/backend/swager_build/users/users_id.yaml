@@ -1,0 +1,94 @@
+get:
+  operationId: UsersController_findById
+  summary: ''
+  description: Return all properties for one user OR throw an error
+  parameters:
+    - name: id
+      required: true
+      in: path
+      description: Id of the user we want to find in the database.
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: User id is 1
+          value: '1'
+        b:
+          summary: User id is 42
+          value: '42'
+      schema:
+        type: string
+    - name: friend
+      required: true
+      in: query
+      description: Get the user friend ?
+      allowEmptyValue: true
+      examples:
+        a:
+          summary: '?friend=true'
+          value: 'true'
+        b:
+          summary: '?friend=false'
+          value: 'false'
+      schema:
+        type: string
+    - name: channel
+      required: true
+      in: query
+      description: Get the user channel ?
+      allowEmptyValue: true
+      examples:
+        a:
+          summary: '?channel=true'
+          value: 'true'
+        b:
+          summary: '?channel=false'
+          value: 'false'
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Return an object containing the user info + ?{friend/channel}
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - AvatarUrl
+            properties:
+              id:
+                type: number
+              username:
+                type: string
+              avatarUrl:
+                type: string
+              friends:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    username:
+                      type: string
+                    avatarUrl:
+                      type: string
+              channelsProfiles:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    channelId:
+                      type: number
+                    role:
+                      type: string
+                    channel:
+                      type: object
+                      items:
+                        type: object
+                        properties:
+                          channelName:
+                            type: string
+  tags:
+    - Users

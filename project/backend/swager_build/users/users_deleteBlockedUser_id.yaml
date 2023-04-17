@@ -1,0 +1,48 @@
+delete:
+  operationId: UsersController_deleteBlockedUser
+  summary: ''
+  description: Delete one blocked user
+  parameters:
+    - name: friendId
+      required: true
+      in: query
+      schema:
+        type: string
+    - name: id
+      required: true
+      in: path
+      description: Id of the user for whom we want to get the list of his friend users.
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: User id is 1
+          value: '1'
+        b:
+          summary: User id is 42
+          value: '42'
+      schema: {}
+  responses:
+    '200':
+      description: A FAIRE
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - AvatarUrl
+            properties:
+              id:
+                type: number
+              username:
+                type: string
+              AvatarUrl:
+                type: string
+    '400':
+      description: >-
+        This description is for a 400 response. It is returned when
+        additional query params are passed, or when the
+        <b>useExclamation</b>-Argument could not be parsed as a boolean.
+  tags:
+    - Users

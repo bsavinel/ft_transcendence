@@ -1,0 +1,1188 @@
+openapi: 3.0.0
+paths:
+  /oauth/refresh:
+    get:
+      operationId: OauthController_getNewToken
+      summary: Get new refresh and access token
+      description: get new access token and refressh token to can continue to do request
+      parameters: []
+      tags:
+        - Oauth
+      responses:
+        '200':
+          description: 'The refresh work, new accessToken is return and new refreshToken is  set in httpOnly with /oauth path'
+          content:
+            application/json:
+              shema:
+                type: object
+                required:
+                  - accessToken
+                properties:
+                  accessToken:
+                    type: string
+        '403':
+          description: '403 is returned when: <br/>- ''refreshToken'' cookie is not set <br/> -  It''s false refresh token <br/>- The refresh token is expire <br/> -  The refreshToken is already use (disconectFromEvryWhere is launch)'
+  /oauth/singin:
+    post:
+      operationId: OauthController_signup
+      summary: Connect user to the website
+      description: Use 42 code in the body to create account or connect the user if is already exist
+      parameters:
+        - in: body
+          name: code
+          description: The code return by oauth 42
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+      tags:
+        - Oauth
+      responses:
+        '201':
+          description: Add refreshToken in cokkie in HTTPOnly in path /oauth and give access token and return if is you're first connection
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accessToken
+                  - newUser
+                properties:
+                  accessToken:
+                    type: string
+                  newUser:
+                    type: boolean
+        '400':
+          description: 400 is return if the code is undefined or if is bad or if the 42 api failed
+  /oauth/force:
+    post:
+      operationId: OauthController_force
+      summary: DELETE THIS PATH
+      parameters: []
+      tags:
+        - Oauth
+      responses:
+        '201':
+          description: ''
+  /oauth/disconect:
+    delete:
+      operationId: OauthController_disconect
+      description: disable the refresh token in the cookie
+      summary: Disconect user
+      parameters: []
+      tags:
+        - Oauth
+      responses:
+        '200':
+          description: The disconection work
+        '403':
+          description: '403 is returned when: <br/>- ''refreshToken'' cookie is not set <br/> -  It''s false refresh token <br/>- The refresh token is expire <br/> -  The refreshToken is already use (disconectFromEvryWhere is launch)'
+  /oauth/disconectEveryWhere:
+    delete:
+      operationId: OauthController_disconectEveryWhere
+      summary: Disconect user from every navigator
+      description: disable all refresh token of the user
+      parameters: []
+      tags:
+        - Oauth
+      responses:
+        '200':
+          description: The disconection work
+        '403':
+          description: '403 is returned when: <br/>- ''refreshToken'' cookie is not set <br/> -  It''s false refresh token <br/>- The refresh token is expire <br/> -  The refreshToken is already use (disconectFromEvryWhere is launch)'
+  /Games:
+    get:
+      operationId: GameController_getAllGames
+      summary: Get all games
+      parameters:
+        - name: limit
+          required: true
+          in: query
+          description: Limit of games to get (default and maximum 50)
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: Get 37 games
+              value: '37'
+          schema:
+            type: number
+        - name: idFirst
+          required: true
+          in: query
+          description: Id to start the next get
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: Start after game with id 27
+              value: '27'
+          schema:
+            type: number
+      responses:
+        '200':
+          description: 'Return an array containing limit games, from idFirst from the youngest game to the oldest game'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - winnerId
+                    - isFinish
+                    - createdAt
+                    - players
+                  properties:
+                    id:
+                      type: number
+                    winnerId:
+                      type: number
+                    isFinish:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      format: date-time
+                    players:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - id
+                          - gameId
+                          - userId
+                          - asWin
+                          - score
+                        properties:
+                          id:
+                            type: number
+                          gameId:
+                            type: number
+                          userId:
+                            type: number
+                          asWin:
+                            type: boolean
+                          score:
+                            type: number
+        '400':
+          description: '400 is returned when : <br/>- Additional query params are passed <br/>- Argument could not be parsed as number <br/>- ''idFirst'' or ''limit'' is negative'
+      tags:
+        - Games
+      security:
+        - TransandanceToken: []
+  '/Games/{id}':
+    get:
+      operationId: GameController_getGame
+      summary: Get game with id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the game to get
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: Game with id 1
+              value: '1'
+            b:
+              summary: Game with id 27
+              value: '27'
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Return the game with the id passed in parameter
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - winnerId
+                  - isFinish
+                  - createdAt
+                  - players
+                properties:
+                  id:
+                    type: number
+                  winnerId:
+                    type: number
+                  isFinish:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    format: date-time
+                  players:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - gameId
+                        - userId
+                        - asWin
+                        - score
+                      properties:
+                        id:
+                          type: number
+                        gameId:
+                          type: number
+                        userId:
+                          type: number
+                        asWin:
+                          type: boolean
+                        score:
+                          type: number
+        '400':
+          description: '400 is returned when : - Argument could not be parsed as number <br/>'
+      tags:
+        - Games
+      security:
+        - TransandanceToken: []
+  '/users/{id}':
+    get:
+      operationId: UsersController_findById
+      summary: ''
+      description: Return all properties for one user OR throw an error
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the user we want to find in the database.
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: User id is 1
+              value: '1'
+            b:
+              summary: User id is 42
+              value: '42'
+          schema:
+            type: string
+        - name: friend
+          required: true
+          in: query
+          description: Get the user friend ?
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: '?friend=true'
+              value: 'true'
+            b:
+              summary: '?friend=false'
+              value: 'false'
+          schema:
+            type: string
+        - name: channel
+          required: true
+          in: query
+          description: Get the user channel ?
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: '?channel=true'
+              value: 'true'
+            b:
+              summary: '?channel=false'
+              value: 'false'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Return an object containing the user info + ?{friend/channel}'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  avatarUrl:
+                    type: string
+                  friends:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        username:
+                          type: string
+                        avatarUrl:
+                          type: string
+                  channelsProfiles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        channelId:
+                          type: number
+                        role:
+                          type: string
+                        channel:
+                          type: object
+                          items:
+                            type: object
+                            properties:
+                              channelName:
+                                type: string
+      tags:
+        - Users
+  '/users/{id}/friends':
+    get:
+      operationId: UsersController_allFriends
+      summary: ''
+      description: Return an array of friends
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the user for whom we want to get the list of his friend users.
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: User id is 1
+              value: '1'
+            b:
+              summary: User id is 42
+              value: '42'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A FAIRE
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+        '417':
+          description: 'One can also provided a Status-Code directly, as seen here'
+      tags:
+        - Users
+  '/users/{id}/channel':
+    get:
+      operationId: UsersController_allUserChannel
+      summary: ''
+      description: Return an array of channel
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the user for whom we want to get the list of his channel
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: User id is 1
+              value: '1'
+            b:
+              summary: User id is 42
+              value: '42'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A FAIRE
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+        '417':
+          description: 'One can also provided a Status-Code directly, as seen here'
+      tags:
+        - Users
+  /users/addFriend:
+    post:
+      operationId: UsersController_addFriend
+      summary: ''
+      description: Add new friend
+      parameters: []
+      requestBody:
+        required: true
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              a:
+                summary: Invalid Body
+                description: '{ friendId: id } required. (id: number)'
+                value: {}
+              b:
+                summary: Valid Body
+                value:
+                  friendId: 1
+      responses:
+        '200':
+          description: A FAIRE
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+      tags:
+        - Users
+  /users/addBlockedUser:
+    post:
+      operationId: UsersController_addBlockedUser
+      summary: ''
+      description: Add new blocked user
+      parameters: []
+      requestBody:
+        required: true
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              a:
+                summary: Invalid Body
+                value: {}
+              b:
+                summary: Valid Body
+                value:
+                  blockedId: 1
+      responses:
+        '200':
+          description: A FAIRE
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+      tags:
+        - Users
+  '/users/deleteFriend/{id}':
+    delete:
+      operationId: UsersController_deleteFriend
+      summary: ''
+      description: Delete one friend
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the user for whom we want to delete a friend
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: User id is 1
+              value: '1'
+            b:
+              summary: User id is 42
+              value: '42'
+          schema:
+            type: string
+        - name: friendId
+          required: true
+          in: query
+          description: Id of this friend
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: Friend id is 2
+              value: '2'
+            b:
+              summary: Friend id is 42
+              value: '42'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESS response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  updatedAt:
+                    type: string
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+      tags:
+        - Users
+  '/users/deleteBlockedUser/{id}':
+    delete:
+      operationId: UsersController_deleteBlockedUser
+      summary: ''
+      description: Delete one blocked user
+      parameters:
+        - name: friendId
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: id
+          required: true
+          in: path
+          description: Id of the user for whom we want to get the list of his friend users.
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: User id is 1
+              value: '1'
+            b:
+              summary: User id is 42
+              value: '42'
+          schema: {}
+      responses:
+        '200':
+          description: A FAIRE
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - username
+                  - AvatarUrl
+                properties:
+                  id:
+                    type: number
+                  username:
+                    type: string
+                  AvatarUrl:
+                    type: string
+        '400':
+          description: 'This description is for a 400 response. It is returned when additional query params are passed, or when the <b>useExclamation</b>-Argument could not be parsed as a boolean.'
+      tags:
+        - Users
+  /users/updateUserName:
+    patch:
+      operationId: UsersController_updateUserName
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+      tags:
+        - Users
+  '/users/{id}/games':
+    get:
+      operationId: UsersController_getGameOfUser
+      summary: Get games of user with is id
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Id of the player
+          allowEmptyValue: false
+          examples:
+            a:
+              summary: Palyer with id 1
+              value: '1'
+            b:
+              summary: Player with id 27
+              value: '27'
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          description: Limit of games to get (default and maximum 50)
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: Get 37 games
+              value: '37'
+          schema:
+            type: number
+        - name: idFirst
+          required: true
+          in: query
+          description: Id to start the next get
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: Start after game with id 27
+              value: '27'
+          schema:
+            type: number
+        - name: asWin
+          required: true
+          in: query
+          description: Only get games where the user win or lose
+          allowEmptyValue: true
+          examples:
+            a:
+              summary: Game win
+              value: 'true'
+            b:
+              summary: Game Lose
+              value: 'false'
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 'Return an array containing {limit} games of one player, from idFirst from the youngest game to the oldest game'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - winnerId
+                    - isFinish
+                    - createdAt
+                    - players
+                  properties:
+                    id:
+                      type: number
+                    winnerId:
+                      type: number
+                    isFinish:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      format: date-time
+                    players:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - id
+                          - gameId
+                          - userId
+                          - asWin
+                          - score
+                        properties:
+                          id:
+                            type: number
+                          gameId:
+                            type: number
+                          userId:
+                            type: number
+                          asWin:
+                            type: boolean
+                          score:
+                            type: number
+        '400':
+          description: '400 is returned when : <br/>- Additional query params are passed <br/>- Argument could not be parsed as number <br/>- ''idFirst'' or ''limit'' is negative <br/>- ''asWin'' is not ''true'' or ''false'''
+      tags:
+        - Users
+  /users/me:
+    get:
+      operationId: UsersController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Users
+  /channels:
+    post:
+      operationId: ChannelsController_create
+      summary: ''
+      description: ' Create a new Channel AND a new UserOnChannel (with the current user who made the request as the userId and the newly created chan as chanId). Upon success returns the new chan infos.'
+      parameters: []
+      requestBody:
+        required: true
+        description: The Description for the Post Body. Please look into the DTO. You will see the @ApiOptionalProperty used to define the Schema.
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              good:
+                summary: Basic Body
+                value:
+                  mode: PRIVATE
+                  channelName: string
+              empty:
+                summary: Empty Body
+                description: Empty
+                value: {}
+              withId:
+                summary: With Id
+                description: Check the id is not pris en compte.
+                value:
+                  mode: PRIVATE
+                  channelName: string
+                  id: 1
+              PubWithPassword:
+                summary: Pub With Password
+                description: Check the Password is not pris en compte.
+                value:
+                  mode: PUBLIC
+                  channelName: PubWithPass
+                  password: JeSuisUnPassword
+              PrivWithPassword:
+                summary: Priv With Password
+                description: Check the Password is not pris en compte.
+                value:
+                  mode: PRIVATE
+                  channelName: PrivWithPass
+                  password: JeSuisUnPassword
+              ProtWithPassword:
+                summary: Prot With Password
+                description: Check the Password is pris en compte.
+                value:
+                  mode: PROTECTED
+                  channelName: ProtWithPass
+                  password: JeSuisUnPassword
+              ProtWithNoPassword:
+                summary: Prot With NO Password
+                description: Should raise an error.
+                value:
+                  mode: PROTECTED
+                  channelName: ProtWithNoPass
+              PubWithNOPassword:
+                summary: Pub With no Password
+                description: Check the Password is not pris en compte.
+                value:
+                  mode: PUBLIC
+                  channelName: PubWithPass
+              withWrongType:
+                summary: With WrongType
+                description: Wrong attribute pass
+                value:
+                  mode: PUBLIC
+                  channelName: string
+                  nieh: llalalala
+              withEmptyDefinedName:
+                summary: With EmptyDefinedName
+                description: Attribute channelName defined but only ws
+                value:
+                  mode: PUBLIC
+                  channelName: '                   '
+              withTrimableName:
+                summary: With TrimableName
+                description: Attribute channelName with spaces between words (check to see if those spaces are not trimmed)
+                value:
+                  mode: PUBLIC
+                  channelName: '    lalala je veux etre TRIM               '
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelEntity'
+      tags:
+        - Channels
+      security:
+        - TransandanceToken: []
+    get:
+      operationId: ChannelsController_suscribedChannels
+      summary: ''
+      description: Returns a list of the user`s suscribed channels.
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Channels
+      security:
+        - TransandanceToken: []
+  '/channels/join/{chanId}':
+    post:
+      operationId: ChannelsController_joinChan
+      summary: ''
+      description: Join a channel (create a new useronChannel record). Only permitted to non BANNED users.
+      parameters:
+        - name: chanId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+      tags:
+        - Channels
+      security:
+        - TransandanceToken: []
+  '/channels/{id}':
+    patch:
+      operationId: ChannelsController_update
+      summary: ''
+      description: 'Update a specified channel: change its password and/or mode. Only CREATOR can do it.'
+      parameters:
+        - name: chanId
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        description: The Description for the Post Body. Please look into the DTO. You will see the @ApiOptionalProperty used to define the Schema.
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              onlyName:
+                summary: Only name update
+                value:
+                  channelName: HIHIHIHI
+              onlyPasswd:
+                summary: Only passwd update
+                value:
+                  password: niiiiieh
+              pubToProtWithPass:
+                summary: Public chan to Protected with Password
+                value:
+                  mode: PROTECTED
+                  password: niiiiieh
+              pubToProtNOPass:
+                summary: 'Public chan to Protected WITHOUT Password: should raise an error.'
+                value:
+                  mode: PROTECTED
+              protToPubWithPass:
+                summary: Protected to public/private with password (shouldnt let password in db).
+                value:
+                  mode: PUBLIC
+                  password: niehpasspouet
+              protToPub:
+                summary: Protected to public/private.
+                value:
+                  mode: PUBLIC
+              empty:
+                summary: Empty test
+                value: {}
+              wrongType:
+                summary: wrongType test
+                value:
+                  lala: adfs
+                  suisworngtye: fdsfsd
+                  hashdf: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags:
+        - Channels
+      security:
+        - TransandanceToken: []
+    delete:
+      operationId: ChannelsController_remove
+      summary: ''
+      description: 'Delete the specified chan. Upon success, returns the deleted chan. Only CREATOR can do it.'
+      parameters:
+        - name: id
+          required: true
+          in: path
+          examples:
+            good:
+              summary: good
+              value: '1'
+            bad:
+              summary: bad
+              value: 43
+            empty:
+              summary: empty
+              value: ''
+            neg:
+              summary: negative
+              value: '-12'
+            string:
+              summary: string
+              value: hahdf
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelEntity'
+      tags:
+        - Channels
+      security:
+        - TransandanceToken: []
+  /messages:
+    post:
+      operationId: MessagesController_create
+      summary: ''
+      description: Post a message
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+      tags:
+        - Messages
+  '/messages/fromuser/{userId}':
+    get:
+      operationId: MessagesController_findAllByUser
+      summary: ''
+      description: Returns one channel all messages.
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                    createdAt:
+                      type: string
+                    channelId:
+                      type: number
+      tags:
+        - Messages
+  '/messages/fromuser/{userId}/inchan/{chanId}':
+    get:
+      operationId: MessagesController_findAllByUserInChan
+      summary: ''
+      description: Returns all messages from a user in a specific channel.
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: chanId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                    createdAt:
+                      type: string
+      tags:
+        - Messages
+  '/messages/fromchan/{chanId}':
+    get:
+      operationId: MessagesController_findAllByChannel
+      summary: ''
+      description: Returns all messages from a channel.
+      parameters:
+        - name: chanId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Array of messages.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    createdBy:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+      tags:
+        - Messages
+info:
+  title: TRANSCENDENCE
+  description: Our 42 project ft_transcendence API description.
+  version: v1
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    TransandanceToken:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Enter access token for transandance
+  schemas:
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        avatarUrl:
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        friends:
+          type: array
+          items:
+            type: object
+        channelsProfiles:
+          type: array
+          items:
+            type: object
+        createdAt:
+          format: date-time
+          type: string
+        id42:
+          type: number
+      required:
+        - id
+        - username
+        - avatarUrl
+        - updatedAt
+        - createdAt
+        - id42
+    ChannelEntity:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - PRIVATE
+            - PUBLIC
+            - PROTECTED
+        id:
+          type: number
+        createdAt:
+          format: date-time
+          type: string
+        updateAt:
+          format: date-time
+          type: string
+        channelName:
+          type: string
+          minLength: 5
+          maxLength: 30
+      required:
+        - mode
+        - id
+        - createdAt
+        - updateAt
+        - channelName
+    CreateMessageDto:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 255
+        creatorId:
+          type: number
+        channelId:
+          type: number
+      required:
+        - content
+        - creatorId
+        - channelId

@@ -1,0 +1,8 @@
+get:
+  operationId: UsersController_me
+  parameters: []
+  responses:
+    '200':
+      description: ''
+  tags:
+    - Users

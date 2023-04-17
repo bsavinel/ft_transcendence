@@ -1,0 +1,73 @@
+UserEntity:
+  type: object
+  properties:
+    id:
+      type: number
+    username:
+      type: string
+    avatarUrl:
+      type: string
+    updatedAt:
+      format: date-time
+      type: string
+    friends:
+      type: array
+      items:
+        type: object
+    channelsProfiles:
+      type: array
+      items:
+        type: object
+    createdAt:
+      format: date-time
+      type: string
+    id42:
+      type: number
+  required:
+    - id
+    - username
+    - avatarUrl
+    - updatedAt
+    - createdAt
+    - id42
+ChannelEntity:
+  type: object
+  properties:
+    mode:
+      type: string
+      enum:
+        - PRIVATE
+        - PUBLIC
+        - PROTECTED
+    id:
+      type: number
+    createdAt:
+      format: date-time
+      type: string
+    updateAt:
+      format: date-time
+      type: string
+    channelName:
+      type: string
+      minLength: 5
+      maxLength: 30
+  required:
+    - mode
+    - id
+    - createdAt
+    - updateAt
+    - channelName
+CreateMessageDto:
+  type: object
+  properties:
+    content:
+      type: string
+      maxLength: 255
+    creatorId:
+      type: number
+    channelId:
+      type: number
+  required:
+    - content
+    - creatorId
+    - channelId

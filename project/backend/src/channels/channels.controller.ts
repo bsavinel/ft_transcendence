@@ -222,7 +222,6 @@ export class ChannelsController {
 	@UseGuards(ChanRoleGuard)
 	async update(
 		@Param('chanId') chanId: number,
-		@Param('me') me: number,
 		@Body() updateChannelDto: UpdateChannelDto
 	): Promise<Partial<ChannelEntity>> {
 		return new ChannelEntity(

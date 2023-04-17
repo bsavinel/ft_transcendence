@@ -1,0 +1,46 @@
+get:
+  operationId: UsersController_allFriends
+  summary: ''
+  description: Return an array of friends
+  parameters:
+    - name: id
+      required: true
+      in: path
+      description: Id of the user for whom we want to get the list of his friend users.
+      allowEmptyValue: false
+      examples:
+        a:
+          summary: User id is 1
+          value: '1'
+        b:
+          summary: User id is 42
+          value: '42'
+      schema:
+        type: string
+  responses:
+    '200':
+      description: A FAIRE
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - AvatarUrl
+            properties:
+              id:
+                type: number
+              username:
+                type: string
+              AvatarUrl:
+                type: string
+    '400':
+      description: >-
+        This description is for a 400 response. It is returned when
+        additional query params are passed, or when the
+        <b>useExclamation</b>-Argument could not be parsed as a boolean.
+    '417':
+      description: One can also provided a Status-Code directly, as seen here
+  tags:
+    - Users
