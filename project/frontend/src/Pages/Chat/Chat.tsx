@@ -1,5 +1,5 @@
-import { socket } from '../../Component/Chat/ChatSocketContext';
-import { useState, useEffect } from 'react';
+import {ChatSocketContext} from '../../Component/Chat/ChatSocketContext';
+import { useState, useEffect, useContext } from 'react';
 import ChannelList from '../../Component/Chat/ChannelList';
 import ChatRoom from '../../Component/Chat/ChatRoom';
 import { MessageDto, ChanelDto } from '../../Component/Chat/hardCodedValues';
@@ -21,6 +21,7 @@ export interface createChannelDto {
 }
 
 export default function Chat() {
+	const socket = useContext(ChatSocketContext);
 	//TODO: verifier partout si 0 channel (message list aussi)
 	const [channelList, setChannelList] = useState<ChanelDto[]>([]);
 	const [messagesList, setMessagesList] = useState<MessageDto[]>([]);
@@ -130,7 +131,7 @@ export default function Chat() {
 			content: newMsg,
 			channelId: selectedChannel?.id as number,
 		};
-		socket.emit('newMsg', toSend);
+		socket?.emit('newMsg', toSend);
 	}
 
 	async function addMsg(newMsg: socketMsgDto) {
@@ -147,14 +148,14 @@ export default function Chat() {
 	}
 
 	useEffect(() => {
-		socket.on('connect', () => console.log('Connected from chatroom'));
-		socket.on('afterNewMessage', (data: socketMsgDto) => {
+		socket?.on('connect', () => console.log('Connected from chatroom'));
+		socket?.on('afterNewMessage', (data: socketMsgDto) => {
 			console.log('new msg received: ' + data);
 			addMsg(data);
 		});
 		return () => {
-			socket.off('connect');
-			socket.off('afterNewMessage');
+			socket?.off('connect');
+			socket?.off('afterNewMessage');
 		};
 	});
 

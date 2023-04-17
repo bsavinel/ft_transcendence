@@ -13,6 +13,7 @@ import LogGuard from './conditionalRender';
 import BrutForce from './Pages/BrutForce/BrutForce';
 
 import './index.css';
+import LoginPage from './Pages/LoginPage/LoginPage';
 
 const dark = createTheme({
 	palette: {
@@ -73,10 +74,7 @@ export default function App() {
 							<Route index element={<Home />} />
 							<Route path="game/*" element={<Game />} />
 							<Route path="chat" element={<Chat />} />
-							<Route
-								path="setting"
-								element={<Setting  />}
-							/>
+							<Route path="setting" element={<Setting  />} />
 							<Route path="*" element={<NoMatch />} />
 						</Route>
 					</Route>

@@ -4,6 +4,8 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import "./LoginPage.css";
 import "./Fleche.scss";
 import "./stars.scss";
+import {Navigate} from "react-router-dom";
+import {getAccess} from "../../utils/ApiClient";
 
 interface interfaceBodyApi {
 	client_id: string;
@@ -55,7 +57,6 @@ export default function LoginPage() {
 			behavior: "smooth",
 		});
 	};
-
 	return (
 		<>
 			<div id="backgroudStars">

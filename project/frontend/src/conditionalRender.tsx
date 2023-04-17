@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import ApiClient, { getAccess } from './utils/ApiClient';
+import {ChatSocketProvider} from './Component/Chat/ChatSocketContext';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 interface CheckLog {
@@ -34,6 +35,8 @@ export default function LogGuard() {
 	//TODO mettre une vrai page de login
 	// console.log(checkLog);
 	if (checkLog.isLoading) return <div>loading</div>; 
-	else if (checkLog.isLogged) return <Outlet />;
-	else return <LoginPage />;
+	else {
+		return (checkLog.isLogged ? <ChatSocketProvider> <Outlet/> </ChatSocketProvider> : <LoginPage/>);
+	}
+
 }

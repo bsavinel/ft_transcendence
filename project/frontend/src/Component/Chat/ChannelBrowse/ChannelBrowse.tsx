@@ -1,13 +1,14 @@
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import {Alert, Collapse, ListItemButton, ListItemIcon, ListItemText, Snackbar } from "@mui/material";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useContext} from "react";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ApiClient, {getAccessContent} from "../../../utils/ApiClient";
 import LockIcon from '@mui/icons-material/Lock';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {socket} from "../ChatSocketContext";
 import ModalChannelPub from "./ModalChannelPub";
 import ModalChannelPro from "./ModalChannelPro";
+import { ChatSocketContext } from '../ChatSocketContext';
+import { Socket } from 'socket.io-client';
 
 interface ChannelBrowseDto {
 	id: number,
@@ -29,6 +30,7 @@ export default function ChannelBrowse() {
 	const [chan, setChan] = useState<ChannelBrowseDto[]>();
 	const [skip, setSkip] = useState<number>(0);
 	const [take, setTake] = useState<number>(5);
+	const socket = useContext(ChatSocketContext);
 	const chanListItem = chan?.map((data: ChannelBrowseDto) => 
 		<ListItemButton key={data.id} onClick={data.mode === "PROTECTED" ? 
 			() => { setCurrentChannel(data); handleModalPro() } : 
@@ -81,22 +83,22 @@ export default function ChannelBrowse() {
 	}
 
 	function joinPublicChannel() {
-		socket.emit('joinRoom', { user: getAccessContent()?.userId, chanId: currentChannel?.id });
+		socket?.emit('joinRoom', { user: getAccessContent()?.userId, chanId: currentChannel?.id });
 		setOpenSnackSuccess(true);
 		//FIXME
 		//return validation socket + Snackbar conditional
 	}
 
 	function joinProtectedChannel() {
-		socket.emit('joinProtectedRoom', { user: getAccessContent()?.userId, chanId: currentChannel?.id, pwd: inputPwd });
+		socket?.emit('joinProtectedRoom', { user: getAccessContent()?.userId, chanId: currentChannel?.id, pwd: inputPwd });
 	}
 
 	useEffect(() => {
-		socket.on('badPassword', () => handlePwd(false));
-		socket.on('validPassword', () => handlePwd(true));
+		socket?.on('badPassword', () => handlePwd(false));
+		socket?.on('validPassword', () => handlePwd(true));
 		return (() => {
-			socket.off('badPassword');
-			socket.off('validPassword');
+			socket?.off('badPassword');
+			socket?.off('validPassword');
 		});
 	},[openModalPro]);
 
