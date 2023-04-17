@@ -21,7 +21,7 @@ export default function ChatRoom({ messagesList, sendMessage, inputDisabled }: C
     const [newMsg, setNewMsg] = useState('');
 
     //TODO: comment enlever ces warning sur les undefined???
-    const myId: number = getAccessContent()?.userId;
+    const myId: number = getAccessContent()?.userId as number;
 
     // PB CSS qui marche une fois sur 15 resolu
     // https://mui.com/material-ui/guides/interoperability/#css-injection-order-2

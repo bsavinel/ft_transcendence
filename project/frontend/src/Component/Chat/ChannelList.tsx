@@ -34,7 +34,7 @@ export default function ChannelList({channelList, setChannelList, selectedChanne
     }
 
     //TODO: comment enlever ces warning sur les undefined???
-    const myId: number = getAccessContent()?.userId;
+    const myId: number = getAccessContent()?.userId as number;
     const channelItems = channelList?.map((data: ChanelDto) =>
         <ListItemButton
             onClick={() => handleSelectChan(data)}
