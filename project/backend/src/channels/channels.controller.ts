@@ -11,6 +11,7 @@ import {
 	ClassSerializerInterceptor,
 	ParseIntPipe,
 	UseGuards,
+	Query,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { UpdateChannelDto } from './dto/update-channel.dto';
@@ -28,6 +29,7 @@ import { RequestWithAccess } from '../type/token.type';
 import { Roles } from './roles.decorator';
 import { roleChannel } from '@prisma/client';
 import { ChanRoleGuard } from './channels.roles.guard';
+import { off } from 'process';
 
 @Controller('channels')
 // Used to group endpoints in swagger
@@ -144,6 +146,7 @@ export class ChannelsController {
 		description:
 			'Join a channel (create a new useronChannel record). Only permitted to non BANNED users.',
 	})
+	// Interdit aux users BAN de join le chan
 	@Roles(roleChannel.USER, roleChannel.CREATOR, roleChannel.ADMIN, null)
 	@UseGuards(ChanRoleGuard)
 	@Post('join/:chanId')
@@ -155,12 +158,21 @@ export class ChannelsController {
 		return await this.channelsService.joinChan(me, chanId);
 	}
 
-	// @ApiOperation({ description: 'Return all channels' })
-	// @Get()
-	// async findAll(): Promise<ChannelEntity[]> {
-	// 	const chans = await this.channelsService.findAll();
-	// 	return chans.map((chan) => new ChannelEntity(chan));
-	// }
+	@ApiOperation({
+		description: 'Return all messages from the {chanId} channel (a )',
+	})
+	@Roles(roleChannel.USER, roleChannel.CREATOR, roleChannel.ADMIN, null)
+	@UseGuards(ChanRoleGuard)
+	@Get('/messages/:chanId')
+	async getMessages(
+		@Req() rqst: RequestWithAccess,
+		@Param('chanId', ParseIntPipe) chanId: number
+	) {
+		return await this.channelsService.getMessages(
+			rqst.accessToken.userId,
+			chanId
+		);
+	}
 
 	@ApiOperation({
 		description: 'Returns a list of the user`s suscribed channels.',
@@ -169,7 +181,6 @@ export class ChannelsController {
 	async suscribedChannels(@Req() rqst: RequestWithAccess) {
 		const me = rqst.accessToken.userId;
 		console.log('Suscribed channels request for me = ' + me);
-		//TODO: faire un truc plus beau/propre ou penser a un interceptor our new DTO?
 		return await this.channelsService.suscribedChannels(me);
 	}
 
@@ -221,7 +232,8 @@ export class ChannelsController {
 	@Roles(roleChannel.CREATOR)
 	@UseGuards(ChanRoleGuard)
 	async update(
-		@Param('chanId') chanId: number,
+		@Param('chanId', ParseIntPipe) chanId: number,
+		@Param('me') me: number,
 		@Body() updateChannelDto: UpdateChannelDto
 	): Promise<Partial<ChannelEntity>> {
 		return new ChannelEntity(
@@ -243,12 +255,47 @@ export class ChannelsController {
 			string: { summary: 'string', value: 'hahdf' },
 		},
 	})
+	@Delete('leave/:chanId')
+	@UseGuards(ChanRoleGuard)
+	async leaveChannel(
+		@Req() rqst: RequestWithAccess,
+		@Param('chanId', ParseIntPipe) chanId: number
+	): Promise<string> {
+		return await this.channelsService.leaveChan(
+			rqst.accessToken.userId,
+			chanId
+		);
+	}
+
 	@Delete(':id')
 	@Roles(roleChannel.CREATOR)
 	@UseGuards(ChanRoleGuard)
 	async remove(
-		@Param('id', ParseIntPipe) id: number
+		@Req() rqst: RequestWithAccess,
+		@Param('chanId', ParseIntPipe) chanId: number
 	): Promise<ChannelEntity> {
-		return new ChannelEntity(await this.channelsService.remove(id));
+		return new ChannelEntity(await this.channelsService.remove(chanId));
+	}
+
+	@Get('publicChannel?')
+	async getPublicChannel(@Query('offset') offset: string) {
+		return await this.channelsService.getPublicChannel(+offset);
+	}
+
+	@Get('/protectedChannel?')
+	async getProtectedChannel(@Query('offset') offset: string) {
+		return await this.channelsService.getProtectedChannel(+offset);
+	}
+
+	@Get('/nonPrivateChannel?')
+	async getNonPrivateChannel(
+		@Query('skip') skip: string,
+		@Query('take') take: string
+	): Promise<ChannelEntity[]> {
+		const chan = await this.channelsService.getNonPrivateChannel(
+			+take,
+			+skip
+		);
+		return chan.map((chan) => new ChannelEntity(chan));
 	}
 }

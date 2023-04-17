@@ -9,7 +9,6 @@ export default function Game() {
                 <Route path='play' element={<Play />} />
                 <Route path='spectate' element={<Spectate />} />
             </Routes>
-            <Outlet />
             <h1>GAME PAGE</h1>
             <ul>
                 <li>

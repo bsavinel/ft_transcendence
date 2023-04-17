@@ -12,11 +12,11 @@ async function initialFetch(
 	checkLog: CheckLog,
 	setCheckLog: React.Dispatch<React.SetStateAction<CheckLog>>
 ) {
-	console.log('debut');
+	// console.log('debut');
 	try {
 		await ApiClient.get('/user/me');
 	} catch {}
-	console.log('fin');
+	// console.log('fin');
 	if (getAccess() && checkLog.isLoading)
 		setCheckLog({ isLogged: true, isLoading: false });
 	else if (checkLog.isLoading)
@@ -32,7 +32,7 @@ export default function LogGuard() {
 	initialFetch(checkLog, setCheckLog);
 
 	//TODO mettre une vrai page de login
-	console.log(checkLog);
+	// console.log(checkLog);
 	if (checkLog.isLoading) return <div>loading</div>; 
 	else if (checkLog.isLogged) return <Outlet />;
 	else return <LoginPage />;

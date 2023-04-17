@@ -37,7 +37,7 @@ export class ChannelEntity implements Channel {
 	@IsNotEmpty()
 	@MinLength(12)
 	@Transform(({ value, obj }) =>
-		obj?.mode !== channelMode.PROTECTED ? (value = null) : value
+		obj?.mode !== channelMode.PROTECTED ? (value = null) : value.trim()
 	)
 	@MaxLength(20)
 	password: string;

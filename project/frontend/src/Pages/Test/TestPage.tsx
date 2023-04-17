@@ -31,9 +31,11 @@ async function testInstance(): Promise<void> {
 }
 
 async function testFindById() {
-	// backClient.get("/users/1");
+	// backClient.get("/channels/publicChannel");
+	// backClient.get("/channels/protectedChannel");
+	backClient.get("/channels/nonPrivateChannel?offset=2");
 	// backClient.get("/users/1?friend=true&channel=true");
-	backClient.delete("users/1/deleteFriend?friendId=2");
+	// backClient.delete("users/1/deleteFriend?friendId=2");
 	console.log(getAccessContent());
 }
 

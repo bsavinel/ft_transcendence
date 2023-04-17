@@ -21,7 +21,7 @@ export class PrismaExceptionFilter extends BaseExceptionFilter {
 			const status = HttpStatus.BAD_REQUEST;
 			response.status(status).json({
 				statusCode: status,
-				message: exception.message,
+				message: 'prisma validation exc: ' + exception.message,
 			});
 			return;
 		}
@@ -32,7 +32,7 @@ export class PrismaExceptionFilter extends BaseExceptionFilter {
 				const status = HttpStatus.BAD_REQUEST;
 				response.status(status).json({
 					statusCode: status,
-					message: exception.message,
+					message: 'prisma known  exc: ' + exception.message,
 				});
 				break;
 			}
@@ -40,7 +40,7 @@ export class PrismaExceptionFilter extends BaseExceptionFilter {
 				const status = HttpStatus.NOT_FOUND;
 				response.status(status).json({
 					statusCode: status,
-					message: exception.message,
+					message: 'prisma known  exc: ' + exception.message,
 				});
 				break;
 			}
@@ -48,7 +48,7 @@ export class PrismaExceptionFilter extends BaseExceptionFilter {
 				const status = HttpStatus.CONFLICT;
 				response.status(status).json({
 					statusCode: status,
-					message: exception.message,
+					message: 'prisma known  exc: ' + exception.message,
 				});
 				break;
 			}

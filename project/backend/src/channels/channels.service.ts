@@ -1,18 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateChannelDto } from './dto/create-channel.dto';
-import {
-	channelMode,
-	Prisma,
-	roleChannel,
-	UserOnChannel,
-} from '@prisma/client';
+import { roleChannel, UserOnChannel } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ChannelEntity } from './entities/channel.entity';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import { MessageEntity } from 'src/messages/entities/message.entity';
 
-//TODO: rajouter un join channel? Dans chan ou dans user?
 //TODO: Et rajouter un truc pour set un utilisateur as admin (et remove rights)
-//TODO: remplacer tous les 'me' par le access token id
 @Injectable()
 export class ChannelsService {
 	constructor(private prisma: PrismaService) {}
@@ -21,8 +15,7 @@ export class ChannelsService {
 		createChannelDto: CreateChannelDto,
 		me: number
 	): Promise<ChannelEntity> {
-		// if (createChannelDto?.mode === channelMode.PROTECTED)
-		// 	throw new BadRequestException();
+		console.log(createChannelDto);
 		const newChan: ChannelEntity = await this.prisma.channel.create({
 			data: createChannelDto,
 		});
@@ -48,7 +41,6 @@ export class ChannelsService {
 			channelId: chanId,
 			userId: me,
 		};
-		// await this.prisma.userOnChannel.create({ data: newUserOnChannel });
 		await this.prisma.userOnChannel.upsert({
 			where: {
 				userId_channelId: {
@@ -65,15 +57,14 @@ export class ChannelsService {
 	async suscribedChannels(me: number) {
 		const res = await this.prisma.userOnChannel.findMany({
 			where: { userId: me, role: { not: 'BAN' } },
-			select: {channel: {select: {id: true, channelName: true}}},
+			select: { channel: { select: { id: true, channelName: true } } },
 		});
-		const tab = res.map((data) => (data.channel));
+		const tab = res.map((data) => data.channel);
 		return tab;
 	}
 
 	// TODO: quand un chan est updated, faut y brancher un websocket pour annoncer a tout
 	// le monde la mise a jour
-	// TODO: check presence du password.
 	async update(
 		id: number,
 		updateChannelDto: UpdateChannelDto
@@ -84,11 +75,90 @@ export class ChannelsService {
 		});
 	}
 
-	async remove(id: number): Promise<ChannelEntity> {
-		return await this.prisma.channel.delete({
+	async leaveChan(userId: number, chanId: number): Promise<string> {
+		const participants: UserOnChannel[] = (
+			await this.prisma.userOnChannel.delete({
+				where: {
+					userId_channelId: {
+						userId: userId,
+						channelId: chanId,
+					},
+				},
+				select: {
+					channel: {
+						select: {
+							participants: {
+								where: { userId: { not: userId } },
+							},
+						},
+					},
+				},
+			})
+		).channel.participants;
+		if (participants.length === 0) {
+			await this.prisma.channel.delete({ where: { id: chanId } });
+		}
+		return 'Success';
+	}
+
+	async getMessages(
+		userId: number,
+		chanId: number
+	): Promise<Partial<MessageEntity>[]> {
+		return await this.prisma.message.findMany({
 			where: {
-				id: id,
+				channelId: chanId,
+				createdBy: { blockedBy: { none: { id: userId } } },
+			},
+			orderBy: { createdAt: 'asc' },
+			select: {
+				content: true,
+				createdAt: true,
+				creatorId: true,
+				createdBy: { select: { username: true } },
 			},
 		});
+	}
+
+	async remove(chanId: number): Promise<ChannelEntity> {
+		return await this.prisma.channel.delete({
+			where: {
+				id: chanId,
+			},
+		});
+	}
+
+	async getPublicChannel(offset: number): Promise<any> {
+		const publicChannel = await this.prisma.channel.findMany({
+			where: {
+				mode: { equals: 'PUBLIC' },
+			},
+			take: offset,
+		});
+		console.log('getPublicChannel', publicChannel);
+	}
+
+	async getProtectedChannel(offset: number): Promise<any> {
+		const protectedChannel = await this.prisma.channel.findMany({
+			where: {
+				mode: { equals: 'PROTECTED' },
+			},
+			take: offset,
+		});
+		console.log('getProtectedChannel', protectedChannel);
+	}
+
+	async getNonPrivateChannel(
+		take: number,
+		skip: number
+	): Promise<ChannelEntity[]> {
+		const nonPrivateChannel = await this.prisma.channel.findMany({
+			where: {
+				mode: { not: 'PRIVATE' },
+			},
+			skip: skip,
+			take: take,
+		});
+		return nonPrivateChannel;
 	}
 }

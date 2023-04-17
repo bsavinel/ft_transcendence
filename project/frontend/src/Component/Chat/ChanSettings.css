@@ -1,0 +1,11 @@
+.create-chan-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.create-chan-form > * {
+    margin-block: 5px;
+}
+

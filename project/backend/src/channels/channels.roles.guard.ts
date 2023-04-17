@@ -25,9 +25,7 @@ export class ChanRoleGuard implements CanActivate {
 		}
 		const request = context.switchToHttp().getRequest();
 		const chanId: number = +request.params?.chanId;
-		// TODO: a remplacer par le vrai
-		// const user = request.accessToken.userId;
-		const userId = 1;
+		const userId = request.accessToken.userId;
 		const role: roleChannel = (
 			await this.prisma.userOnChannel.findUnique({
 				where: {
