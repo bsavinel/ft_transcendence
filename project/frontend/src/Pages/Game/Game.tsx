@@ -1,31 +1,216 @@
-import { Link, Outlet, Route, Routes } from 'react-router-dom'
-import Play from './Play/Play';
-import Spectate from './Spectate/Spectate';
+import { Link, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import "./Game.css";
+import React, { useState } from 'react';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import LinearProgress from '@mui/material/LinearProgress';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { socket } from '../../Component/Pong/PongSocketContext';
 
-export default function Game() {
+
+
+export default function HomeGame() {
+  const [isOpenPlayOnline, setIsOpenPlayOnline] = useState<boolean>(false);
+  const [isOpenPlayOnlinePowerUp, setIsOpenPlayOnlinePowerUp] = useState<boolean>(false);
+  const [isOpenPlaySolo, setIsOpenPlaySolo] = useState<boolean>(false);
+  const [launchsolo, setLaunchSolo] = useState<boolean>(false);
+  const [launchGame, setLaunchGame] = useState<boolean>(false);
+  const [playerAvailable, setPlayerAvailable] = useState<boolean>(false);
+  const [timeOut, setTimeOut] = useState<NodeJS.Timeout>();
+  const [levelValue, setLevelValue] = useState<string>("1");
+  const [progress, setProgress] = useState<number>(25);
+  let progressValue = 25;
+
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    if (playerAvailable)
+    {  
+      const interval = setInterval(() => {
+        progressValue += 25;
+        setProgress(progressValue);
+        if (progressValue === 100)
+          clearInterval(interval);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [playerAvailable]);
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setLevelValue(event.target.value as string);
+  };
+
+  const handleOpenPlayOnline = () => {
+    setIsOpenPlayOnline(true);
+    socket.emit("joinMatchmaking");
+  };
+
+  const handleClosePlayOnline = () => {
+    setIsOpenPlayOnline(false);
+    socket.emit("leaveMatchmaking");
+  };
+
+  const handleOpenPlayOnlinePowerUp = () => {
+    setIsOpenPlayOnlinePowerUp(true);
+    socket.emit("joinMatchmakingPowerUp");
+  };
+
+  const handleClosePlayOnlinePowerUp = () => {
+    setIsOpenPlayOnlinePowerUp(false);
+    socket.emit("leaveMatchmakingPowerUp");
+  };
+
+  const handleOpenPlaySolo = () => {
+    setIsOpenPlaySolo(true);
+  };
+
+  const handleClosePlaySolo = () => {
+    setIsOpenPlaySolo(false);
+  };
+
+  const handleLaunchSolo = () => {
+    setIsOpenPlaySolo(false);
+    navigate(`/game/pong-solo?level=${levelValue}`)
+  };
+
+  const SoloPong = () => {
     return (
-        <div className='game'>
-            <Routes>
-                <Route path='play' element={<Play />} />
-                <Route path='spectate' element={<Spectate />} />
-            </Routes>
-            <h1>GAME PAGE</h1>
-            <ul>
-                <li>
-                    <Link to={`play`}>PLAY!</Link>
-                </li>
-                <li>
-                    <Link to={`spectate`}>SPECTATE!</Link>
-                </li>
-            </ul>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget est tristique, commodo leo vel, tincidunt massa. Maecenas ex mi, interdum id suscipit sit amet, aliquet eu orci. Donec semper erat ligula, a dapibus quam posuere at. Vestibulum eu velit a urna cursus sodales. Proin a leo luctus, aliquam lorem ac, malesuada erat. Donec ligula magna, scelerisque et fringilla eget, laoreet vestibulum augue. Aliquam egestas justo vel nulla accumsan semper. Nunc sollicitudin nunc vel quam maximus, non sodales quam laoreet. Aliquam vitae nisi ac enim mollis ornare. Cras at est sed magna mattis rutrum. Donec sit amet est non sem egestas laoreet. Donec feugiat libero venenatis, fringilla nisl id, lobortis arcu. Pellentesque nec facilisis lorem. In sed facilisis velit. Etiam ut arcu at est maximus fringilla non at ligula. Maecenas orci metus, gravida quis placerat eu, aliquet quis nisl.</p>
-            <p>
-                Nunc in lorem metus. Proin interdum turpis in sem semper, id tempus lectus iaculis. Donec in consectetur quam, ac elementum elit. Etiam sed rutrum nisi. Praesent tincidunt quam vitae dui auctor, nec posuere nisi posuere. Ut nec scelerisque mauris, non facilisis libero. Aenean et turpis a eros interdum semper. Aliquam quis nisi a nisl posuere convallis in non ligula. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vivamus consequat ac nunc a porta. Mauris quis ultrices lorem.
-            </p>
-            <p>
-                Quisque in est id ex convallis faucibus at et dui. Vivamus in enim in odio mattis rhoncus id ut nibh. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus id mi orci. Aenean in magna id ex dapibus aliquet. Cras a mauris elit. Aenean purus felis, sollicitudin vitae leo a, volutpat tristique sem. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec tempor nec orci et aliquet. Maecenas viverra ante eget dui condimentum condimentum. Maecenas augue nulla, pellentesque a lobortis in, feugiat ac ipsum.
-
-            </p>
-        </div>
+      <div className='section2'>
+        <h2 className='title2'>SOLO</h2>
+        <p>Le Pong solo vous permet d'affronter une intelligence artificielle avec les pouvoirs. Choisissez le niveau de difficulté qui vous convient et appuyez sur le bouton "PLAY".</p>
+        <Button sx={{ width: '30%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlaySolo}>Lancer une partie</Button>
+        <Dialog open={isOpenPlaySolo} onClose={handleClosePlaySolo}>
+          <DialogTitle>Choisis le niveau de jeu</DialogTitle>
+          <Box sx={{ width: 400 }}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Niveau</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={levelValue}
+                label="Level"
+                onChange={handleChange}
+                sx={{textAlign: 'center'}}
+              >
+                <MenuItem value={1}>Facile</MenuItem>
+                <MenuItem value={2}>Normal</MenuItem>
+                <MenuItem value={3}>Difficile</MenuItem>
+                <MenuItem value={4}>Impossible</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Button variant="contained" color="primary" onClick={handleLaunchSolo}>PLAY</Button>
+          <DialogActions>
+            <Button onClick={handleClosePlaySolo} color="primary">
+              Annuler
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     );
+  };
+  
+  const OnlinePong = () => {
+    return (
+      <div className='section2'>
+        <h2 className='title2'>ONLINE</h2>
+        <p>Le Pong en ligne est un jeu où vous jouez contre un autre joueur en temps réel. Vous pouvez joeur en mode classic ou avec les pouvoirs. Appuyez sur le mode qui vous convient pour lancer la recherche d'un adversaire.</p>
+          <Button sx={{ width: '35%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlayOnline}>Matchmaking Classic</Button>
+          <Dialog className='dialog-point' open={isOpenPlayOnline} onClose={handleClosePlayOnline}>
+            <DialogTitle>Pong Classic Online</DialogTitle>
+            <DialogContent>
+              {playerAvailable && <p>Joueur trouvé !</p>}
+              {!playerAvailable && <p>En attente d'un autre joueur...</p>}
+            </DialogContent>
+            <Box sx={{ width: 400 }}>
+              {!playerAvailable && <LinearProgress />}
+              {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
+            </Box>
+            <DialogActions>
+              <Button onClick={handleClosePlayOnline} color="primary">
+                Annuler
+              </Button>
+            </DialogActions>
+          </Dialog>
+  
+          <Button sx={{ width: '35%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlayOnlinePowerUp}>Matchmaking Power</Button>
+          <Dialog className='dialog-point' open={isOpenPlayOnlinePowerUp} onClose={handleClosePlayOnlinePowerUp}>
+            <DialogTitle>Pong Power Online</DialogTitle>
+            <DialogContent>
+              {!playerAvailable && <p>En attente d'un autre joueur...</p>}
+              {playerAvailable && <p>Joueur trouvé !</p>}
+            </DialogContent>
+            <Box sx={{ width: 400 }}>
+              {!playerAvailable && <LinearProgress />}
+              {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
+            </Box>
+            <DialogActions>
+              <Button onClick={handleClosePlayOnlinePowerUp} color="primary">
+                Annuler
+              </Button>
+            </DialogActions>
+          </Dialog>
+      </div>
+    );
+  };
+  
+
+  useEffect(() => {
+    if (isOpenPlayOnline) {
+      socket.on('connect', () => {
+        console.log('Connected');
+      });
+    }
+    else if (!isOpenPlayOnline)
+    {
+      socket.on("disconnect", (reason) => {
+        console.log('REASON = ', reason);
+        if (reason === "io server disconnect") {
+          // the disconnection was initiated by the server, you need to reconnect manually
+          socket.connect();
+        }
+        // else the socket will automatically try to reconnect
+      });
+    }
+  }, [isOpenPlayOnline]);
+
+  useEffect(() => {
+    socket.on("launchOn", launch => {setLaunchGame(launch)});
+  }, [launchGame]);
+
+  useEffect(() => {
+    if (launchGame)
+    {
+      setPlayerAvailable(true);
+      setTimeOut(setTimeout(() => {
+        setLaunchGame(false);
+        setIsOpenPlayOnline(false);
+        setIsOpenPlayOnlinePowerUp(false);
+        navigate("/game/pong-online")
+      }, 4000))
+    }
+    return () => clearTimeout(timeOut);
+  }, [launchGame, isOpenPlayOnline]);
+
+  return (
+    <div className="container">
+      <h1 className='title1'>PONG GAME</h1>
+      <div className='divBase'>
+        <SoloPong />
+        <OnlinePong />
+      </div>
+      <h1 className='title12'>PONG GAME</h1>
+    </div>
+
+    
+  );
 }

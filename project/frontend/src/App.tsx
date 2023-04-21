@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+// import { SocketProvider } from './Component/Pong/PongSocketContext';
 import Layout from './Pages/Layout/Layout';
 import Home from './Pages/Home/Home';
 import Game from './Pages/Game/Game';
@@ -11,6 +12,9 @@ import NoMatch from './Pages/404';
 import TestPage from './Pages/Test/TestPage';
 import LogGuard from './conditionalRender';
 import BrutForce from './Pages/BrutForce/BrutForce';
+import PongOnline from "./Component/Pong/PongOnline"
+import PongSolo from "./Component/Pong/PongSolo"
+import './index.css';
 
 import './index.css';
 import LoginPage from './Pages/LoginPage/LoginPage';
@@ -72,7 +76,9 @@ export default function App() {
 					<Route path="/" element={<LogGuard />}>
 						<Route path="/" element={<Layout handleTheme={handleTheme}/>}>
 							<Route index element={<Home />} />
-							<Route path="game/*" element={<Game />} />
+							<Route path="game" element={<Game />} />
+							<Route path="game/pong-online" element={<PongOnline />} />
+							<Route path="game/pong-solo" element={<PongSolo location={location}/>} />
 							<Route path="chat" element={<Chat />} />
 							<Route path="setting" element={<Setting  />} />
 							<Route path="*" element={<NoMatch />} />

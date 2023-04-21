@@ -1,0 +1,186 @@
+.gameboard {
+	cursor: none;
+}
+
+.section1 {
+	/* border: 10px solid rgb(124, 124, 124); */
+	/* padding: 20px;
+	margin-bottom: 50px;
+	text-align: center; */
+	box-shadow: 0 0 100px 5px rgba(255, 255, 255, 1);
+	animation: blinkMargin 1s ease-in-out infinite;
+  }
+  
+  @keyframes blinkMargin {
+	  0% {
+		  box-shadow: 0px 0px 10px rgb(0, 0, 0);
+	  }
+	  100% {
+		  box-shadow: 0px 0px 10px rgb(255, 255, 255);
+	  }
+  
+	}
+
+/* Effet envoye */
+.power_ball {
+	fill: rgb(255, 255, 255);
+	filter: drop-shadow(0px 0px 5px rgb(251, 255, 1));
+  }
+
+
+.strike {
+	fill: gold;
+	filter: drop-shadow(0px 0px 5px rgba(247, 204, 10, 0.89));
+	transform-origin: center center;
+	animation: skew 1s ease-in-out infinite;
+  }
+  
+  
+  
+  .mind_control {
+	  fill: purple;
+	  filter: drop-shadow(0px 0px 5px rgba(193, 10, 248, 0.89));
+	}
+	
+	
+	.swing {
+		fill: green;
+		filter: drop-shadow(0px 0px 5px rgba(30, 247, 10, 0.89));
+		transform-origin: center center;
+		animation: skew 1s ease-in-out infinite;
+	}
+	
+	@keyframes skew {
+	  0% {
+		  transform: skewX(5deg);
+	  }
+	  25% {
+		  transform: skewX(-5deg);
+	  }
+	  50% {
+		  transform: skewX(5deg);
+	  }
+	  75% {
+		  transform: skewX(-5deg);
+	  }
+	  100% {
+		transform: skewX(5deg);
+	  }
+  }
+  
+  @keyframes pulse {
+	0% {
+	  transform: scale(1);
+	}
+	50% {
+	  transform: scale(0.8);
+	}
+	100% {
+	  transform: scale(1);
+	}
+  } 
+
+  .wall {
+	fill: red;
+	filter: drop-shadow(0px 0px 5px rgba(255, 46, 46, 0.89));
+  }
+
+  .Title {
+	position: absolute;
+	animation-name: cool-animation;
+	animation-duration: 3s;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-in-out;
+  }
+  
+  @keyframes cool-animation {
+	0% {
+	  opacity: 0.2;
+	  transform: rotate(0deg);
+	}
+	50% {
+	  opacity: 0.5;
+	  transform: rotate(45deg);
+	}
+	100% {
+	  opacity: 0.2;
+	  transform: rotate(90deg);
+	}
+  }
+
+
+/* Effet balle */
+
+
+.strike_ball {
+	fill: gold;
+	filter: drop-shadow(0px 0px 5px rgba(247, 204, 10, 0.89));
+  }
+
+
+
+/* Effet recu */
+.impact
+{
+	fill: rgb(128, 0, 0);
+	filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.5));
+	animation: shake 0.5s ease-in-out infinite;
+}
+
+  @keyframes shake {
+	0% {
+	  transform: rotate(0deg);
+	}
+	25% {
+	  transform: rotate(10deg);
+	}
+	50% {
+	  transform: rotate(0deg);
+	}
+	75% {
+	  transform: rotate(-10deg);
+	}
+	100% {
+	  transform: rotate(0deg);
+	}
+  }
+
+.pulse {
+	animation: pulse 1s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+	0% {
+	  transform: scale(1);
+	}
+	50% {
+	  transform: scale(0.8);
+	}
+	100% {
+	  transform: scale(1);
+	}
+  } 
+
+
+.winlose {
+	animation: blink 5s ease-in-out infinite;
+	text-align: center;
+}
+
+@keyframes blink {
+	0% {
+		text-shadow: 0px 0px 10px rgb(0, 0, 0);
+	}
+	25% {
+		text-shadow: 0px 0px 10px rgb(255, 230, 0);
+	}
+	50% {
+		text-shadow: 0px 0px 20px rgb(0, 0, 0);
+  	}
+	75% {
+		text-shadow: 0px 0px 10px rgb(255, 230, 0);
+	}
+  	100% {
+    	text-shadow: 0px 0px 10px rgb(0, 0, 0);
+  	}
+}

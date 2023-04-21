@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma.module';
+import { PongModule } from './pong/pong.module';
 import { GatewayModule } from './gateway.module';
 import { ChatModule } from './chat/chat.module';
 import { UsersModule } from './users/users.module';
@@ -20,8 +21,10 @@ import { MessagesModule } from './messages/messages.module';
 		UsersModule,
 		ChannelsModule,
 		MessagesModule,
+    PongModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
+
 })
 export class AppModule {}
