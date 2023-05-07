@@ -1,0 +1,20 @@
+body{
+	overflow: hidden;
+	height: 100vh;
+}
+
+.HomePage{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	overflow: hidden;
+}
+
+.HomeContent{
+	margin: 0;
+	width: 100%;
+	height: 100vh;
+	overflow-y: scroll;
+	scroll-snap-type: y mandatory;
+	scroll-behavior: smooth;
+}

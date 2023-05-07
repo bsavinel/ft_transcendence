@@ -1,0 +1,110 @@
+.LeaderPart {
+	scroll-snap-align: start;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	height: 100%;
+	width: 100%;
+	padding-bottom: 50px;
+	padding-top: 50px;
+	h1 {
+		color: #fff;
+		font-size: 2em;
+	}
+}
+
+.LeaderBoard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	.grid {
+		min-height: 80%;
+	}
+	.pseudo
+	{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-family: Georgia, 'Times New Roman', Times, serif;
+		font-size: 1.3em;
+		.username
+		{
+			font-weight: bold;
+			color: #ffffff;
+		}
+		.personalId
+		{
+			color: #aaa;
+		}
+	}
+}
+
+%place{
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100px;
+}
+
+.Podium {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	.marche{
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: flex-end;
+		gap: 50px;
+		height: 80%;
+		.firstPlace{
+			@extend %place;
+			background-color: yellow;
+			height: 80%;
+		}
+		.secondPlace{
+			@extend %place;
+			background-color: green;
+			height: 60%;
+		}
+		.thirdPlace{
+			@extend %place;
+			background-color: red;
+			height: 40%;
+		}
+	}
+	.avatar {
+		position: relative;
+		top: -40px;
+		width: 80px;
+		border-radius: 50%;
+		border: 1px solid #000000;
+		background-color: #ddd;
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		user-select: none;
+	}
+	.pseudo {
+		position: relative;
+		top: -40px;
+		margin-right: 10px;
+		display: flex;
+		flex-direction: row;
+		font-family: Georgia, 'Times New Roman', Times, serif;
+		font-size: 2rem;
+		.username {
+			font-size: 0.6em;
+			font-weight: bold;
+			color: #ffffff;
+		}
+		.personalId {
+			font-size: 0.6em;
+			color: #aaa;
+		}
+	}
+}

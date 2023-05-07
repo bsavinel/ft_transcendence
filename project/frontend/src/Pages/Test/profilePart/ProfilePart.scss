@@ -1,0 +1,183 @@
+html {
+	height: 100vh;
+	width: 100vw;
+}
+
+body {
+	background: radial-gradient(ellipse at bottom 90%,
+			#234d7d 0%,
+			#090a0c 100%);
+}
+
+.profile {
+	scroll-snap-align: start;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	padding: 0 100px;
+	// flex-wrap: wrap;
+
+	.ProfileInfo {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		width: 100%;
+		height: 200px;
+		margin: 50px 0;
+
+		// min-width: 100%;
+		// max-height: 20%;
+		.avatar {
+			height: 100%;
+			// width: auto;
+			border-radius: 50%;
+			border: 1px solid #000000;
+			background-color: #ddd;
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			user-select: none;
+		}
+
+		.PlayerStats {
+			display: flex;
+			min-width: 70%;
+			flex-direction: column;
+
+			.NameAndClass {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				gap: 12px;
+				width: 100%;
+
+				.pseudo {
+					margin-right: 10px;
+					display: flex;
+					flex-direction: row;
+					font-family: Georgia, 'Times New Roman', Times, serif;
+					font-size: 2rem;
+
+					.username {
+						font-size: 1em;
+						font-weight: bold;
+						color: #ffffff;
+					}
+
+					.personalId {
+						font-size: 1em;
+						color: #aaa;
+					}
+				}
+
+				.Clasement {
+					font-size: 1.2rem;
+					width: 100%;
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+					align-items: center;
+					flex-wrap: wrap;
+
+					.IndividualStat {
+						display: flex;
+						justify-content: flex-start;
+						flex-direction: column;
+						align-items: center;
+						background-color: #0e1730;
+						border: solid 2px #343a4c;
+						padding: 10px 20px;
+						border-radius: 8px;
+
+						.statName {
+							margin: 0;
+							color: #ffffff;
+						}
+
+						.statValue {
+							color: #ffffff;
+
+							margin: 0;
+
+							span {
+								color: #aaa;
+							}
+						}
+					}
+				}
+			}
+
+			.levelBox {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+
+				.levelNumber {
+					font-family: 'Lucida Handwriting', sans-serif;
+					color: #ffffff;
+				}
+
+				.progress {
+					margin: 0 auto;
+					width: 100%;
+					padding: 4px;
+					background: rgba(0, 0, 0, 0.25);
+					border-radius: 6px;
+					box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25),
+						0 1px rgba(255, 255, 255, 0.08);
+
+					.progress-bar {
+						text-align: center;
+						min-height: 100%;
+						// height: 25px;
+						border-radius: 4px;
+						background-image: linear-gradient(to bottom,
+								rgba(255, 255, 255, 0.3),
+								rgba(255, 255, 255, 0.05));
+						// transition: 0.4s linear;
+						// transition-property: width, background-color;
+						box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25),
+							inset 0 1px rgba(255, 255, 255, 0.1);
+						background-color: #f21111;
+
+						p {
+							color: #ffffff;
+							font-size: 0.9em;
+							font-weight: bold;
+							margin: 0;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.grid {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		min-width: 100%;
+		height: 60%;
+
+		.pseudo {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			font-family: Georgia, 'Times New Roman', Times, serif;
+			font-size: 1.3em;
+
+			.username {
+				font-weight: bold;
+				color: #ffffff;
+			}
+
+			.personalId {
+				color: #aaa;
+			}
+		}
+	}
+}

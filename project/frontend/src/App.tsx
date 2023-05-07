@@ -9,7 +9,7 @@ import Chat from './Pages/Chat/Chat';
 import Setting from './Pages/Setting/Setting';
 import CallBackPage from './Pages/CallBackPage/CallBackPage';
 import NoMatch from './Pages/404';
-import TestPage from './Pages/Test/TestPage';
+import TestPage from './Pages/Test/profilePart/ProfilePart';
 import LogGuard from './conditionalRender';
 import BrutForce from './Pages/BrutForce/BrutForce';
 import PongOnline from "./Component/Pong/PongOnline"
