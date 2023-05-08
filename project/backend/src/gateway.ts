@@ -354,21 +354,13 @@ export class AppGateway
 			await this.usersService.getBlockedBy(client.data.accessToken.userId)
 		).map((usr) => usr.id);
 
-		/* SOIT CA */
-		const cliSockets: Map<string, Socket> = this.server.sockets.sockets;
-		const cliSocketsInRoom: Socket[] = Array.from(
-			cliSockets.values()
-		).filter((socket) => socket.rooms.has(msgbody.channelId.toString()));
-		/* SOIT CA
-		 * const cliSocketsInRoom: RemoteSocket<DefaultEventsMap, any>[] = await this.server.in(msgbody.channelId.toString()).fetchSockets();
-		 */
-
-		// Client sockets in room who blocked this user => to exclude from the final emit
-		const socketIdsWhoBlocked: string[] = cliSocketsInRoom
-			.filter((socket) =>
-				blockedByIdsArray.includes(socket.data.accessToken.userId)
-			)
-			.map((socket) => socket.id);
+		let socketIdsWhoBlocked : string[];
+		this.usersSockets.forEach((uSockets, userId) => {
+			if (blockedByIdsArray.includes(userId)) {
+				const ids: string[] = uSockets.map((socket) => socket.id);
+				socketIdsWhoBlocked.push(...ids);
+			}
+		});
 
 		this.server
 			.to(`${msgbody.channelId}`)
