@@ -132,7 +132,27 @@ export default function HomeGame() {
                 value={levelValue}
                 label="Level"
                 onChange={handleChange}
-                sx={{textAlign: 'center'}}
+                MenuProps={{
+                  sx: {
+                    '& .MuiMenu-paper': {
+                      backgroundColor: 'grey',
+                    },
+                  },
+                }}
+                sx={{
+                  textAlign: 'center',
+                  backgroundColor: 'grey',
+                  color: 'white',
+                  '& .MuiSelect-icon': {
+                    color: 'white',
+                  },
+                  '& .MuiSelect-select:focus': {
+                    backgroundColor: 'grey',
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white',
+                  },
+                }}
               >
                 <MenuItem value={1}>Facile</MenuItem>
                 <MenuItem value={2}>Normal</MenuItem>

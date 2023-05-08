@@ -40,11 +40,14 @@ OK :
 - check le bon fonctionnement des implementations finishGame fin de partie 9suppression de player avec leavePong etc...)
 - Probleme de winerId fonction finishGame a fix (normal car je fais mes test avec le mm userId)
 - Probleme affichage de score a la fin de la aprtie il manque une unite au vainqueur (Valide car changement de once en on dans le front)
+- Possibilite de connexion a deux socket avec un user ???
 
 KO :
 
 - Modifier conditionalRender pour le socket provider 
-- Possibilite de connexion a deux socket avec un user ???
+- Remettre la position de la souris avec -20% de l'ecran en haut
+- Marge en haut du composant pong
+- Repositionner le composant pong
 
 JSP :
 

@@ -309,6 +309,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (this.queueClassic.length >= 2) {
       const player1 = this.queueClassic.shift();
       const player2 = this.queueClassic.shift();
+      const player1IdPrisma = player1.socket.data.accessToken.userId;
+      const player2IdPrisma = player2.socket.data.accessToken.userId;
+      if (player1IdPrisma === player2IdPrisma)
+      {
+        console.log(`Can't match players. ${player1.id} and ${player2.id} are the same user.`);
+        this.queueClassic.push(player1);
+        return;
+      }
       console.log(`Matching players ${player1.id} and ${player2.id}.`);
       
       const gameId = v4();
@@ -332,9 +340,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       player2.socket.to(room).emit('launchOn', true);
       
       await this.waitForPageLoad(player1.socket, player2.socket);
-
-      const player1IdPrisma = player1.socket.data.accessToken.userId;
-      const player2IdPrisma = player2.socket.data.accessToken.userId;
 
       const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.CLASSIC);
       
@@ -373,6 +378,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (this.queuePower.length >= 2) {
       const player1 = this.queuePower.shift();
       const player2 = this.queuePower.shift();
+      const player1IdPrisma = player1.socket.data.accessToken.userId;
+      const player2IdPrisma = player2.socket.data.accessToken.userId;
+      if (player1IdPrisma === player2IdPrisma)
+      {
+        console.log(`Can't match players. ${player1.id} and ${player2.id} are the same user.`);
+        this.queuePower.push(player1);
+        return;
+      }
       console.log(`Matching players ${player1.id} and ${player2.id}.`);
 
       const gameId = v4();
@@ -396,9 +409,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
 
       await this.waitForPageLoad(player1.socket, player2.socket);
       
-      const player1IdPrisma = player1.socket.data.accessToken.userId;
-      const player2IdPrisma = player2.socket.data.accessToken.userId;
-
       const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.POWER);
 
       player1.socket.to(room).emit('room', {roomId: room});
@@ -487,58 +497,58 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
   }
 
-  // @SubscribeMessage('joinMatchmakingChat')
-  // async handleMatchmakingChat(client: Socket): Promise<void> {
-  //   const player = {id: client.id, socket: client};
-  //   this.queueClassic.push(player);
-  //   console.log(`Player ${client.id} joined the queue for classic Pong.`);
+  @SubscribeMessage('joinMatchmakingChat')
+  async handleMatchmakingChat(client: Socket): Promise<void> {
+    const player = {id: client.id, socket: client};
+    this.queueClassic.push(player);
+    console.log(`Player ${client.id} joined the queue for classic Pong.`);
 
-  //   if (this.queueClassic.length >= 2) {
-  //     const player1 = this.queueClassic.shift();
-  //     const player2 = this.queueClassic.shift();
-  //     console.log(`Matching players ${player1.id} and ${player2.id}.`);
+    if (this.queueClassic.length >= 2) {
+      const player1 = this.queueClassic.shift();
+      const player2 = this.queueClassic.shift();
+      console.log(`Matching players ${player1.id} and ${player2.id}.`);
       
-  //     const gameId = v4();
-  //     const room = `room-${gameId}`;
+      const gameId = v4();
+      const room = `room-${gameId}`;
 
-  //     const playersRoom = [
-  //       { client: player1.socket, side: 'left' },
-  //       { client: player2.socket, side: 'right' },
-  //     ];
-  //     this.rooms.set(room, playersRoom);
+      const playersRoom = [
+        { client: player1.socket, side: 'left' },
+        { client: player2.socket, side: 'right' },
+      ];
+      this.rooms.set(room, playersRoom);
 
-  //     const player1array = {client: player1.socket, side: 'left', room: room, mode: 'classic'}
-  //     const player2array = {client: player2.socket, side: 'right', room: room, mode: 'classic'}
+      const player1array = {client: player1.socket, side: 'left', room: room, mode: 'classic'}
+      const player2array = {client: player2.socket, side: 'right', room: room, mode: 'classic'}
 
-  //     this.players.push(player1array);
-  //     this.players.push(player2array);
+      this.players.push(player1array);
+      this.players.push(player2array);
 
-  //     player1.socket.join(room);
-  //     player2.socket.join(room);
-  //     player1.socket.to(room).emit('launchOn', true);
-  //     player2.socket.to(room).emit('launchOn', true);
+      player1.socket.join(room);
+      player2.socket.join(room);
+      player1.socket.to(room).emit('launchOn', true);
+      player2.socket.to(room).emit('launchOn', true);
       
-  //     await this.waitForPageLoad(player1.socket, player2.socket);
+      await this.waitForPageLoad(player1.socket, player2.socket);
 
-  //     const player1IdPrisma = player1.socket.data.accessToken.userId;
-  //     const player2IdPrisma = player2.socket.data.accessToken.userId;
+      const player1IdPrisma = player1.socket.data.accessToken.userId;
+      const player2IdPrisma = player2.socket.data.accessToken.userId;
 
-  //     const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.CLASSIC);
+      const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.CLASSIC);
       
-  //     player1.socket.to(room).emit('room', {roomId: room});
-  //     player2.socket.to(room).emit('room', {roomId: room});
-  //     player1.socket.to(room).emit('side', {side: 'right'});
-  //     player2.socket.to(room).emit('side', {side: 'left'});
+      player1.socket.to(room).emit('room', {roomId: room});
+      player2.socket.to(room).emit('room', {roomId: room});
+      player1.socket.to(room).emit('side', {side: 'right'});
+      player2.socket.to(room).emit('side', {side: 'left'});
       
-  //     console.log(`New game started with id ${gameId}.`);
+      console.log(`New game started with id ${gameId}.`);
 
-  //     this.player.set(room, this.getDefaultPlayerState());
-  //     this.ball.set(room, this.getDefaultBallState());
-  //     this.bonus.set(room, this.getDefaultBonusState());
-  //     this.game.set(room, this.getDefaultGameState());
-  //     this.gameIdPrisma.set(room, gameIdPrisma);
-  //   }
-  // }
+      this.player.set(room, this.getDefaultPlayerState());
+      this.ball.set(room, this.getDefaultBallState());
+      this.bonus.set(room, this.getDefaultBonusState());
+      this.game.set(room, this.getDefaultGameState());
+      this.gameIdPrisma.set(room, gameIdPrisma);
+    }
+  }
     
 
   @SubscribeMessage('launchSpell')
