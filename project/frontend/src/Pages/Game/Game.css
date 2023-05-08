@@ -13,12 +13,7 @@
 	width: 100%;
   }
 
-.divBase {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-}
-
+  
 p {
 	text-align: left;
 }
@@ -26,19 +21,14 @@ p {
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 50px;
   margin-bottom: 50px;
+  width: 110%;
 }
 
-.section {
-  /* width: 400px; */
-  /* background-color: rgb(27, 1, 1); */
-  border: 10px solid rgb(124, 124, 124);
-  padding: 20px;
-  margin-bottom: 50px;
-  text-align: center;
-  box-shadow: 0 0 10px 5px rgb(255, 0, 0);
+.dialogTitle {
+	height: 1000px;
 }
 
 @keyframes blinkMargin {
@@ -60,15 +50,16 @@ p {
 }
 
 .section2 {
+	width: 80%;
+	margin-left: 10%;
 	border: 1px solid rgb(0, 0, 0);
 	border-radius: 60px;
-	padding: 20px;
-	margin-bottom: 30px;
+	padding: 10px;
+	margin-bottom: 20px;
 	text-align: center;
-	align-items: center;
-	justify-content: space-around;
+	justify-content: center;
 	flex-wrap: wrap;
-	background-color: rgb(41, 41, 41);
+	background-color: rgb(49, 49, 49);
 	animation: blinkMargin2 10s ease-in-out infinite;
   }
 
@@ -91,15 +82,17 @@ p {
   }
 
 .title1 {
-	animation: moveLeft 5s linear infinite, blinkTitle 5s ease-in-out infinite;
+	animation: moveLeft 10s linear infinite, blinkTitle 5s ease-in-out infinite;
 	text-align: center;
 	text-shadow: 0px 0px 5px white;
+	font-size: 30px;
 }
 
 .title12 {
-	animation: moveRight 5s linear infinite, blinkTitle 5s ease-in-out infinite;
+	animation: moveRight 10s linear infinite, blinkTitle 5s ease-in-out infinite;
 	text-align: center;
 	text-shadow: 0px 0px 5px white;
+	font-size: 30px;
 }
 
 @keyframes moveLeft {
@@ -107,13 +100,13 @@ p {
     transform: translateX(0);
 	}
 	25% {
-	transform: translateX(-15rem);
+	transform: translateX(-10rem);
 	}
 	50% {
 		transform: translateX(0);
 	}
 	75% {
-		transform: translateX(15rem);
+		transform: translateX(10rem);
 	}
 }
 
@@ -122,13 +115,13 @@ p {
   transform: translateX(0);
   }
   25% {
-  transform: translateX(15rem);
+  transform: translateX(10rem);
   }
   50% {
 	  transform: translateX(0);
   }
   75% {
-	  transform: translateX(-15rem);
+	  transform: translateX(-10rem);
   }
 }
 

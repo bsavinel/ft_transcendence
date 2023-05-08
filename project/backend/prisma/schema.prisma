@@ -75,6 +75,7 @@ model UserOnGame {
 
 model Game {
     id        Int          @id @default(autoincrement())
+    mode      gameMode
     createdAt DateTime     @default(now())
     updatedAt DateTime     @updatedAt
     winnerId  Int?
@@ -93,6 +94,11 @@ enum channelMode {
     PRIVATE
     PUBLIC
     PROTECTED
+}
+
+enum gameMode {
+    CLASSIC
+    POWER
 }
 
 // peut-etre passer sur  type si besoin de plus stocke d'information

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'
 import "./Pong.css";
-import {spells} from "./Spell"
-import { socket } from './PongSocketContext';
+import { Socket } from 'socket.io-client';
+import { PongSocketContext } from '../../Component/Pong/PongSocketContext';
 
 import wallsAudio from "./sound/wall.mp3"
 import paddle1Audio from "./sound/paddle1.mp3"
@@ -90,9 +90,8 @@ interface GameState
 }
 
 
-
 const BOARD_WIDTH = 1000;
-const BOARD_HEIGHT = 600;
+const BOARD_HEIGHT = 500;
 
 const BALL_RADIUS = 10;
 const BALL_SPEED = 7;
@@ -110,10 +109,6 @@ const BONUS_WIDTH = 50;
 const BONUS_HEIGHT = 50;
 const BONUS_SPEED = 2;
 const TIME_LEFT = 5;
-
-const SCORE_LIMIT = 5;
-
-const IA_SPEED = 20;
 
 const Bonus = ({ position, color }: { position: Position, color?: string }) => {
   return (
@@ -158,7 +153,7 @@ const Paddle = ({ position, effect, height }: { position: Position, effect?: str
   );
 };
 
-const Ball = ({ position, power }: { position: Position, power: boolean }) => {
+const Ball = ({ position, power, state }: { position: Position, power: boolean, state: boolean }) => {
   return (
     <circle
       cx={position.x}
@@ -167,7 +162,7 @@ const Ball = ({ position, power }: { position: Position, power: boolean }) => {
       fill="grey"
       stroke="white"
       strokeWidth="2"
-      className={power ? "power_ball" : ""}
+      className={power ? "power_ball" : state ? "" : "waiting_ball"}
     />
   );
 };
@@ -189,13 +184,31 @@ const Score = ({ score, x }: { score: number, x: number }) => {
   );
 };
 
-const WaitStart = ({text}: { text: string}) => {
+const WaitStart = ({text, side}: { text: string, side: string}) => {
   return (
     <text
-      x={BOARD_WIDTH / 2}
+      x={side === 'left' ? BOARD_WIDTH / 4 : BOARD_WIDTH * 3 / 4}
       y={BOARD_HEIGHT / 2}
       fill="white"
-      fontSize="50"
+      fontSize="40"
+      fontWeight="bold"
+      textAnchor="middle"
+      stroke="white"
+      strokeWidth="2"
+      className='winlose'
+    >
+    {text}
+    </text>
+  );
+};
+
+const WaitStartOther = ({text, side}: { text: string, side: string}) => {
+  return (
+    <text
+      x={side === 'right' ? BOARD_WIDTH / 4 : BOARD_WIDTH * 3 / 4}
+      y={BOARD_HEIGHT / 2}
+      fill="white"
+      fontSize="40"
       fontWeight="bold"
       textAnchor="middle"
       stroke="white"
@@ -229,9 +242,9 @@ const Redirection = ({timer} : { timer: number}) => {
   return (
     <text
       x={BOARD_WIDTH / 2}
-      y={400}
+      y={300}
       fill="white"
-      fontSize="40"
+      fontSize="30"
       fontWeight="bold"
       textAnchor="middle"
     >
@@ -240,7 +253,22 @@ const Redirection = ({timer} : { timer: number}) => {
   );
 };
 
-const BonusExplication = () => {
+const FinalScore = ({score1, score2, side} : { score1: number, score2: number, side: string}) => {
+  return (
+    <text
+      x={BOARD_WIDTH / 2}
+      y={400}
+      fill="white"
+      fontSize="30"
+      fontWeight="bold"
+      textAnchor="middle"
+    >
+    Score : {side === 'left' ? score1 : score2} - {side === 'right' ? score1 : score2} 
+    </text>
+  );
+};
+
+const BonusExplication = ({side} : { side: string}) => {
   const bonus = [
     {name: 'Bonus tir vitesse', color: 'yellow'},
     {name: 'Bonus tir diagonale', color: 'green'},
@@ -253,16 +281,16 @@ const BonusExplication = () => {
       {bonus.map(({name, color}, index) => (
         <g key={index}>
           <rect
-            x={300}
-            y={330 + index * 70}
-            width={40}
-            height={40}
+            x={side === 'left' ? 150 : 650}
+            y={280 + index * 50}
+            width={30}
+            height={30}
             fill={color}
           />
           <text
-            x={370}
-            y={360 + index * 70}
-            fontSize="30"
+            x={side === 'left' ? 200 : 700}
+            y={300 + index * 50}
+            fontSize="20"
             fontWeight="bold"
             fill="black"
             stroke="white"
@@ -305,9 +333,13 @@ const Middleline = () => {
   };
 
 const Board = ({
+  timer,
+  ballState,
+  side,
   winLose,
   sideWin,
   isReady,
+  otherReady,
   ballPosition,
   player1Position,
   player2Position,
@@ -328,9 +360,13 @@ const Board = ({
   height_paddle2,
   power
 }: {
+  timer: number;
+  ballState: boolean;
+  side: string;
   winLose: boolean;
   sideWin: string;
   isReady: boolean;
+  otherReady: boolean;
   ballPosition: Position;
   player1Position: Position;
   player2Position: Position;
@@ -357,8 +393,10 @@ const Board = ({
       return (
       <svg width={BOARD_WIDTH} height={BOARD_HEIGHT} viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`}>
         <Background/>
-        <WaitStart text={"Press 'SPACE' to start"}/>
-        <BonusExplication />
+        <Middleline />
+        <WaitStart text={"Press 'SPACE' to start"} side={side}/>
+        {!otherReady && <WaitStartOther text={"Waiting for opponent"} side={side}/>}
+        <BonusExplication side={side}/>
       </svg>
       );
     }
@@ -367,29 +405,21 @@ const Board = ({
       return (
       <svg width={BOARD_WIDTH} height={BOARD_HEIGHT} viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`}>
         <Background/>
-        <WaitStart text={"Press 'SPACE' to start"}/>
+        <Middleline />
+        <WaitStart text={"Press 'SPACE' to start"} side={side}/>
+        {!otherReady && <WaitStartOther text={"Waiting for opponent"} side={side}/>}
       </svg>
       );
     }
   }
   if (winLose)
   {
-    const [timer, setTimer] = useState(5);
-
-    useEffect(() => {
-      const timer_wall = setInterval(() => {
-        if (timer > 0) {
-          setTimer(prevTimer => prevTimer - 1);
-        }
-      }, 1000);
-      return () => clearInterval(timer_wall);
-    }, [timer]);
-
     return (
       <svg width={BOARD_WIDTH} height={BOARD_HEIGHT} viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`}>
         <Background/>
         <WinLose text={sideWin}/>
         <Redirection timer={timer}/>
+        <FinalScore score1={player1Score} score2={player2Score} side={side}/>
       </svg>
     );
   }
@@ -401,7 +431,8 @@ const Board = ({
       <Score score={player2Score} x={BOARD_WIDTH * 0.6} />
       <Paddle position={player1Position} effect={spell?.effect_player} height={height_paddle1} />
       <Paddle position={player2Position} effect={spell2?.effect_player} height={height_paddle2}/>
-      <Ball position={ballPosition} power={ballPower} />
+      <Ball position={ballPosition} power={ballPower} state={ballState} />
+      {!otherReady && <WaitStartOther text={"Waiting for opponent"} side={side}/>}
       {showBonus && <Bonus position={bonusPosition} color={blocSpell?.color}/>}
       {showBonus2 && <Bonus position={bonusPosition2} color={blocSpell2?.color}/>}
       {wall && <Wall position={WALL_PLAYER1}/>}
@@ -412,7 +443,7 @@ const Board = ({
 
 export default function Game() {
   
-  
+  const socket: Socket | null = useContext(PongSocketContext);
   const navigate = useNavigate();
   const [mousePos, setMousePos] = useState<Position>(
     {
@@ -422,6 +453,7 @@ export default function Game() {
   const [side, setSide] = useState<string>("");
   const [room, setRoom] = useState<string>("");
   const [sideWin, setSideWin] = useState<string>("");
+
   const [playerState, setPlayerState] = useState<PlayerState>(
     {
       player1Position: {x: 20, y: BOARD_HEIGHT / 2 - PADDLE_HEIGHT / 2},
@@ -437,7 +469,7 @@ export default function Game() {
       player1Ready: false,
       player2Ready: false,
     }
-    );
+  );
     const [ballState, setBallState] = useState<BallState>(
     {
       ballPosition: {x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2,},
@@ -467,7 +499,7 @@ export default function Game() {
       timeLeft: TIME_LEFT,
       timeLeft2: TIME_LEFT
     }
-    );
+  );
   const [gameState, setGameState] = useState<GameState>(
     {
       endGame: false,
@@ -477,68 +509,104 @@ export default function Game() {
   const [powerUp, setPowerUp] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [winLose, setWinLose] = useState<boolean>(false);
+  const [otherPlayerReady, setOtherPlayerReady] = useState<boolean>(false);
+  const [launchBallTimer, setLaunchBallTimer] = useState<number>(0);
+  const [timer, setTimer] = useState<number>(5);
   
   useEffect(() => {
-    // if (document.readyState === 'complete')
-    // {
-    // }
-    socket.emit('pageLoaded');
+    socket?.emit('pageLoaded');
   }, [socket]);
 
   useEffect(() => {
     if (!isReady)
     {
-      socket.on("room", (data: any) => setRoom(data.roomId));
-      socket.on("side", (data: any) => setSide(data.side));
-      socket.on("power", (data: any) => setPowerUp(data.power));
+      socket?.on("room", (data: any) => setRoom(data.roomId));
+      socket?.on("side", (data: any) => setSide(data.side));
+      socket?.on("power", (data: any) => setPowerUp(data.power));
       return () => {
-        socket.off("room");
-        socket.off("side");
-        socket.off("power");
+        socket?.off("room");
+        socket?.off("side");
+        socket?.off("power");
       }
     }
 }, [socket]);
-  
+
   useEffect(() => {
     return () => {
-      socket.emit('leavePong');
+      socket?.emit('leavePong');
     };
   }, [socket]);
 
   useEffect(() => 
   {
-    socket.on('playerLeavePong', (value) => {
+    socket?.on('playerLeavePong', () => {
       alert('Opponent disconnected');
     })
-    return () => {socket.off('playerLeavePong')}
+    return () => {socket?.off('playerLeavePong')}
   }, [socket]);
 
 
   useEffect(() => 
   {
-    const handleKeyDown = (event: KeyboardEvent) => 
-    {
-      switch (event.key)
-      {
-        case ' ':
-          event.preventDefault();
-          socket.emit('playerReady', {roomId: room, side: side});
-          setIsReady(true);
-          break;
-        default:
-          break;
-      };
-    }
-    
-    window.addEventListener('keydown', handleKeyDown);
+    socket?.on('otherPlayerReady', () => {
+      setOtherPlayerReady(true);
+    })
+    return () => {socket?.off('otherPlayerReady')}
+  }, [socket, otherPlayerReady]);
 
-    return () => {window.removeEventListener('keydown', handleKeyDown);};
+
+  useEffect(() => 
+  {
+    socket?.on('launchBallTimer', (data) => {
+      setLaunchBallTimer(data.timer);
+    })
+    return () => {
+      socket?.off('launchBallTimer')
+    }
+  }, [socket, launchBallTimer]);
+
+
+  useEffect(() => 
+  {
+    const timerLaunchBall = setInterval(() => {
+      if (launchBallTimer > 0) {
+        console.log(launchBallTimer);
+        setLaunchBallTimer(prevTimer => prevTimer - 1);
+      }
+    }, 1000);
+    return () => clearInterval(timerLaunchBall);
+  }, [launchBallTimer]); 
+
+
+  useEffect(() => 
+  {
+    if (!winLose)
+    {
+      const handleKeyDown = (event: KeyboardEvent) => 
+      {
+        switch (event.key)
+        {
+          case ' ':
+            event.preventDefault();
+            socket?.emit('playerReady', {roomId: room, side: side});
+            setIsReady(true);
+            break;
+          default:
+            break;
+        };
+      }
+      
+      window.addEventListener('keydown', handleKeyDown);
+      
+      return () => {window.removeEventListener('keydown', handleKeyDown);};
+    }
   }, [room, side]);
+
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       setMousePos({ x: event.clientX, y: event.clientY});
-      socket.emit('mousePosition', {roomId: room, side: side, mousePos: mousePos, window: window.innerHeight});
+      socket?.emit('mousePosition', {roomId: room, side: side, mousePos: mousePos, window: window.innerHeight});
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -549,12 +617,13 @@ export default function Game() {
     };
   }, [mousePos, room, side])
 
+  
   useEffect(() => {
     const handleMouseClick = (event: MouseEvent) => {
       if (event)
       {
         event.preventDefault();
-        socket.emit('launchSpell', {roomId: room, side: side});
+        socket?.emit('launchSpell', {roomId: room, side: side});
       }
     };
 
@@ -569,8 +638,8 @@ export default function Game() {
   if (powerUp)
   {
     useEffect(() => {
-      socket.emit("startGamePowerUp", {roomId: room});
-      socket.once("updatePowerUp", (data: any) => 
+      socket?.emit("startGamePowerUp", {roomId: room});
+      socket?.on("updatePowerUp", (data: any) =>
       {
         setPlayerState(data.player)
         setBonusState(data.bonus)
@@ -578,15 +647,15 @@ export default function Game() {
         setGameState(data.game)
       });
       return () => {
-        socket.off("updatePowerUp");
+        socket?.off("updatePowerUp");
       }
     }, [room, playerState, ballState, bonusState, gameState, socket])
   }
   else
   {
     useEffect(() => {
-      socket.emit("startGame", {roomId: room});
-      socket.once("update", (data: any) => 
+      socket?.emit("startGame", {roomId: room});
+      socket?.on("update", (data: any) =>
       {
         setPlayerState(data.player)
         setBonusState(data.bonus)
@@ -594,19 +663,34 @@ export default function Game() {
         setGameState(data.game)
       });
       return () => {
-        socket.off("update");
+        socket?.off("update");
       }
     }, [room, playerState, bonusState, ballState, gameState, socket])
   }
 
   useEffect(() =>
   {
-    socket.on('playerWinLose', (sideWin) => {
+    socket?.on('playerWinLose', (sideWin: string) => {
       setSideWin(sideWin);
       setWinLose(true);
-    })
-  }, [socket, side]);
+    });
+    return () => {
+      socket?.off("playerWinLose");
+    }
+  }, [socket, sideWin, winLose]);
   
+  useEffect(() => {
+    if (winLose)
+    {
+      const timer_wall = setInterval(() => {
+        if (timer > 0) {
+          setTimer(prevTimer => prevTimer - 1);
+        }
+      }, 1000);
+      return () => clearInterval(timer_wall);
+    }
+  }, [winLose, timer]);
+
   useEffect(() =>
   {
     if (winLose)
@@ -615,44 +699,48 @@ export default function Game() {
         navigate("/game");
       }, 5000)
     }
-  }, [sideWin, side]);
+  }, [winLose]);
 
 
   useEffect(() =>
   {
-    socket.on("endAudio", () => {
+    socket?.on("endAudio", () => {
       endSound.play();
     })
-    socket.on("paddle1Audio", () => {
+    socket?.on("paddle1Audio", () => {
       paddle1Sound.play();
     })
-    socket.on("paddle2Audio", () => {
+    socket?.on("paddle2Audio", () => {
       paddle2Sound.play();
     })
-    socket.on("bonusAudio", () => {
+    socket?.on("bonusAudio", () => {
       bonusSound.play();
     })
-    socket.on("wallsAudio", () => {
+    socket?.on("wallsAudio", () => {
       wallSound.play();
     })
-    socket.on("launchAudio", () => {
+    socket?.on("launchAudio", () => {
       launchSound.play();
     })
     return () => {
-      socket.off("endAudio")
-      socket.off("paddle1Audio")
-      socket.off("paddle2Audio")
-      socket.off("bonusAudio")
-      socket.off("wallsAudio")
-      socket.off("launchAudio")
+      socket?.off("endAudio")
+      socket?.off("paddle1Audio")
+      socket?.off("paddle2Audio")
+      socket?.off("bonusAudio")
+      socket?.off("wallsAudio")
+      socket?.off("launchAudio")
     }
   }, [socket]);
   
   return (
     <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} style={{ border: '1px solid black' }}>
-    <Board winLose={winLose}
+    <Board timer={timer}
+      ballState={gameState.isPlaying}
+      side={side}
+      winLose={winLose}
       sideWin={sideWin === side ? 'You won' : 'You lost'}
-      isReady={isReady} 
+      isReady={isReady}
+      otherReady={otherPlayerReady}
       ballPosition={ballState.ballPosition}
       player1Position={playerState.player1Position}
       player2Position={playerState.player2Position}

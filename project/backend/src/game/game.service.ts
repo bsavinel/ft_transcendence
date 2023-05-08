@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserOnGame } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { gameMode } from '@prisma/client';
 
 export interface GameData {
 	id: number;
@@ -19,14 +20,15 @@ export class GameService {
 	//! ######################### (last -> first) ##############################
 	//! ########################################################################
 
-	async createGame(idPlayer1: number, idPlayer2: number): Promise<void> {
-		const newGame = await this.prisma.game.create({ data: {} });
+	async createGame(idPlayer1: number, idPlayer2: number, mode: gameMode): Promise<number> {
+		const newGame = await this.prisma.game.create({ data: {mode} });
 		await this.prisma.userOnGame.create({
 			data: { gameId: newGame.id, userId: idPlayer1 },
 		});
 		await this.prisma.userOnGame.create({
 			data: { gameId: newGame.id, userId: idPlayer2 },
 		});
+		return newGame.id;
 	}
 
 	async findUserOnGame(idGame: number): Promise<UserOnGame[]> {
@@ -54,10 +56,9 @@ export class GameService {
 			players[1].userId != player2.id
 		)
 			throw new Error('Bad player2');
-
 		await this.prisma.userOnGame.update({
 			where: {
-				id: players[0].id == player1.id ? players[0].id : players[1].id,
+				id: players[0].id == player1.id ? players[1].id : players[0].id,
 			},
 			data: {
 				score: player1.score,

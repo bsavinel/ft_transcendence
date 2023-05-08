@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import ApiClient, { getAccess } from './utils/ApiClient';
-import {ChatSocketProvider} from './Component/Chat/ChatSocketContext';
+import { PongSocketProvider } from './Component/Pong/PongSocketContext';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 interface CheckLog {
@@ -36,7 +36,7 @@ export default function LogGuard() {
 	// console.log(checkLog);
 	if (checkLog.isLoading) return <div>loading</div>; 
 	else {
-		return (checkLog.isLogged ? <ChatSocketProvider> <Outlet/> </ChatSocketProvider> : <LoginPage/>);
+		return (checkLog.isLogged ? <PongSocketProvider> <Outlet/> </PongSocketProvider> : <LoginPage/>);
 	}
 
 }

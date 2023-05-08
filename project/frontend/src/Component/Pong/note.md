@@ -16,18 +16,43 @@ OK :
 - Solo : tout bien maj comme la v online
 - Quand bonus player 1 l'IA ne bouge pas
 - Ajouter la possiblite de niveau d'ia au debut pour le pong solo
+- Deco au bout d'inactivite je pense, probleme ponggateway ligne 162, undefined room a fix
+- Optimiser l'impact de la balle sur les bonus
+- Optimiser le pong online
+- Indiquer le score a la fin
+- Quand matchmaking, indiquer de quel cote est le joueur
+- Delai avant debut de la balle qui part
+- Changer score PONG
+- URL pong solo modifiable et c'est pas bon
+- Affichage score fin de partie (+ esthetique)
+- Animation de la box matchmaking a fix quand joueur trouve
+- Modif impact paddle player 2 dans classic et power
+- Probleme d'overflow x, page game
+- CSS page game c'est chelou
+- Pong power : mettre les instructions de pouvoir du cote ou le joueur joue
+- Marge gauche jeu pong
+- Reduire taille ecran pong (1000 x 600 avant)
+- Ajout du timer lancement de balle en pong solo
+- Message console quand opponent disconnected frontend
+- Probleme du await createGame qui bloque la game et la lance jamais
+- Fonction prisma pour recup donnes apres match dans la DB, manque finishGame
+- leave room ???
+- check le bon fonctionnement des implementations finishGame fin de partie 9suppression de player avec leavePong etc...)
+- Probleme de winerId fonction finishGame a fix (normal car je fais mes test avec le mm userId)
+- Probleme affichage de score a la fin de la aprtie il manque une unite au vainqueur (Valide car changement de once en on dans le front)
 
 KO :
+
+- Modifier conditionalRender pour le socket provider 
+- Possibilite de connexion a deux socket avec un user ???
+
+JSP :
+
+- Changer URL socket context par var env
+- Header ft_transcendance
+- Theme du site ?
 - Revoir la position de la souris (probleme quand differente taille de terrain)
 - Probleme pour lancer un sort quand il y en a deja un actif (swing puis mind control)
-
-- Fonction prisma pour recup donnes apres match dans la DB
-- Deco au bout d'inactivite je pense, probleme ponggateway ligne 162, undefined room a fix
-- Optimiser le pong online
-- Optimiser l'impact de la balle sur les bonus
-
-
-
 
 
 Site pour le pong : https://www.video-game-coder.fr/creer-jeu-video/jeu-pong-javascript/

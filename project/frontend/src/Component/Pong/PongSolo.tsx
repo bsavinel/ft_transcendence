@@ -11,6 +11,7 @@ import paddle2Audio from "./sound/paddle2.mp3"
 import bonusAudio from "./sound/bonus.mp3"
 import endAudio from "./sound/end.mp3"
 import launchAudio from "./sound/launch.mp3"
+import { Ballot } from '@mui/icons-material';
 
 const wallSound = new Audio(wallsAudio);
 const paddle1Sound = new Audio(paddle1Audio);
@@ -21,7 +22,7 @@ const launchSound = new Audio(launchAudio);
 
 
 const BOARD_WIDTH = 1000;
-const BOARD_HEIGHT = 600;
+const BOARD_HEIGHT = 500;
 const BALL_RADIUS = 10;
 const WALL_WIDTH = 10;
 const WALL_HEIGH = BOARD_HEIGHT;
@@ -31,10 +32,11 @@ const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 80;
 const BONUS_WIDTH = 50;
 const BONUS_HEIGHT = 50;
-const BONUS_SPEED = 2;
+const BONUS_SPEED = 5;
 const TIME_LEFT = 5;
-const SCORE_LIMIT = 5;
+const SCORE_LIMIT = 11;
 const STROKE = 2;
+const TIME_LAUNCH_BALL = 2;
 
 const Bonus = ({ position, color }: { position: Position, color?: string }) => {
   return (
@@ -47,24 +49,6 @@ const Bonus = ({ position, color }: { position: Position, color?: string }) => {
       stroke="white"
       strokeWidth="2"
     />
-  );
-};
-
-const DisplayIfBonus = ({ x, y, bonus, name }: { x:number, y:number, bonus: boolean, name?: string }) => {
-  return (
-    <text
-      x={x}
-      y={y}
-      fill="grey"
-      fontSize="20"
-      fontWeight="bold"
-      textAnchor="middle"
-      stroke="white"
-      strokeWidth="2"
-    >
-    POWER ({name}) : 
-    {bonus ? " YES" : " NOPE"}
-    </text>
   );
 };
 
@@ -97,7 +81,7 @@ const Paddle = ({ position, effect, height }: { position: Position, effect?: str
   );
 };
 
-const Ball = ({ position, power }: { position: Position, power: boolean }) => {
+const Ball = ({ position, power, state }: { position: Position, power: boolean, state: boolean }) => {
   return (
     <circle
       cx={position.x}
@@ -106,7 +90,7 @@ const Ball = ({ position, power }: { position: Position, power: boolean }) => {
       fill="grey"
       stroke="white"
       strokeWidth="2"
-      className={power ? "power_ball" : ""}
+      className={power ? "power_ball" : state ? "" : "waiting_ball"}
     />
   );
 };
@@ -168,7 +152,7 @@ const Redirection = ({timer} : { timer: number}) => {
   return (
     <text
       x={BOARD_WIDTH / 2}
-      y={400}
+      y={300}
       fill="white"
       fontSize="40"
       fontWeight="bold"
@@ -192,16 +176,16 @@ const BonusExplication = () => {
       {bonus.map(({name, color}, index) => (
         <g key={index}>
           <rect
-            x={300}
-            y={330 + index * 70}
-            width={40}
-            height={40}
+            x={310}
+            y={280 + index * 50}
+            width={35}
+            height={35}
             fill={color}
           />
           <text
-            x={370}
-            y={360 + index * 70}
-            fontSize="30"
+            x={380}
+            y={310 + index * 50}
+            fontSize="25"
             fontWeight="bold"
             fill="black"
             stroke="white"
@@ -244,6 +228,7 @@ const Middleline = () => {
   };
 
 const Board = ({
+  ballState,
   winLose,
   sideWin,
   isReady,
@@ -266,6 +251,7 @@ const Board = ({
   height_paddle1,
   height_paddle2
 }: {
+  ballState: boolean;
   winLose: boolean;
   sideWin: string;
   isReady: boolean;
@@ -326,7 +312,7 @@ const Board = ({
       <Score score={player2Score} x={BOARD_WIDTH * 0.6} />
       <Paddle position={player1Position} effect={spell?.effect_player} height={height_paddle1} />
       <Paddle position={player2Position} effect={spell2?.effect_player} height={height_paddle2}/>
-      <Ball position={ballPosition} power={ballPower} />
+      <Ball position={ballPosition} power={ballPower} state={ballState} />
       {showBonus && <Bonus position={bonusPosition} color={blocSpell?.color}/>}
       {showBonus2 && <Bonus position={bonusPosition2} color={blocSpell2?.color}/>}
       {wall && <Wall position={WALL_PLAYER1}/>}
@@ -431,6 +417,15 @@ export default function GameSolo(props: any) {
     launchSound.play();
   }
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search); // récupère les paramètres de l'URL
+    const urlLevel = urlParams.get('level'); // récupère la valeur du paramètre level dans l'URL
+
+    if (urlLevel !== values.level || isNaN(level) || level < 1 || level > 4) {
+      navigate('/game');
+    }
+  }, [level]);
+
   function hitScenery() {
     if (ballPosition.y - BALL_RADIUS <= 0 && ballDirection.y < 0) // Touche le plafond
     {
@@ -445,6 +440,7 @@ export default function GameSolo(props: any) {
     else if (ballPosition.x - BALL_RADIUS <= 0 && ballDirection.x < 0) // Touche le mur gauche
     {
       playEndSound();
+      setIsPlaying(false);
       setPlayer2Score((prev) => prev + 1);
       setBallPosition(({x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2,}));
       setBallDirection(({x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}));
@@ -469,10 +465,14 @@ export default function GameSolo(props: any) {
       setWhichSpellPlayer1(null);
       setWhichSpellPlayer2(null);
       setBallPower(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, TIME_LAUNCH_BALL * 1000);
     }
     else if (ballPosition.x + BALL_RADIUS >= BOARD_WIDTH && ballDirection.x > 0) // Touche le mur droite
     {
       playEndSound();
+      setIsPlaying(false);
       setPlayer1Score((prev) => prev + 1);
       setBallPosition(({x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2,}));
       setBallDirection(({x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}));
@@ -497,6 +497,9 @@ export default function GameSolo(props: any) {
       setWhichSpellPlayer1(null);
       setWhichSpellPlayer2(null);
       setBallPower(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, TIME_LAUNCH_BALL * 1000);
     }
     else if (ballPosition.x - BALL_RADIUS <= player1Position.x + PADDLE_WIDTH && ballPosition.y >= player1Position.y && ballPosition.y <= player1Position.y + heightPaddleScale && ballDirection.x < 0)
     {
@@ -574,10 +577,12 @@ export default function GameSolo(props: any) {
     }
     else if (wall && ballDirection.x < 0 && ballPosition.x - BALL_RADIUS <= WALL_PLAYER1 + WALL_WIDTH / 2 && ballPosition.x - BALL_RADIUS >= WALL_PLAYER1 - WALL_WIDTH / 2)
     {
+      playWallSound();
       setBallDirection((prev) => ({x: -prev.x, y: prev.y}));
     }
     else if (wall2 && ballDirection.x > 0 && ballPosition.x + BALL_RADIUS >= WALL_PLAYER2 - WALL_WIDTH / 2 && ballPosition.x + BALL_RADIUS <= WALL_PLAYER2 + WALL_WIDTH / 2)
     {
+      playWallSound();
       setBallDirection((prev) => ({x: -prev.x, y: prev.y}));
     }
     else
@@ -682,16 +687,17 @@ export default function GameSolo(props: any) {
 
     const animate = () => {
       
-      if (!isPlaying)
-        return;
-      
       if (endGame)
+        return;
+
+      checkEndGame();
+        
+      if (!isPlaying)
         return;
       
       hitBonus();
       hitScenery();
       animateBonus();
-      checkEndGame();
       
     };
       window.requestAnimationFrame(animate);
@@ -772,7 +778,6 @@ export default function GameSolo(props: any) {
     };
   }, [mousePos, player1Position])
 
-
   useEffect(() => {
     const handleMouseClick = (event: MouseEvent) => {
       if (event && player1GetBonus)
@@ -813,8 +818,10 @@ export default function GameSolo(props: any) {
       {
         case ' ':
           event.preventDefault();
-          setIsPlaying(true);
           setIsReady(true);
+          setTimeout(() => {
+            setIsPlaying(true);
+          }, TIME_LAUNCH_BALL * 1000);
           break;
         default:
           break;
@@ -1013,7 +1020,8 @@ export default function GameSolo(props: any) {
 
     return (
     <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} style={{ border: '1px solid black' }}>
-      <Board winLose={endGame}
+      <Board ballState={isPlaying}
+            winLose={endGame}
             sideWin={player1Score > player2Score ? 'You won' : 'You lost'}
             isReady={isReady} 
             ballPosition={ballPosition}

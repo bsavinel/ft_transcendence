@@ -1,17 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket, MessageBody} from '@nestjs/websockets';
-import { check } from 'prettier';
+import { UseGuards } from '@nestjs/common';
+import { SocketGuard } from 'src/guards/socket.guard';
+import { WebSocketGateway,
+          WebSocketServer,
+          SubscribeMessage,
+          OnGatewayConnection, 
+          OnGatewayDisconnect,
+          ConnectedSocket,
+          MessageBody}
+          from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
-// import { spells } from './Spell'
-// import { Position, Direction, Spell } from './types';
-
-// Utilisation des types et interfaces ici
+import { GameService } from '../game/game.service'
+import { Inject } from '@nestjs/common';
+import { gameMode } from '@prisma/client';
 
 const BOARD_WIDTH = 1000;
-const BOARD_HEIGHT = 600;
+const BOARD_HEIGHT = 500;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 0.4;
+const INCREASE_SPEED = 0.02;
 const WALL_WIDTH = 10;
 const WALL_HEIGH = BOARD_HEIGHT;
 const WALL_PLAYER1 = BOARD_WIDTH * 0.33;
@@ -23,8 +30,9 @@ const BONUS_HEIGHT = 50;
 const BONUS_SPEED = 0.2;
 const TIME_LEFT = 5;
 const TIME_LEFT_BLOC_BONUS = 5;
-const SCORE_LIMIT = 5;
+const SCORE_LIMIT = 11;
 const STROKE = 2;
+const TIME_LAUNCH_BALL = 2;
 
 const spells = [
 	{
@@ -122,18 +130,18 @@ interface GameState
   isPlaying: boolean;
 }
 
-
 @WebSocketGateway({
   cors: {
     origin: "*",
   },
   namespace: 'pong',
 })
+@UseGuards(SocketGuard)
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect 
 {
+  constructor(@Inject(GameService) private gameService: GameService) {}
   @WebSocketServer()
   server: Server;
-  users: number = 0;
 
   private queueClassic: {id: string, socket: Socket }[] = [];
   private queuePower: {id: string, socket: Socket }[] = [];
@@ -145,6 +153,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
   private ball: Map<string, BallState> = new Map();
   private bonus: Map<string, BonusState> = new Map();
   private game: Map<string, GameState> = new Map();
+  private gameIdPrisma: Map<string, number> = new Map();
   
   handleConnection(client: Socket) {
     console.log('New player connected:', client.id);
@@ -160,35 +169,53 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     const socket = client;
     const player = this.players.find(client => client.client === socket);
+    
     if (player)
     {
-      if (this.game.has(player.room))
+      if (this.game.has(player.room) && this.player.has(player.room))
       {
+        const playerState = this.player.get(player.room);
         const game = this.game.get(player.room);
         const side = player.side === 'left' ? 'right' : 'left';
         const arrayRoom = this.rooms.get(player.room);
         if (arrayRoom)
         {
+          if (arrayRoom.length > 1)
+          {
+            const player1Room = arrayRoom.find(player => player.side === 'left');
+            const player2Room = arrayRoom.find(player => player.side === 'right');
+            const player1Socket = player1Room.client;
+            const player2Socket = player2Room.client;
+            const player1Id = player1Socket.data.accessToken.userId;
+            const player2Id = player2Socket.data.accessToken.userId;
+            const player1 = {id: player1Id, score: playerState.player1Score};
+            const player2 = {id: player2Id, score: playerState.player2Score};
+            const gameId = this.gameIdPrisma.get(player.room);
+
+            this.gameService.FinishGame(gameId, player1, player2, side === 'left' ? player2.id : player1.id);
+          }
           const indexPlayerArrayRoom = arrayRoom.findIndex(index => index.client === socket);
           if (indexPlayerArrayRoom !== -1)
             arrayRoom.splice(indexPlayerArrayRoom, 1);
-          
-            this.rooms.set(player.room, arrayRoom);
-            player.client.leave(player.room);
+
+          console.log('Player leave the pong:', client.id);
+
+          this.rooms.set(player.room, arrayRoom);
+          player.client.leave(player.room);
           this.players = this.players.filter(players => players.client !== player.client);
           this.server.to(player.room).emit('playerLeavePong', true);
           this.server.to(player.room).emit('playerWinLose', side);
-          game.endGame = true;
+          game.isPlaying = false;
           this.game.set(player.room, game);
-          // Gestion DB
-          const checkLengthRoom = this.rooms.get(player.room);
-          if (checkLengthRoom.length < 1)
+          
+          if (arrayRoom.length < 1)
           {
             this.rooms.delete(player.room);
             this.player.delete(player.room);
             this.ball.delete(player.room);
             this.bonus.delete(player.room);
             this.game.delete(player.room);
+            this.gameIdPrisma.delete(player.room);
           }
         }
       }
@@ -255,6 +282,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
     };
   }
 
+
   async waitForPageLoad(client1: Socket, client2: Socket) {
     return new Promise<void>((resolve) => {
       let loadedClients = 0;
@@ -285,7 +313,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       
       const gameId = v4();
       const room = `room-${gameId}`;
-      
+
       const playersRoom = [
         { client: player1.socket, side: 'left' },
         { client: player2.socket, side: 'right' },
@@ -302,9 +330,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       player2.socket.join(room);
       player1.socket.to(room).emit('launchOn', true);
       player2.socket.to(room).emit('launchOn', true);
-
+      
       await this.waitForPageLoad(player1.socket, player2.socket);
 
+      const player1IdPrisma = player1.socket.data.accessToken.userId;
+      const player2IdPrisma = player2.socket.data.accessToken.userId;
+
+      const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.CLASSIC);
+      
       player1.socket.to(room).emit('room', {roomId: room});
       player2.socket.to(room).emit('room', {roomId: room});
       player1.socket.to(room).emit('side', {side: 'right'});
@@ -316,6 +349,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.ball.set(room, this.getDefaultBallState());
       this.bonus.set(room, this.getDefaultBonusState());
       this.game.set(room, this.getDefaultGameState());
+      this.gameIdPrisma.set(room, gameIdPrisma);
     }
   }
 
@@ -361,6 +395,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       player2.socket.to(room).emit('launchOn', true);
 
       await this.waitForPageLoad(player1.socket, player2.socket);
+      
+      const player1IdPrisma = player1.socket.data.accessToken.userId;
+      const player2IdPrisma = player2.socket.data.accessToken.userId;
+
+      const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.POWER);
 
       player1.socket.to(room).emit('room', {roomId: room});
       player2.socket.to(room).emit('room', {roomId: room});
@@ -375,6 +414,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.ball.set(room, this.getDefaultBallState());
       this.bonus.set(room, this.getDefaultBonusState());
       this.game.set(room, this.getDefaultGameState());
+      this.gameIdPrisma.set(room, gameIdPrisma);
     }
   }
 
@@ -394,38 +434,111 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
   {
     const socket = client;
     const player = this.players.find(client => client.client === socket);
-    if (this.game.has(player.room))
+    
+    if (player)
     {
-      const game = this.game.get(player.room);
-      const side = player.side === 'left' ? 'right' : 'left';
-      const arrayRoom = this.rooms.get(player.room);
-      if (arrayRoom)
+      if (this.game.has(player.room) && this.player.has(player.room))
       {
-        const indexPlayerArrayRoom = arrayRoom.findIndex(index => index.client === socket);
-        if (indexPlayerArrayRoom !== -1)
-          arrayRoom.splice(indexPlayerArrayRoom, 1);
-        
-        console.log('Player leave the pong:', client.id);
-        this.rooms.set(player.room, arrayRoom);
-        player.client.leave(player.room);
-        this.players = this.players.filter(players => players.client !== player.client);
-        this.server.to(player.room).emit('playerLeavePong', true);
-        this.server.to(player.room).emit('playerWinLose', side);
-        game.endGame = true;
-        this.game.set(player.room, game);
-        // Gestion DB
-        const checkLengthRoom = this.rooms.get(player.room);
-        if (checkLengthRoom.length < 1)
+        const playerState = this.player.get(player.room);
+        const game = this.game.get(player.room);
+        const side = player.side === 'left' ? 'right' : 'left';
+        const arrayRoom = this.rooms.get(player.room);
+        if (arrayRoom)
         {
-          this.rooms.delete(player.room);
-          this.player.delete(player.room);
-          this.ball.delete(player.room);
-          this.bonus.delete(player.room);
-          this.game.delete(player.room);
+          if (arrayRoom.length > 1)
+          {
+            const player1Room = arrayRoom.find(player => player.side === 'left');
+            const player2Room = arrayRoom.find(player => player.side === 'right');
+            const player1Socket = player1Room.client;
+            const player2Socket = player2Room.client;
+            const player1Id = player1Socket.data.accessToken.userId;
+            const player2Id = player2Socket.data.accessToken.userId;
+            const player1 = {id: player1Id, score: playerState.player1Score};
+            const player2 = {id: player2Id, score: playerState.player2Score};
+            const gameId = this.gameIdPrisma.get(player.room);
+
+            this.gameService.FinishGame(gameId, player1, player2, side === 'left' ? player2.id : player1.id);
+          }
+          const indexPlayerArrayRoom = arrayRoom.findIndex(index => index.client === socket);
+          if (indexPlayerArrayRoom !== -1)
+            arrayRoom.splice(indexPlayerArrayRoom, 1);
+
+          console.log('Player leave the pong:', client.id);
+
+          this.rooms.set(player.room, arrayRoom);
+          player.client.leave(player.room);
+          this.players = this.players.filter(players => players.client !== player.client);
+          this.server.to(player.room).emit('playerLeavePong', true);
+          this.server.to(player.room).emit('playerWinLose', side);
+          game.isPlaying = false;
+          this.game.set(player.room, game);
+          
+          if (arrayRoom.length < 1)
+          {
+            this.rooms.delete(player.room);
+            this.player.delete(player.room);
+            this.ball.delete(player.room);
+            this.bonus.delete(player.room);
+            this.game.delete(player.room);
+            this.gameIdPrisma.delete(player.room);
+          }
         }
       }
     }
   }
+
+  // @SubscribeMessage('joinMatchmakingChat')
+  // async handleMatchmakingChat(client: Socket): Promise<void> {
+  //   const player = {id: client.id, socket: client};
+  //   this.queueClassic.push(player);
+  //   console.log(`Player ${client.id} joined the queue for classic Pong.`);
+
+  //   if (this.queueClassic.length >= 2) {
+  //     const player1 = this.queueClassic.shift();
+  //     const player2 = this.queueClassic.shift();
+  //     console.log(`Matching players ${player1.id} and ${player2.id}.`);
+      
+  //     const gameId = v4();
+  //     const room = `room-${gameId}`;
+
+  //     const playersRoom = [
+  //       { client: player1.socket, side: 'left' },
+  //       { client: player2.socket, side: 'right' },
+  //     ];
+  //     this.rooms.set(room, playersRoom);
+
+  //     const player1array = {client: player1.socket, side: 'left', room: room, mode: 'classic'}
+  //     const player2array = {client: player2.socket, side: 'right', room: room, mode: 'classic'}
+
+  //     this.players.push(player1array);
+  //     this.players.push(player2array);
+
+  //     player1.socket.join(room);
+  //     player2.socket.join(room);
+  //     player1.socket.to(room).emit('launchOn', true);
+  //     player2.socket.to(room).emit('launchOn', true);
+      
+  //     await this.waitForPageLoad(player1.socket, player2.socket);
+
+  //     const player1IdPrisma = player1.socket.data.accessToken.userId;
+  //     const player2IdPrisma = player2.socket.data.accessToken.userId;
+
+  //     const gameIdPrisma = await this.gameService.createGame(player1IdPrisma, player2IdPrisma, gameMode.CLASSIC);
+      
+  //     player1.socket.to(room).emit('room', {roomId: room});
+  //     player2.socket.to(room).emit('room', {roomId: room});
+  //     player1.socket.to(room).emit('side', {side: 'right'});
+  //     player2.socket.to(room).emit('side', {side: 'left'});
+      
+  //     console.log(`New game started with id ${gameId}.`);
+
+  //     this.player.set(room, this.getDefaultPlayerState());
+  //     this.ball.set(room, this.getDefaultBallState());
+  //     this.bonus.set(room, this.getDefaultBonusState());
+  //     this.game.set(room, this.getDefaultGameState());
+  //     this.gameIdPrisma.set(room, gameIdPrisma);
+  //   }
+  // }
     
 
   @SubscribeMessage('launchSpell')
@@ -485,18 +598,30 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
   managePlayerReady(@ConnectedSocket() socket: Socket, @MessageBody() data: { roomId: string, side: string }): void
   {
     const{roomId, side} = data;
+    let timeOutBall
     if (this.player.has(roomId) && this.game.has(roomId))
     {
       const player = this.player.get(roomId);
       const game = this.game.get(roomId);
       
       if (side === 'left')
+      {
+        socket.to(roomId).emit('otherPlayerReady')
         player.player1Ready = true;
+      }
       else if (side === "right")
+      {
+        socket.to(roomId).emit('otherPlayerReady')
         player.player2Ready = true;
+      }
       
       if (player.player1Ready && player.player2Ready)
-        game.isPlaying = true;
+      {
+        // game.isPlaying = true;
+        timeOutBall = setTimeout(() => {
+          game.isPlaying = true;
+        }, TIME_LAUNCH_BALL * 1000);
+      }
       
       this.player.set(roomId, player);
       this.game.set(roomId, game);
@@ -517,8 +642,56 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       
       this.server.to(roomId).emit('updatePowerUp', {player: player, ball: ball, bonus: bonus, game: game});
       
-      if (game.endGame || !game.isPlaying)
-      return;
+      if (player.player1Score >= SCORE_LIMIT || player.player2Score >= SCORE_LIMIT) 
+      {
+        const side = player.player1Score >= SCORE_LIMIT ? 'left' : 'right';
+        bonus.showBonus = false;
+        bonus.showBonus2 = false;
+        player.player1GetBonus = false;
+        player.player2GetBonus = false;
+        game.isPlaying = false;
+        game.endGame = true;
+        this.server.to(roomId).emit('playerWinLose', side);
+        const arrayRoom = this.rooms.get(roomId);
+        if (arrayRoom)
+        {
+          const player1Room = arrayRoom.find(player => player.side === 'left');
+          const player2Room = arrayRoom.find(player => player.side === 'right');
+          const player1Socket = player1Room.client;
+          const player2Socket = player2Room.client;
+          const player1Id = player1Socket.data.accessToken.userId;
+          const player2Id = player2Socket.data.accessToken.userId;
+          const player1 = {id: player1Id, score: player.player1Score};
+          const player2 = {id: player2Id, score: player.player2Score};
+          const gameId = this.gameIdPrisma.get(roomId);
+
+          this.gameService.FinishGame(gameId, player1, player2);
+
+          console.log('Player leave the pong:', player1Socket.id);
+          console.log('Player leave the pong:', player2Socket.id);
+
+          player1Socket.leave(roomId);
+          player2Socket.leave(roomId);
+          this.players = this.players.filter(players => players.client !== player1Socket);
+          this.players = this.players.filter(players => players.client !== player2Socket);
+
+          this.game.set(roomId, game);
+        }
+      }
+
+      if (game.endGame)
+      {
+        this.rooms.delete(roomId);
+        this.player.delete(roomId);
+        this.ball.delete(roomId);
+        this.bonus.delete(roomId);
+        this.game.delete(roomId);
+        this.gameIdPrisma.delete(roomId);
+        return;
+      }
+
+      if (!game.isPlaying)
+        return;
       
       if (player.player1ActivateBonus)
       {
@@ -673,7 +846,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.player2Score += 1;
         ball.ballPosition = {x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2}
         ball.ballDirection = {x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}
-        // game.isPlaying = !game.isPlaying;
+        game.isPlaying = !game.isPlaying;
         player.player1GetBonus = false;
         player.player2GetBonus = false;
         player.player1ActivateBonus = false;
@@ -699,13 +872,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         clearTimeout(timeOutMind);
         clearTimeout(timeOutMind2);
         socket.to(roomId).emit("endAudio");
+        setTimeout(() => {
+          game.isPlaying = true;
+        }, TIME_LAUNCH_BALL * 1000);
       }
       else if (ball.ballPosition.x + BALL_RADIUS >= BOARD_WIDTH && ball.ballDirection.x > 0) // Touche le mur droite
       {
         player.player1Score += 1;
         ball.ballPosition = {x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2}
         ball.ballDirection = {x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}
-        // game.isPlaying = !game.isPlaying;
+        game.isPlaying = !game.isPlaying;
         player.player1GetBonus = false;
         player.player2GetBonus = false;
         player.player1ActivateBonus = false;
@@ -731,6 +907,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         clearTimeout(timeOutMind);
         clearTimeout(timeOutMind2);
         socket.to(roomId).emit("endAudio");
+        setTimeout(() => {
+          game.isPlaying = true;
+        }, TIME_LAUNCH_BALL * 1000);
       }
       else if (ball.ballPosition.x - BALL_RADIUS <= player.player1Position.x + PADDLE_WIDTH && ball.ballPosition.y >= player.player1Position.y && ball.ballPosition.y <= player.player1Position.y + bonus.heightPaddleScale && ball.ballDirection.x < 0)
       {
@@ -778,19 +957,19 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       else if (ball.ballPosition.x + BALL_RADIUS >= player.player2Position.x && ball.ballPosition.y >= player.player2Position.y && ball.ballPosition.y <= player.player2Position.y + bonus.heightPaddleScale2 && ball.ballDirection.x > 0)
       {
         ball.ballPower = false;
-        if ( ball.ballPosition.y > player.player1Position.y && ball.ballPosition.y < player.player1Position.y + (bonus.heightPaddleScale2 / 5) ) 
+        if ( ball.ballPosition.y > player.player2Position.y && ball.ballPosition.y < player.player2Position.y + (bonus.heightPaddleScale2 / 5) ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * -2.5};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + (bonus.heightPaddleScale2 / 5) && ball.ballPosition.y  < player.player1Position.y + (bonus.heightPaddleScale2 / 5) * 2 ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + (bonus.heightPaddleScale2 / 5) && ball.ballPosition.y  < player.player2Position.y + (bonus.heightPaddleScale2 / 5) * 2 ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * -2};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + (bonus.heightPaddleScale2 / 5) * 2 && ball.ballPosition.y  < player.player1Position.y + bonus.heightPaddleScale2 - (bonus.heightPaddleScale2 / 5) ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + (bonus.heightPaddleScale2 / 5) * 2 && ball.ballPosition.y  < player.player2Position.y + bonus.heightPaddleScale2 - (bonus.heightPaddleScale2 / 5) ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * 2};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + bonus.heightPaddleScale2 - (bonus.heightPaddleScale2 / 5) && ball.ballPosition.y  < player.player1Position.y + bonus.heightPaddleScale2 ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + bonus.heightPaddleScale2 - (bonus.heightPaddleScale2 / 5) && ball.ballPosition.y  < player.player2Position.y + bonus.heightPaddleScale2 ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * 2.5};
         }
@@ -858,19 +1037,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         }
       }
       
-      // checkEndGame();
-      if (player.player1Score >= SCORE_LIMIT || player.player2Score >= SCORE_LIMIT) 
-      {
-        const side = player.player1Score >= SCORE_LIMIT ? 'left' : 'right';
-        bonus.showBonus = false;
-        bonus.showBonus2 = false;
-        player.player1GetBonus = false;
-        player.player2GetBonus = false;
-        game.isPlaying = false;
-        game.endGame = true;
-        this.server.to(roomId).emit('playerWinLose', side);
-      }
-      
       this.player.set(roomId, player);
       this.ball.set(roomId, ball);
       this.bonus.set(roomId, bonus);
@@ -889,11 +1055,56 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       const ball = this.ball.get(roomId);
       const bonus = this.bonus.get(roomId);
       const game = this.game.get(roomId);
-      
+
       this.server.to(roomId).emit('update', {player: player, ball: ball, bonus: bonus, game: game});
       
-      if (game.endGame || !game.isPlaying)
-      return;
+      // checkEndGame();
+      if (player.player1Score >= SCORE_LIMIT || player.player2Score >= SCORE_LIMIT) 
+      {
+        const side = player.player1Score >= SCORE_LIMIT ? 'left' : 'right';
+        game.isPlaying = false;
+        game.endGame = true;
+        this.server.to(roomId).emit('playerWinLose', side);
+        const arrayRoom = this.rooms.get(roomId);
+        if (arrayRoom)
+        {
+          const player1Room = arrayRoom.find(player => player.side === 'left');
+          const player2Room = arrayRoom.find(player => player.side === 'right');
+          const player1Socket = player1Room.client;
+          const player2Socket = player2Room.client;
+          const player1Id = player1Socket.data.accessToken.userId;
+          const player2Id = player2Socket.data.accessToken.userId;
+          const player1 = {id: player1Id, score: player.player1Score};
+          const player2 = {id: player2Id, score: player.player2Score};
+          const gameId = this.gameIdPrisma.get(roomId);
+
+          this.gameService.FinishGame(gameId, player1, player2);
+
+          console.log('Player leave the pong:', player1Socket.id);
+          console.log('Player leave the pong:', player2Socket.id);
+
+          player1Socket.leave(roomId);
+          player2Socket.leave(roomId);
+          this.players = this.players.filter(players => players.client !== player1Socket);
+          this.players = this.players.filter(players => players.client !== player2Socket);
+
+          this.game.set(roomId, game);
+        }
+      }
+      
+      if (game.endGame)
+      {
+        this.rooms.delete(roomId);
+        this.player.delete(roomId);
+        this.ball.delete(roomId);
+        this.bonus.delete(roomId);
+        this.game.delete(roomId);
+        this.gameIdPrisma.delete(roomId);
+        return;
+      }
+
+      if (!game.isPlaying)
+        return;
       
       // hitScenery();
       if (ball.ballPosition.y - BALL_RADIUS <= 0 && ball.ballDirection.y < 0) // Touche le plafond
@@ -911,7 +1122,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.player2Score += 1;
         ball.ballPosition = {x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2}
         ball.ballDirection = {x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}
-        // game.isPlaying = !game.isPlaying;
+        game.isPlaying = !game.isPlaying;
         player.player1GetBonus = false;
         player.player2GetBonus = false;
         player.player1ActivateBonus = false;
@@ -921,13 +1132,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.whichSpellPlayer2 = null;
         ball.ballPower = false;
         socket.to(roomId).emit("endAudio");
+        setTimeout(() => {
+          game.isPlaying = true;
+        }, TIME_LAUNCH_BALL * 1000);
       }
       else if (ball.ballPosition.x + BALL_RADIUS >= BOARD_WIDTH && ball.ballDirection.x > 0) // Touche le mur droite
       {
         player.player1Score += 1;
         ball.ballPosition = {x: BOARD_WIDTH / 2, y: BOARD_HEIGHT / 2}
         ball.ballDirection = {x: Math.random() > 0.5 ? 1 : -1, y: Math.random() > 0.5 ? 0.5 : -0.5}
-        // game.isPlaying = !game.isPlaying;
+        game.isPlaying = !game.isPlaying;
         player.player1GetBonus = false;
         player.player2GetBonus = false;
         player.player1ActivateBonus = false;
@@ -937,10 +1151,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.whichSpellPlayer2 = null;
         ball.ballPower = false;
         socket.to(roomId).emit("endAudio");
+        setTimeout(() => {
+          game.isPlaying = true;
+        }, TIME_LAUNCH_BALL * 1000);
       }
       else if (ball.ballPosition.x - BALL_RADIUS <= player.player1Position.x + PADDLE_WIDTH && ball.ballPosition.y >= player.player1Position.y && ball.ballPosition.y <= player.player1Position.y + PADDLE_HEIGHT && ball.ballDirection.x < 0)
       {
         ball.ballPower = false;
+        ball.ballSpeed += INCREASE_SPEED;
         if (ball.ballPosition.y > player.player1Position.y && ball.ballPosition.y < player.player1Position.y + (PADDLE_HEIGHT / 5) ) 
         {
           ball.ballDirection = {x: 1, y: Math.random() * -2.5};
@@ -966,19 +1184,20 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       else if (ball.ballPosition.x + BALL_RADIUS >= player.player2Position.x && ball.ballPosition.y >= player.player2Position.y && ball.ballPosition.y <= player.player2Position.y + PADDLE_HEIGHT && ball.ballDirection.x > 0)
       {
         ball.ballPower = false;
-        if ( ball.ballPosition.y > player.player1Position.y && ball.ballPosition.y < player.player1Position.y + (PADDLE_HEIGHT / 5) ) 
+        ball.ballSpeed += INCREASE_SPEED;
+        if ( ball.ballPosition.y > player.player2Position.y && ball.ballPosition.y < player.player2Position.y + (PADDLE_HEIGHT / 5) ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * -2.5};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + (PADDLE_HEIGHT / 5) && ball.ballPosition.y  < player.player1Position.y + (PADDLE_HEIGHT / 5) * 2 ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + (PADDLE_HEIGHT / 5) && ball.ballPosition.y  < player.player2Position.y + (PADDLE_HEIGHT / 5) * 2 ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * -2};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + (PADDLE_HEIGHT / 5) * 2 && ball.ballPosition.y  < player.player1Position.y + PADDLE_HEIGHT - (PADDLE_HEIGHT / 5) ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + (PADDLE_HEIGHT / 5) * 2 && ball.ballPosition.y  < player.player2Position.y + PADDLE_HEIGHT - (PADDLE_HEIGHT / 5) ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * 2};
         }
-        else if ( ball.ballPosition.y  >= player.player1Position.y + PADDLE_HEIGHT - (PADDLE_HEIGHT / 5) && ball.ballPosition.y  < player.player1Position.y + PADDLE_HEIGHT ) 
+        else if ( ball.ballPosition.y  >= player.player2Position.y + PADDLE_HEIGHT - (PADDLE_HEIGHT / 5) && ball.ballPosition.y  < player.player2Position.y + PADDLE_HEIGHT ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * 2.5};
         }
@@ -992,18 +1211,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       {
         ball.ballPosition = {x: ball.ballPosition.x + ball.ballDirection.x * ball.ballSpeed, y: ball.ballPosition.y + ball.ballDirection.y * ball.ballSpeed}
       }
-  
-      // checkEndGame();
-      if (player.player1Score >= SCORE_LIMIT || player.player2Score >= SCORE_LIMIT) 
-      {
-        const side = player.player1Score >= SCORE_LIMIT ? 'left' : 'right';
-        player.player1GetBonus = false;
-        player.player2GetBonus = false;
-        game.isPlaying = false;
-        game.endGame = true;
-        this.server.to(roomId).emit('playerWinLose', side);
-      }
-  
+
       this.player.set(roomId, player);
       this.ball.set(roomId, ball);
       this.bonus.set(roomId, bonus);

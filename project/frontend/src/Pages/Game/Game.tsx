@@ -1,10 +1,9 @@
 import { Link, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react';
 import "./Game.css";
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -13,8 +12,10 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { socket } from '../../Component/Pong/PongSocketContext';
-
+import Slide from '@mui/material/Slide';
+import { TransitionProps } from '@mui/material/transitions';
+import { Socket } from 'socket.io-client';
+import { PongSocketContext } from '../../Component/Pong/PongSocketContext';
 
 
 export default function HomeGame() {
@@ -27,10 +28,13 @@ export default function HomeGame() {
   const [timeOut, setTimeOut] = useState<NodeJS.Timeout>();
   const [levelValue, setLevelValue] = useState<string>("1");
   const [progress, setProgress] = useState<number>(25);
+  const [openRulesClassic, setOpenRulesClassic] = useState<boolean>(false);
+  const [openRulesPower, setOpenRulesPower] = useState<boolean>(false);
+  const socket: Socket | null = useContext(PongSocketContext);
+
   let progressValue = 25;
 
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (playerAvailable)
@@ -51,22 +55,22 @@ export default function HomeGame() {
 
   const handleOpenPlayOnline = () => {
     setIsOpenPlayOnline(true);
-    socket.emit("joinMatchmaking");
+    socket?.emit("joinMatchmaking");
   };
 
   const handleClosePlayOnline = () => {
     setIsOpenPlayOnline(false);
-    socket.emit("leaveMatchmaking");
+    socket?.emit("leaveMatchmaking");
   };
 
   const handleOpenPlayOnlinePowerUp = () => {
     setIsOpenPlayOnlinePowerUp(true);
-    socket.emit("joinMatchmakingPowerUp");
+    socket?.emit("joinMatchmakingPowerUp");
   };
 
   const handleClosePlayOnlinePowerUp = () => {
     setIsOpenPlayOnlinePowerUp(false);
-    socket.emit("leaveMatchmakingPowerUp");
+    socket?.emit("leaveMatchmakingPowerUp");
   };
 
   const handleOpenPlaySolo = () => {
@@ -82,15 +86,44 @@ export default function HomeGame() {
     navigate(`/game/pong-solo?level=${levelValue}`)
   };
 
+  const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+      children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
+  ) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
+  const handleOpenRulesClassic = () => {
+    setOpenRulesClassic(true);
+  };
+
+  const handleCloseRulesClassic = () => {
+    setOpenRulesClassic(false);
+  };
+
+  const handleOpenRulesPower = () => {
+    setOpenRulesPower(true);
+  };
+
+  const handleCloseRulesPower = () => {
+    setOpenRulesPower(false);
+  };
+
   const SoloPong = () => {
     return (
       <div className='section2'>
-        <h2 className='title2'>SOLO</h2>
-        <p>Le Pong solo vous permet d'affronter une intelligence artificielle avec les pouvoirs. Choisissez le niveau de difficulté qui vous convient et appuyez sur le bouton "PLAY".</p>
-        <Button sx={{ width: '30%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlaySolo}>Lancer une partie</Button>
-        <Dialog open={isOpenPlaySolo} onClose={handleClosePlaySolo}>
-          <DialogTitle>Choisis le niveau de jeu</DialogTitle>
+        <h2 className='title2'>Solo</h2>
+        <Button sx={{ width: '30%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlaySolo}>Lancer une partie</Button>
+        <Dialog open={isOpenPlaySolo} onClose={handleClosePlaySolo}
+        PaperProps={{
+          style: {
+            backgroundColor: 'grey',
+          },
+        }}>
           <Box sx={{ width: 400 }}>
+          <h1 style={{ fontSize: '25px' }}>Solo contre IA</h1>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Niveau</InputLabel>
               <Select
@@ -108,9 +141,9 @@ export default function HomeGame() {
               </Select>
             </FormControl>
           </Box>
-          <Button variant="contained" color="primary" onClick={handleLaunchSolo}>PLAY</Button>
+          <Button variant="contained" color="inherit" onClick={handleLaunchSolo}>PLAY</Button>
           <DialogActions>
-            <Button onClick={handleClosePlaySolo} color="primary">
+            <Button onClick={handleClosePlaySolo} color="inherit">
               Annuler
             </Button>
           </DialogActions>
@@ -122,11 +155,15 @@ export default function HomeGame() {
   const OnlinePong = () => {
     return (
       <div className='section2'>
-        <h2 className='title2'>ONLINE</h2>
-        <p>Le Pong en ligne est un jeu où vous jouez contre un autre joueur en temps réel. Vous pouvez joeur en mode classic ou avec les pouvoirs. Appuyez sur le mode qui vous convient pour lancer la recherche d'un adversaire.</p>
-          <Button sx={{ width: '35%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlayOnline}>Matchmaking Classic</Button>
-          <Dialog className='dialog-point' open={isOpenPlayOnline} onClose={handleClosePlayOnline}>
-            <DialogTitle>Pong Classic Online</DialogTitle>
+        <h2 className='title2'>Online</h2>
+          <Button sx={{ width: '35%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlayOnline}>Matchmaking Classic</Button>
+          <Dialog open={isOpenPlayOnline} onClose={handleClosePlayOnline} 
+          PaperProps={{
+            style: {
+              backgroundColor: 'grey',
+            },
+          }}>
+            <h1 style={{ fontSize: '25px' }}>Classic Online</h1>
             <DialogContent>
               {playerAvailable && <p>Joueur trouvé !</p>}
               {!playerAvailable && <p>En attente d'un autre joueur...</p>}
@@ -136,15 +173,20 @@ export default function HomeGame() {
               {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
             </Box>
             <DialogActions>
-              <Button onClick={handleClosePlayOnline} color="primary">
+              <Button onClick={handleClosePlayOnline} color="inherit">
                 Annuler
               </Button>
             </DialogActions>
           </Dialog>
   
-          <Button sx={{ width: '35%', borderRadius: '25px'}} variant="contained" color="primary" onClick={handleOpenPlayOnlinePowerUp}>Matchmaking Power</Button>
-          <Dialog className='dialog-point' open={isOpenPlayOnlinePowerUp} onClose={handleClosePlayOnlinePowerUp}>
-            <DialogTitle>Pong Power Online</DialogTitle>
+          <Button sx={{ width: '35%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlayOnlinePowerUp}>Matchmaking Power</Button>
+          <Dialog open={isOpenPlayOnlinePowerUp} onClose={handleClosePlayOnlinePowerUp}
+          PaperProps={{
+            style: {
+              backgroundColor: 'grey',
+            },
+          }}>
+            <h1 style={{ fontSize: '25px' }}>Power Online</h1>
             <DialogContent>
               {!playerAvailable && <p>En attente d'un autre joueur...</p>}
               {playerAvailable && <p>Joueur trouvé !</p>}
@@ -154,7 +196,7 @@ export default function HomeGame() {
               {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
             </Box>
             <DialogActions>
-              <Button onClick={handleClosePlayOnlinePowerUp} color="primary">
+              <Button onClick={handleClosePlayOnlinePowerUp} color="inherit">
                 Annuler
               </Button>
             </DialogActions>
@@ -162,30 +204,99 @@ export default function HomeGame() {
       </div>
     );
   };
+
+  const Rules = () => {
+    return (
+      <div className='section2'>
+        <h2 className='title2'>Regles</h2>
+        <Button variant="contained" color="inherit" onClick={handleOpenRulesClassic}>
+        Classic
+        </Button>
+        <Dialog
+          open={openRulesClassic}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseRulesClassic}
+          aria-describedby="alert-dialog-slide-description"
+          PaperProps={{
+            style: {
+              backgroundColor: 'grey',
+            },
+          }}
+        >
+          <h1 style={{ fontSize: '25px' }}>{"Regles Pong Classic"}</h1>
+          <DialogContent>
+            <p>
+            Le jeu oppose deux joueurs, chacun contrôlant un paddle à l'aide de leur souris. <br/>
+            Au debut du jeu et après chaque point marqué, il y a un délai de 3 secondes avant que la balle ne soit relancée. <br/>
+            Le but est de marquer des points en faisant passer la balle derrière le paddle de l'adversaire. <br/>
+            Le premier joueur à atteindre 11 points remporte la partie. <br/>
+            La vitesse de la balle augmente à chaque fois qu'elle touche un paddle, rendant le jeu de plus en plus difficile. <br/>
+            Si un joueur se deconnecte ou quitte la partie en cours, il est considéré comme perdant peu importe le score. <br/>
+            </p>
+          </DialogContent>
+        </Dialog>
+        <Button variant="contained" color="inherit" onClick={handleOpenRulesPower}>
+        Power
+        </Button>
+        <Dialog
+          open={openRulesPower}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseRulesPower}
+          aria-describedby="alert-dialog-slide-description"
+          PaperProps={{
+            style: {
+              backgroundColor: 'grey',
+            },
+          }}
+        >
+          <h1 style={{ fontSize: '25px' }}>{"Regles Pong Power"}</h1>
+          <DialogContent>
+            <p>
+            Le jeu oppose deux joueurs, chacun contrôlant un paddle à l'aide de leur souris. <br/>
+            Au debut du jeu et après chaque point marqué, il y a un délai de 3 secondes avant que la balle ne soit relancée. <br/>
+            Le but est de marquer des points en faisant passer la balle derrière le paddle de l'adversaire. <br/>
+            Le premier joueur à atteindre 11 points remporte la partie. <br/>
+            Si un joueur se deconnecte ou quitte la partie en cours, il est considéré comme perdant peu importe le score. <br/>
+
+            Ce mode comporte 4 pouvoirs différents, qui peuvent être acqueris en touchant un bloc spécial qui tombe sur le terrain. Il faut ensuite appuyer sur le clic gauche pour activer le pouvoir. <br/>
+            <br/>
+            Les pouvoirs disponibles sont : <br/>
+            <br/>
+            Bloc rouge : crée un mur qui bloque la balle pendant quelques secondes, empêchant l'adversaire de la toucher. <br/>
+            Bloc violet : rétrécit le paddle de l'adversaire, le rendant plus difficile à contrôler. <br/>
+            Bloc vert : envoie la balle en l'air avec un petit angle, permettant au joueur de l'envoyer dans des zones plus difficiles d'accès pour l'adversaire. <br/>
+            Bloc jaune : tire la balle horizontalement à haute vitesse, permettant de surprendre l'adversaire et de marquer un point facilement. <br/>
+            </p>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
   
 
   useEffect(() => {
     if (isOpenPlayOnline) {
-      socket.on('connect', () => {
+      socket?.on('connect', () => {
         console.log('Connected');
       });
     }
     else if (!isOpenPlayOnline)
     {
-      socket.on("disconnect", (reason) => {
-        console.log('REASON = ', reason);
+      socket?.on("disconnect", (reason) => {
         if (reason === "io server disconnect") {
           // the disconnection was initiated by the server, you need to reconnect manually
-          socket.connect();
+          socket?.connect();
         }
-        // else the socket will automatically try to reconnect
+        // else the socket? will automatically try to reconnect
       });
     }
-  }, [isOpenPlayOnline]);
+  }, [isOpenPlayOnline]); 
 
   useEffect(() => {
-    socket.on("launchOn", launch => {setLaunchGame(launch)});
-  }, [launchGame]);
+    socket?.on("launchOn", (launch: boolean) => {setLaunchGame(launch)});
+  }, [launchGame, socket]);
 
   useEffect(() => {
     if (launchGame)
@@ -204,13 +315,12 @@ export default function HomeGame() {
   return (
     <div className="container">
       <h1 className='title1'>PONG GAME</h1>
-      <div className='divBase'>
+      <div>
         <SoloPong />
         <OnlinePong />
+        <Rules />
       </div>
       <h1 className='title12'>PONG GAME</h1>
     </div>
-
-    
   );
 }
