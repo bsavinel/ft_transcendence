@@ -42,6 +42,11 @@ export class ChannelEntity implements Channel {
 	@MaxLength(20)
 	password: string;
 
+	//TODO
+	//ask Cyrielle
+	@Exclude()
+	salt: string;
+
 	constructor(partial: Partial<ChannelEntity>) {
 		Object.assign(this, partial);
 	}

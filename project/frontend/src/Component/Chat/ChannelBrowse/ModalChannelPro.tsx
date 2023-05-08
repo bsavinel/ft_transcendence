@@ -4,7 +4,7 @@ import {Dispatch, SetStateAction} from "react";
 interface modalChannelProtect {
 	openModalPro: boolean;
 	handleModalPro: () => void;
-	joinProtectedChannel: () => void;
+	joinProtectedChannel: () => Promise<void>;
 	inputPwd: string;
 	setInputPwd: Dispatch<SetStateAction<string>>;
 	isValidPwd: boolean;

@@ -1,99 +1,69 @@
 import {ChatSocketContext} from '../../Component/Chat/ChatSocketContext';
 import { useState, useEffect, useContext } from 'react';
-import ChannelList from '../../Component/Chat/ChannelList';
+import ChannelList  from '../../Component/Chat/ChannelList';
 import ChatRoom from '../../Component/Chat/ChatRoom';
-import { MessageDto, ChanelDto } from '../../Component/Chat/hardCodedValues';
 import '../../Component/Chat/chat.css';
 import ApiClient, { getAccessContent } from '../../utils/ApiClient';
-import ChanSettings from '../../Component/Chat/ChanSettings';
 import { AxiosError } from 'axios';
-
-interface socketMsgDto {
-	creatorId: number;
-	content: string;
-	channelId: number;
-}
-
-export interface createChannelDto {
-	channelName: string;
-	mode: string;
-	password?: string;
-}
+import {Box, CircularProgress, Divider, Paper, useTheme} from '@mui/material';
+import {ChannelDto, MessageDto, socketMsgDto, UserOnChannelDto} from '../../Component/Chat/interfaces';
 
 export default function Chat() {
 	const socket = useContext(ChatSocketContext);
-	//TODO: verifier partout si 0 channel (message list aussi)
-	const [channelList, setChannelList] = useState<ChanelDto[]>([]);
-	const [messagesList, setMessagesList] = useState<MessageDto[]>([]);
-	const [selectedChannel, setSelectedChannel] = useState<ChanelDto | null>(
-		null
-	);
+	// messagesList et users dependent tout les deux du selectedChannel
+	const [messagesList, setMessagesList] = useState<MessageDto[]>();
+	const [users, setUsers] = useState<UserOnChannelDto[]>();
+	const [selectedChannel, setSelectedChannel] = useState<ChannelDto>();
+	const [channelList, setChannelList] = useState<ChannelDto[]>([]);
+	const [myUsername, setMyUsername] = useState<string>('');
 
-	// For chan settings modal
-	const [openEditChan, setOpenEditChan] = useState(false);
-	const handleEditChanOpen = () => setOpenEditChan(true);
-	const handleEditChanClose = () => setOpenEditChan(false);
+	const [majBrowseList, setMajBrowseList] = useState<boolean>(false);
 
-	// For now, use the HTTP method to create a channel. To Replace with websocket (to annouce everyone)
-	async function addChan(name: string, mode: string, pass: string) {
-		const newChan: createChannelDto = {
-			channelName: name,
-			password: pass,
-			mode: mode,
-		};
-		try {
-			const res = await ApiClient.post('/channels', newChan);
-			const createdChan: ChanelDto = {
-				id: res.data.id,
-				name: res.data.channelName,
-			};
-			setChannelList([...channelList, createdChan]);
-			setSelectedChannel(createdChan);
-		} catch (error) {
-			console.log('Error while creating new channel: ' + error);
-			if (error instanceof AxiosError && error.response) {
-				console.log(error.response.data.message);
-			}
-			throw error;
-		}
-		setOpenEditChan(false);
+	// To call when need to refresh ChannelBrowse component.
+	function reloadBrowseList() {
+		setMajBrowseList(!majBrowseList);
 	}
 
-	async function fetchChannels() {
-		console.log('fetching Channels list');
-		try {
-			const subChanRes = (await ApiClient.get('/channels')).data;
-			const chans: ChanelDto[] = subChanRes.map(
-				(data: any): ChanelDto => {
-					return { id: data.id, name: data.channelName };
-				}
-			);
-			setChannelList(chans);
-		} catch (error) {
-			console.error(
-				'Erreur lors de la récupération des suscribedChannelsList :',
-				error
-			);
-			if (error instanceof AxiosError && error.response) {
-				console.log(error.response.data.message);
-			}
-		}
+	const [majChanList, setMajChanList] = useState<boolean>(false);
+
+	// To call when need to refresh ChannelBrowse component.
+	function reloadChanList() {
+		setMajChanList(!majChanList);
 	}
 
-	// Appelle lors du (re)chargement de la page. Sert a lister la liste des channels suscribed par le user.
-	useEffect(() => {
-		fetchChannels();
-	}, []); // Utilise un tableau vide pour s'assurer que l'effet ne se déclenche qu'une seule fois lors du montage du composant
+	const myId: number = getAccessContent()?.userId as number;
 
-	// Pour render la ChatRoom (la liste des messages) en fonction de du selected chan. Si aucun chan est selected,
-	// alors on efface la liste de message.
+	async function fetchMe() {
+		const getMyUsername: string = (await ApiClient.get('users/' + getAccessContent()?.userId)).data.username;
+		setMyUsername(getMyUsername);
+	}
+
 	useEffect(() => {
-		async function fetchMessages() {
-			console.log('fetching Messages list');
+		fetchMe();
+	}, [])
+
+	async function fetchUsersOnChan(chanId: number) {
+			try {
+				const res: UserOnChannelDto[]  = (await ApiClient.get('/channels/users/' + chanId)).data;
+				const lala: UserOnChannelDto[] = await Promise.all(res.map(async (uoc) => {
+					const username: string = (await ApiClient.get('users/' + uoc.userId)).data.username;
+					const channelName: string = (await ApiClient.get('channels/byid/' + uoc.channelId)).data.channelName;
+					return ({...uoc, username: username, channelName: channelName});
+				}));
+				setUsers(lala);
+			} catch (error) {
+				if (error instanceof AxiosError && error.response) {
+					console.error(error.response.data.message);
+				} else
+					console.error( 'Erreur lors de la récupération des users :', error);
+			}
+		}
+
+		async function fetchMessages(chanId: number) {
 			try {
 				const msgsResponse = (
 					await ApiClient.get(
-						'/channels/messages/' + selectedChannel?.id
+						'/channels/messages/' + chanId
 					)
 				).data;
 				const msgs: MessageDto[] = msgsResponse.map(
@@ -107,22 +77,12 @@ export default function Chat() {
 				);
 				setMessagesList(msgs);
 			} catch (error) {
-				console.error(
-					'Erreur lors de la récupération des messages :',
-					error
-				);
 				if (error instanceof AxiosError && error.response) {
-					console.log(error.response.data.message);
-				}
+					console.error(error.response.data.message);
+				} else
+					console.error( 'Erreur lors de la récupération des messages :', error);
 			}
 		}
-
-		if (selectedChannel) {
-			fetchMessages();
-		} else {
-			setMessagesList([]);
-		}
-	}, [selectedChannel]);
 
 	function sendMessage(newMsg: string) {
 		if (!newMsg || !newMsg.trim()) return;
@@ -132,56 +92,146 @@ export default function Chat() {
 			channelId: selectedChannel?.id as number,
 		};
 		socket?.emit('newMsg', toSend);
+		// socket?.emit('sendMessage', { user: 'Raph', msg: 'Hola! Sur le chan 1', chanId: '1' })
 	}
 
 	async function addMsg(newMsg: socketMsgDto) {
-		const username = (await ApiClient.get('users/' + newMsg.creatorId)).data
+		try {
+			const username = (await ApiClient.get('users/' + newMsg.creatorId)).data
 			.username;
-		setMessagesList([
-			...messagesList,
-			{
-				creatorId: newMsg.creatorId,
-				creatorName: username,
-				content: newMsg.content,
-			},
-		]);
+			if (messagesList) {
+				setMessagesList([...messagesList,
+								{
+									creatorId: newMsg.creatorId,
+									creatorName: username,
+									content: newMsg.content,
+								},
+				]);
+			}
+		} catch (e) {
+			console.log(e);
+		}
+	}
+
+	function handleOnBanOrKick(targetId: number, chanId: number) {
+		if (targetId !== myId) return ;
+		reloadChanList();
+		reloadBrowseList();
 	}
 
 	useEffect(() => {
-		socket?.on('connect', () => console.log('Connected from chatroom'));
+		if (!socket) return ;
+		// 'catch' toutes les erreurs throw dans le back en gros
+        socket?.on('userLeftChan', (chanId: number, userId: number) => {
+            reloadUsersList();
+          if (userId !== myId)
+            return ;
+            reloadChanList();
+            reloadBrowseList();
+		});
+		socket?.on('error', (error) => {
+							 console.error('Socket error: ', error);
+		});
+		socket?.on('exception', (error) => {
+							 console.error('Socket exception: ', error);
+		});
 		socket?.on('afterNewMessage', (data: socketMsgDto) => {
-			console.log('new msg received: ' + data);
-			addMsg(data);
+			if (selectedChannel && data.channelId === selectedChannel.id) {
+				addMsg(data);
+			}
+		});
+		socket.on('rightsEdited', (targetId: number, chanId: number) => {
+			if (!selectedChannel || chanId != selectedChannel.id) return ;
+			reloadUsersList();
+		});
+		socket?.on('someoneHasBeenBanned', (targetId: string, chanId: string) => {
+			handleOnBanOrKick(+targetId, +chanId);
+			reloadUsersList();
+		});
+		socket?.on('someoneHasBeenKicked', (targetId: string, chanId: string) => {
+			handleOnBanOrKick(+targetId, +chanId);
+			reloadUsersList();
+		});
+		socket.on('chanEdited', (chanId: number) => {
+			reloadChanList();
+			reloadBrowseList();
+		});
+		socket?.on('someoneJoinedRoom', (chanId: number, userId: number) => {
+			if (userId !== myId) {
+				if (selectedChannel && selectedChannel.id === chanId)
+					reloadUsersList();
+				return ;
+			}
+			reloadChanList();
+			reloadBrowseList();
 		});
 		return () => {
-			socket?.off('connect');
+			socket?.off('someoneJoinedRoom');
+			socket?.off('rightsEdited');
+			socket?.off('error');
+			socket?.off('exception');
 			socket?.off('afterNewMessage');
+			socket?.off('someoneHasBeenBanned');
+			socket?.off('someoneHasBeenKicked');
+			socket?.off('userLeftChan');
 		};
 	});
 
+	function reloadUsersList() {
+		if (!selectedChannel) return ;
+		fetchUsersOnChan(selectedChannel.id);
+	}
+
+	// En fait pas besoin d'un useEffect!!! Ca faisait que des pbs, car le useEffect est
+	// declenche APRES un re-render, et bref, le users state etait tjrs en retard d'un 
+	// render du coup. Faut juste faire cette fonction qui gere la logique lors d'un
+	// changement de selected channel. Faudrait limite rendre interdit l'utilisation
+	// de setSelectedChannel en dehors de cette fct. Ceci car evidemment il faut maj
+	// la liste de msg et de usersonchan en fct du selectedChannel.
+	function handleSelectChannel(chan: ChannelDto | undefined) {
+		setSelectedChannel(chan);
+		if (chan) {
+			fetchMessages(chan.id);
+			fetchUsersOnChan(chan.id);
+		} else {
+			setMessagesList(undefined);
+			setUsers(undefined);
+		}
+	}
+
 	return (
-		<div className="joiner">
-			<ChanSettings
-				openEditChan={openEditChan}
-				handleEditChanClose={handleEditChanClose}
-				addChan={addChan}
-			/>
-			<div className="chanelLayoutSimu">
-				<ChannelList
-					channelList={channelList}
-					setChannelList={setChannelList}
-					selectedChannel={selectedChannel}
-					setSelectedChannel={setSelectedChannel}
-					handleEditChanOpen={handleEditChanOpen}
-				/>
-			</div>
-			<div className="chatBox">
-				<ChatRoom
-					messagesList={messagesList}
-					sendMessage={sendMessage}
-					inputDisabled={selectedChannel ? false : true}
-				/>
-			</div>
-		</div>
+		<Box sx={{ width: '100%', height: '100%' }} >
+			{ socket  ? 
+				<Paper className="chat" >
+					<Box  className="channelList">
+						<ChannelList
+							selectedChannel={selectedChannel}
+							channelList={channelList}
+							setChannelList={setChannelList}
+							handleSelectChannel={handleSelectChannel}
+							isOwner={users?.find((uoc) => (uoc.userId === myId && (uoc.role === 'CREATOR' || uoc.role === 'ADMIN'))) ? true : false}
+							majBrowseList={majBrowseList}
+							reloadBrowseList={reloadBrowseList}
+							majChanList={majChanList}
+							reloadChanList={reloadChanList}
+							myUsername={myUsername}
+						/>
+					</Box>
+					<Divider orientation='vertical' />
+					<Box className="chatBox">
+						{	selectedChannel && messagesList && users ? 
+							<ChatRoom
+								selectedChannel={selectedChannel}
+								messagesList={messagesList}
+								usersList={users}
+								sendMessage={sendMessage}
+								fetchMessages={fetchMessages}
+							/>
+							: null
+						}
+					</Box>
+				</Paper>
+				: <CircularProgress/> }
+		</Box>
 	);
 }

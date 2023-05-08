@@ -27,9 +27,8 @@ import { CreateChannelDto } from './dto/create-channel.dto';
 import { AccessGuard } from 'src/guards/access.guard';
 import { RequestWithAccess } from '../type/token.type';
 import { Roles } from './roles.decorator';
-import { roleChannel } from '@prisma/client';
+import { roleChannel, UserOnChannel } from '@prisma/client';
 import { ChanRoleGuard } from './channels.roles.guard';
-import { off } from 'process';
 
 @Controller('channels')
 // Used to group endpoints in swagger
@@ -144,18 +143,68 @@ export class ChannelsController {
 
 	@ApiOperation({
 		description:
+			'Ban a user from a specified chan. Only available to creator and admins. A creator cant be banned.',
+	})
+	@Roles(roleChannel.CREATOR, roleChannel.ADMIN)
+	@UseGuards(ChanRoleGuard)
+	@Post(':chanId/ban/:userId')
+	async ban(
+		@Param('chanId', ParseIntPipe) chanId: number,
+		@Param('userId', ParseIntPipe) userId: number
+	): Promise<string> {
+		return await this.channelsService.banUserOnChan(userId, chanId);
+	}
+
+	@ApiOperation({
+		description:
 			'Join a channel (create a new useronChannel record). Only permitted to non BANNED users.',
 	})
-	// Interdit aux users BAN de join le chan
 	@Roles(roleChannel.USER, roleChannel.CREATOR, roleChannel.ADMIN, null)
 	@UseGuards(ChanRoleGuard)
 	@Post('join/:chanId')
 	async joinChan(
 		@Param('chanId', ParseIntPipe) chanId: number,
-		@Req() rqst: RequestWithAccess
-	): Promise<string> {
+		@Req() rqst: RequestWithAccess,
+		@Body('password') password?: string
+	): Promise<ChannelEntity> {
 		const me = rqst.accessToken.userId;
-		return await this.channelsService.joinChan(me, chanId);
+		return new ChannelEntity(
+			await this.channelsService.joinChan(me, chanId, password)
+		);
+	}
+
+	@ApiOperation({
+		description: 'Sets a user as admin for a channel.',
+	})
+	@Roles(roleChannel.CREATOR, roleChannel.ADMIN)
+	@UseGuards(ChanRoleGuard)
+	@Patch(':chanId/giverights/:userId')
+	async setUserAsAdmin(
+		@Param('chanId', ParseIntPipe) chanId: number,
+		@Param('userId', ParseIntPipe) userId: number
+	): Promise<string> {
+		return await this.channelsService.changeRights(
+			userId,
+			chanId,
+			roleChannel.ADMIN
+		);
+	}
+
+	@ApiOperation({
+		description: 'Removes a user admin rights on a given channel.',
+	})
+	@Roles(roleChannel.CREATOR, roleChannel.ADMIN)
+	@UseGuards(ChanRoleGuard)
+	@Patch(':chanId/removerights/:userId')
+	async removeAdminRights(
+		@Param('chanId', ParseIntPipe) chanId: number,
+		@Param('userId', ParseIntPipe) userId: number
+	): Promise<string> {
+		return await this.channelsService.changeRights(
+			userId,
+			chanId,
+			roleChannel.USER
+		);
 	}
 
 	@ApiOperation({
@@ -175,13 +224,37 @@ export class ChannelsController {
 	}
 
 	@ApiOperation({
+		description:
+			'Returns a list of UserOnChannel for specified chan. Usefull to see who is owner/admin etc',
+	})
+	@Get('users/:chanId')
+	async getAdminsFromChan(
+		@Param('chanId', ParseIntPipe) chanId: number
+	): Promise<UserOnChannel[]> {
+		return await this.channelsService.getUserOnChannel(chanId);
+	}
+
+	@ApiOperation({
+		description: 'Returns a channel by its id.',
+	})
+	@Roles('CREATOR', 'ADMIN', 'USER')
+	@UseGuards(ChanRoleGuard)
+	@Get('/byid/:chanId')
+	async getChannels(
+		@Param('chanId', ParseIntPipe) id: number,
+		@Req() rqst: RequestWithAccess
+	): Promise<ChannelEntity> {
+		return new ChannelEntity(await this.channelsService.getChannelById(id));
+	}
+
+	@ApiOperation({
 		description: 'Returns a list of the user`s suscribed channels.',
 	})
 	@Get()
 	async suscribedChannels(@Req() rqst: RequestWithAccess) {
 		const me = rqst.accessToken.userId;
-		console.log('Suscribed channels request for me = ' + me);
-		return await this.channelsService.suscribedChannels(me);
+		const chansList = await this.channelsService.suscribedChannels(me);
+		return chansList.map((chan) => new ChannelEntity(chan));
 	}
 
 	@ApiOperation({
@@ -233,7 +306,6 @@ export class ChannelsController {
 	@UseGuards(ChanRoleGuard)
 	async update(
 		@Param('chanId', ParseIntPipe) chanId: number,
-		@Param('me') me: number,
 		@Body() updateChannelDto: UpdateChannelDto
 	): Promise<Partial<ChannelEntity>> {
 		return new ChannelEntity(
@@ -267,11 +339,10 @@ export class ChannelsController {
 		);
 	}
 
-	@Delete(':id')
+	@Delete(':chanId')
 	@Roles(roleChannel.CREATOR)
 	@UseGuards(ChanRoleGuard)
 	async remove(
-		@Req() rqst: RequestWithAccess,
 		@Param('chanId', ParseIntPipe) chanId: number
 	): Promise<ChannelEntity> {
 		return new ChannelEntity(await this.channelsService.remove(chanId));
@@ -290,11 +361,13 @@ export class ChannelsController {
 	@Get('/nonPrivateChannel?')
 	async getNonPrivateChannel(
 		@Query('skip') skip: string,
-		@Query('take') take: string
+		@Query('take') take: string,
+		@Req() rqst: RequestWithAccess
 	): Promise<ChannelEntity[]> {
 		const chan = await this.channelsService.getNonPrivateChannel(
 			+take,
-			+skip
+			+skip,
+			rqst.accessToken.userId
 		);
 		return chan.map((chan) => new ChannelEntity(chan));
 	}

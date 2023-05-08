@@ -10,4 +10,5 @@ export class CreateChannelDto extends PickType(ChannelEntity, [
 	'channelName',
 	'mode',
 	'password',
+	'salt',
 ] as const) {}

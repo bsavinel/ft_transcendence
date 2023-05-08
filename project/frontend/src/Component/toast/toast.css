@@ -1,0 +1,37 @@
+.buttonToast{
+	display: flex;
+	justify-content: space-around;
+}
+
+.accept {
+	max-height: 30px;
+	color: #FFF;	
+	background: #44CC44;	
+	padding: 0px 20px;
+	border: 0;
+	box-shadow: 0 3px 0 0 #2EA62E;
+}
+
+.accept:hover {
+	background: #6FE76F;
+	box-shadow: 0 3px 0 0 #7ED37E;
+}
+
+.refuse {
+	height: 30px;
+	color: #FFF;
+	background: tomato;
+	padding: 0px 20px;
+	border: 0;
+	box-shadow: 0 3px 0 0 #CB4949;
+}
+
+.refuse:hover {
+	background: rgb(255, 147, 128);
+	box-shadow: 0 3px 0 0 #EF8282;
+}
+
+.textFriendRequest{
+	text-align: center;
+	padding-bottom: 10px;
+}

@@ -4,7 +4,7 @@ import randomSentence from "./utils";
 interface modalChannelPublic {
 	openModalPub: boolean;
 	handleModalPub: () => void;
-	joinPublicChannel: () => void;
+	joinPublicChannel: () => Promise<void>;
 };
 
 const style = {

@@ -25,8 +25,8 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.8.2",
-        "socket.io-client": "^4.6.1",
-        "typescript": "^4.9.5",
+        "react-toastify": "^9.1.2",
+        "socket.io-client": "^4.6.1", "typescript": "^4.9.5",
         "vite-plugin-require": "^1.1.10",
         "web-vitals": "^2.1.4"
     },

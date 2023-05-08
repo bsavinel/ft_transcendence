@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserEntity } from './entities/user.entity';
 
@@ -11,6 +12,31 @@ type UserCreation = {
 @Injectable()
 export class UsersService {
 	constructor(private prisma: PrismaService) {}
+
+	async saveAvatarPath(userId: number, path: string) {
+		return await this.prisma.user.update({
+			where: { id: userId },
+			data: { avatarUrl: path },
+		});
+	}
+
+	async getFriendsOf(userId: number): Promise<User[]> {
+		return (
+			await this.prisma.user.findUniqueOrThrow({
+				where: { id: userId },
+				select: { friendsOf: true },
+			})
+		).friendsOf;
+	}
+
+	async getAvatarUrl(userId: number): Promise<string> {
+		return (
+			await this.prisma.user.findUniqueOrThrow({
+				where: { id: userId },
+				select: { avatarUrl: true },
+			})
+		).avatarUrl;
+	}
 
 	async user42Exist(id42: number): Promise<boolean> {
 		return !!(await this.prisma.user.findUnique({ where: { id42 } }));
@@ -54,6 +80,13 @@ export class UsersService {
 		return deleteFriend;
 	}
 
+	async getBlockedBy(blockedUser: number): Promise<User[]> {
+		const blockedBy: User[] = await this.prisma.user.findMany({
+			where: { blocked: { some: { id: blockedUser } } },
+		});
+		return blockedBy;
+	}
+
 	async addBlockedUser(
 		userId: number,
 		blockedId: number
@@ -66,6 +99,9 @@ export class UsersService {
 			data: {
 				blocked: {
 					connect: { id: blockedId },
+				},
+				friends: {
+					disconnect: { id: blockedId },
 				},
 			},
 		});
@@ -109,7 +145,7 @@ export class UsersService {
 		});
 	}
 
-	findChannel(id: number): Promise<Partial<Partial<UserEntity>>> {
+	async findChannel(id: number): Promise<Partial<Partial<UserEntity>>> {
 		return this.prisma.user.findUniqueOrThrow({
 			where: { id: id },
 			select: {

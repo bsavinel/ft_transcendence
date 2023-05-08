@@ -1,5 +1,5 @@
 .chanListContainer {
-    border: solid 1px black;
+    padding: 1px;
     height: 100%;
     width: 100%;
     display: flex;
@@ -27,6 +27,12 @@
     white-space: nowrap;
 }
 
-.actionButtons .MuiButtonBase-root {
-    background-color: var(--bleumoche);
+.actionButtons  {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.chanListItem {
+    display: flex;
+    justify-content: space-between;
 }

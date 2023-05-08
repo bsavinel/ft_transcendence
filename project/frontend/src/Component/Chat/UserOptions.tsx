@@ -1,40 +1,31 @@
 import { Menu, MenuItem } from '@mui/material';
 
-export default function UserOptions(props: any) {
-    const open = Boolean(props.anchorEl);
+interface UserOptionsProps {
+    anchorEl: HTMLElement;
+    handleClickOptions: (opt: string) => void;
+    handleClose: () => void;
+    actions: string[];
+}
 
-    function handleClose() {
-        props.setAnchorEl(null);
-    }
+export default function UserOptions({anchorEl, actions, handleClickOptions, handleClose}: UserOptionsProps) {
+    const open = Boolean(anchorEl && actions.length > 0);
 
-    const ownerChoices = (
-        <div>
-            <MenuItem onClick={handleClose}>Block</MenuItem>
-            <MenuItem onClick={handleClose}>Kick</MenuItem>
-            <MenuItem onClick={handleClose}>Mute</MenuItem>
-            <MenuItem onClick={handleClose}>Ban</MenuItem>
-        </div>
-    )
-
-    const lambdaChoices = (
-        <div>
-            <MenuItem onClick={handleClose}>Block</MenuItem>
-        </div>
-    )
-
+    const items = actions.map((action) => 
+        <MenuItem key={action} onClick={() => handleClickOptions(action)}>{action}</MenuItem>
+    );
 
     return (
         <div>
             <Menu
                 id="basic-menu"
-                anchorEl={props.anchorEl}
+                anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                {props.isOwner===true ? ownerChoices : lambdaChoices}
+                {items}
             </Menu>
         </div>
     );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 // import { SocketProvider } from './Component/Pong/PongSocketContext';
 import Layout from './Pages/Layout/Layout';
@@ -7,7 +7,6 @@ import Home from './Pages/Home/Home';
 import Game from './Pages/Game/Game';
 import Chat from './Pages/Chat/Chat';
 import Setting from './Pages/Setting/Setting';
-import CallBackPage from './Pages/CallBackPage/CallBackPage';
 import NoMatch from './Pages/404';
 import TestPage from './Pages/Test/profilePart/ProfilePart';
 import LogGuard from './conditionalRender';
@@ -15,9 +14,10 @@ import BrutForce from './Pages/BrutForce/BrutForce';
 import PongOnline from "./Component/Pong/PongOnline"
 import PongSolo from "./Component/Pong/PongSolo"
 import './index.css';
+import CallBackPage from "./Pages/CallBackPage/CallBackPage";
+import { ToastContainer } from "react-toastify";
 
-import './index.css';
-import LoginPage from './Pages/LoginPage/LoginPage';
+import './App.css';
 
 const dark = createTheme({
 	palette: {
@@ -85,6 +85,7 @@ export default function App() {
 						</Route>
 					</Route>
 				</Routes>
+				<ToastContainer pauseOnFocusLoss={false} />
 			</div>
 		</ThemeProvider>
 	);

@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import ApiClient, { getAccess } from './utils/ApiClient';
 import { PongSocketProvider } from './Component/Pong/PongSocketContext';
 import LoginPage from './Pages/LoginPage/LoginPage';
+import { ChatSocketContext, ChatSocketProvider } from './Component/Chat/ChatSocketContext';
 
 interface CheckLog {
 	isLogged: boolean;
@@ -36,7 +37,13 @@ export default function LogGuard() {
 	// console.log(checkLog);
 	if (checkLog.isLoading) return <div>loading</div>; 
 	else {
-		return (checkLog.isLogged ? <PongSocketProvider> <Outlet/> </PongSocketProvider> : <LoginPage/>);
+		return (checkLog.isLogged ? 
+			<PongSocketProvider>
+				<ChatSocketProvider>
+					<Outlet/> 
+				</ChatSocketProvider>
+			</PongSocketProvider> 
+				: <LoginPage/>);
 	}
 
 }

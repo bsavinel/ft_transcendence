@@ -88,7 +88,7 @@ fclean:
 #?###################################
 
 prune: fclean
-	docker system prune -af
+	docker system prune -af && docker volume prune
 
 #?#############################################################################################
 #? Regle pour prisma studio vous ajouter enable apres pour le lancer ou diable pour l'arreter #

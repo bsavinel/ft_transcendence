@@ -28,6 +28,7 @@ model User {
     channelsProfiles UserOnChannel[]
     messagesUser     Message[]
     gamesPlay        UserOnGame[]
+	invitation      Invitation[]    @relation("invitation")
 }
 
 model UserOnChannel {
@@ -40,6 +41,7 @@ model UserOnChannel {
     channelId Int
     channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
     @@unique([userId, channelId])
+    mutedAt         DateTime?
 }
 
 model Channel {
@@ -48,6 +50,7 @@ model Channel {
     updateAt     DateTime        @updatedAt
     channelName  String
     password     String?
+	salt		 String?
     mode         channelMode
     participants UserOnChannel[]
     messagesUser Message[]
@@ -90,10 +93,20 @@ model Authentification {
     userId   Int
 }
 
+model Invitation {
+		id			        Int		@id @default(autoincrement())
+		type		        invitMode
+    username        String
+		friendId	      Int?
+		channelId	      Int?
+		invitedUsers    User[] @relation("invitation")
+}
+
 enum channelMode {
     PRIVATE
     PUBLIC
     PROTECTED
+	DIRECT
 }
 
 enum gameMode {
@@ -108,3 +121,9 @@ enum roleChannel {
     USER
     BAN
 }
+
+enum invitMode {
+	GAME
+	CHAT
+	FRIEND
+	}

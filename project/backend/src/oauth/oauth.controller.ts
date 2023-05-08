@@ -44,7 +44,7 @@ export class OauthController {
 		// ***** requete pour avoir le token d'acces pour les requete 42 *****
 		try {
 			var responseApi = await axios.post(pathApi);
-			console.log(responseApi.data);
+			// console.log(responseApi.data);
 		} catch (e) {
 			console.log('error');
 			if (e.status == 404) throw new NotFoundException('Api not found');

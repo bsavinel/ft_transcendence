@@ -10,6 +10,7 @@ import { ChatModule } from './chat/chat.module';
 import { UsersModule } from './users/users.module';
 import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
+import { InvitationsModule } from './invitations/invitations.module';
 
 @Module({
 	imports: [
@@ -21,7 +22,8 @@ import { MessagesModule } from './messages/messages.module';
 		UsersModule,
 		ChannelsModule,
 		MessagesModule,
-    PongModule
+    PongModule,
+		InvitationsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

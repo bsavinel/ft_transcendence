@@ -1,6 +1,7 @@
 import { Button, Card, CardActions, CardMedia, Paper, TextField } from '@mui/material';
 import axios from 'axios';
 import { ChangeEvent, useState } from 'react';
+import ApiClient from '../../utils/ApiClient';
 
 export default function DisplayAvatar() {
     const [avatar, setAvatar] = useState<File>();
@@ -17,7 +18,7 @@ export default function DisplayAvatar() {
         const formData = new FormData();
         formData.append("avatar", avatar);
 
-        await axios.post(`${import.meta.env.VITE_APP_BACK_URL}/user/upload`, formData, {
+        await ApiClient.post(`${import.meta.env.VITE_BACK_URL}/users/upload`, formData, {
             headers: {
                 'content-type': 'multipart/form-data'
             },

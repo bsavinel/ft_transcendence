@@ -9,10 +9,10 @@
     position: relative;
     background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
     /* background-image: url(../../header.png); */
-    height: 150px;
-    width: auto;
-    margin-bottom: 50px;
-    overflow: hidden;
+    height: 10%;
+    width: 100%;
+    margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .content {
@@ -20,7 +20,8 @@
     flex-direction: row;
     justify-content: space-between;
     column-gap: 5%;
-    height: auto;
+    height: calc(90% - 20px);
+    flex-shrink: 0;
     width: auto;
 }
 
@@ -28,6 +29,7 @@
     flex-basis: 100%;
     /* Utile? */
     flex-shrink: 1;
+    height: 100%;
 }
 
 .navcontent {

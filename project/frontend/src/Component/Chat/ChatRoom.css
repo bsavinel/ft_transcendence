@@ -1,6 +1,37 @@
-#chatRoom {
-	width: 100%;
+#chatRoomContainer {
 	height: 100%;
+    width: 100%;
+	display: flex;
+	flex-direction: row;
+}
+
+.usersListBox {
+	height: 100%;
+    display: flex;
+    max-width: 25%;
+}
+
+.expandUL {
+    height: 100%;
+}
+
+.usersListCollapse.MuiCollapse-horizontal {
+    height: 100%;
+}
+
+.usersListCollapse .MuiCollapse-wrapperInner {
+    width: 100%;
+    max-width: 100%;
+}
+
+.usersList{
+	height: 100%;
+    width: 100%;
+}
+
+#chatRoom {
+	height: 100%;
+    width: 100%;
 	display: flex;
 	flex-direction: column;
     justify-content: space-between;
@@ -11,14 +42,8 @@ h1 {
     text-align: center;
     width: 100%;
     max-height: 10%;
-    color: white;
     white-space: nowrap;
     font-weight: normal;
-    background-color: var(--bleumoche);
-}
-
-#sendIcon {
-    color: var(--bleumoche);
 }
 
 .messageDisplay {
@@ -31,14 +56,6 @@ h1 {
 
 #send {
 	align-self: flex-end;
-	background-color: var(--bleumoche);
-	color: white;
-}
-#received {
-}
-
-#send #msgAvatar {
-	color: white;
 }
 
 .MuiChip-root {

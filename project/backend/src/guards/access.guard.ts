@@ -14,6 +14,7 @@ export class AccessGuard implements CanActivate {
 	//* C'est quoi un observable et pourquoi tu peut sa peut retourner un
 	//* promesse car c'est chelou que se soit asyncrone
 	async canActivate(context: ExecutionContext): Promise<boolean> {
+		if (context.getHandler().name === 'getAvatars') return true;
 		const request = this.getRequest<RequestWithAccess>(context);
 		try {
 			var stringToken = this.getToken(request);
@@ -24,7 +25,7 @@ export class AccessGuard implements CanActivate {
 			var unpackToken = await this.jwt.verify(stringToken);
 		} catch (error) {
 			console.log(error);
-			throw new BadRequestException("Token check failed");
+			throw new BadRequestException('Token check failed');
 		}
 
 		if (!instanceOfToken(unpackToken) || unpackToken.type != 'access')
@@ -46,7 +47,7 @@ export class AccessGuard implements CanActivate {
 		if (!authorization || Array.isArray(authorization)) {
 			throw new Error('Invalid Authorization Header');
 		}
-		console.log(authorization);
+		// console.log(authorization);
 		const [type, token] = authorization.split(' ');
 		if (type !== 'Bearer' || !token)
 			throw new Error('Invalid Authorization Header');

@@ -14,12 +14,21 @@ import {
 	Req,
 	Body,
 	Patch,
+	UploadedFile,
+	ParseFilePipeBuilder,
+	HttpStatus,
+	StreamableFile,
 } from '@nestjs/common';
+import { Express } from 'express';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { AccessGuard } from '../guards/access.guard';
 import { RequestWithAccess } from '../type/token.type';
 import { GameService, GameData } from 'src/game/game.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
@@ -29,7 +38,47 @@ export class UsersController {
 		private readonly usersService: UsersService,
 		private readonly gameService: GameService
 	) {}
-	
+
+	@Post('upload')
+	@UseInterceptors(
+		FileInterceptor('avatar', {
+			storage: diskStorage({
+				destination: './uploads/',
+			}),
+		})
+	)
+	UploadAvatar(
+		@UploadedFile(
+			new ParseFilePipeBuilder()
+				.addFileTypeValidator({
+					fileType: 'png',
+				})
+				.addMaxSizeValidator({
+					maxSize: 250000,
+				})
+				.build({
+					errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+				})
+		)
+		avatar: Express.Multer.File,
+		@Req() request: RequestWithAccess
+	) {
+		this.usersService.saveAvatarPath(
+			request.accessToken.userId,
+			avatar.path
+		);
+		return 'SUCCESS';
+	}
+
+	@Get('/avatar/:id')
+	async getAvatars(
+		@Param('id', ParseIntPipe) id: number
+	): Promise<StreamableFile> {
+		const localFileName: string = await this.usersService.getAvatarUrl(id);
+		const file = createReadStream(join(process.cwd(), localFileName));
+		return new StreamableFile(file);
+	}
+
 	//userById
 	//TODO
 	//add query blocked user
