@@ -83,7 +83,7 @@ var defValueGames = GameRequestToGame(generateGame(37));
 //TODO les fleche pour reorganiser le tableau ne marche pas
 export default function ProfilePart() {
 	return (
-		<div className="profile">
+		<div className="profile" id="profile">
 			<div className="ProfileInfo">
 				<img className="avatar" src={defValueMe.avatarUrl} />
 				<div className="PlayerStats">
@@ -127,7 +127,7 @@ export default function ProfilePart() {
 								className="progress-bar"
 								style={{ width: `${defValueMe.percent}%` }}
 							>
-							<p>{defValueMe.percent}%</p>
+							{defValueMe.percent}%
 							</div>
 						</div>
 					</div>

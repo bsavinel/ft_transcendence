@@ -1,9 +1,7 @@
-import "./NavHome.scss"
+import './NavHome.scss';
 
 export default function NavHome() {
 	return (
-		<>
-		{/* <div className="underNav"/> */}
 		<div className="NavHome" id="NavHome">
 			<div className="toggle">
 				<i className="fa fa-bars"></i> Menu
@@ -26,6 +24,5 @@ export default function NavHome() {
 				</div>
 			</div>
 		</div>
-		</>
 	);
 }

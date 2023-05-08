@@ -1,10 +1,19 @@
-import Leaderboard from '../../Component/LeaderBoard/Leaderboard'
+import ProfilePart from './profilePart/ProfilePart';
+import FriendPart from './friendPart/FriendPart';
+import NavHome from './navHome/NavHome';
+import LeaderPart from './LeaderPart/LeaderPart';
 
-export default function Home() {
-    return (
-        <div className='home'>
-            <h1>Home</h1>
-            <Leaderboard />
-        </div>
-    );
+import './Home.scss';
+
+export default function TestPage() {
+	return (
+		<div className="HomePage">
+			<NavHome />
+			<div className="HomeContent" id="HomeContent">
+				<ProfilePart />
+				<FriendPart />
+				<LeaderPart />
+			</div>
+		</div>
+	);
 }

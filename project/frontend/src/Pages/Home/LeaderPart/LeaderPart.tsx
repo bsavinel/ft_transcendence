@@ -135,7 +135,7 @@ export default function LeaderPart() {
 		return a.level * 100 + a.percent > b.level * 100 + b.percent ? -1 : 1;
 	});
 	return (
-		<div className="LeaderPart">
+		<div className="LeaderPart" id="leaderBoard">
 			<div className="LeaderBoard">
 				<h1>LeaderBoard</h1>
 				<div className="grid">

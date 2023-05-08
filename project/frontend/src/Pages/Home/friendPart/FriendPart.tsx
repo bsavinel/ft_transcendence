@@ -54,7 +54,7 @@ function RowProfileFriend({ profile }: { profile: Profile }) {
 
 export default function FriendPart() {
 	return (
-		<div className="FriendPart">
+		<div className="FriendPart" id="friend">
 			<div className="FriendScroll">
 				<div className="FriendHeader">Friends :</div>
 				<div className="FriendList">

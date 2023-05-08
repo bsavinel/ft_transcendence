@@ -1,8 +1,8 @@
-import ProfilePart from './profilePart/ProfilePart';
-import FriendPart from './friendPart/FriendPart';
-import NavHome from './navHome/NavHome';
+import ProfilePart from '../Home/profilePart/ProfilePart';
+import FriendPart from '../Home/friendPart/FriendPart';
+import NavHome from '../Home/navHome/NavHome';
 import './TestPage.scss';
-import LeaderPart from './LeaderPart/LeaderPart';
+import LeaderPart from '../Home/LeaderPart/LeaderPart';
 
 export default function TestPage() {
 	return (

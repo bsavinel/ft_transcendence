@@ -27,8 +27,8 @@ export default function CallBackPage() {
 	useEffect(() => {
 		internAuthentification()
 			.then((newUser: boolean) => {
-				newUser ? navigate("/profile") : navigate("/home");
-				navigate("/home");
+				newUser ? navigate("/profile") : navigate("/");
+				navigate("/");
 			})
 			.catch((e) => {
 				console.error(e);
