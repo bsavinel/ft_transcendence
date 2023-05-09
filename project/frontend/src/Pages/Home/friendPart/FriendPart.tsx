@@ -58,8 +58,8 @@ export default function FriendPart() {
 			<div className="FriendScroll">
 				<div className="FriendHeader">Friends :</div>
 				<div className="FriendList">
-					{amis.map((a) => (
-						<RowProfileFriend profile={a} />
+					{amis.map((a, index) => (
+						<RowProfileFriend key={index} profile={a} />
 					))}
 				</div>
 			</div>
