@@ -133,13 +133,13 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
     function availableActions(): string[] {
         if (!anchorEl) return [];
         if (myRole === 'CREATOR')
-            return ['block', 'kick', 'mute', 'ban', 'admin'];
+            return ['block', 'kick', 'mute', 'ban', 'admin', 'friend'];
         if (myRole === 'USER')
-            return ['block'];
+            return ['block', 'friend'];
         if (myRole === 'ADMIN') {
             if (anchorEl.dataset.useronchan && JSON.parse(anchorEl.dataset.useronchan).role === 'CREATOR')
-                return ['block'];
-            return ['block', 'kick', 'mute', 'ban', 'admin'];
+                return ['block', 'friend'];
+            return ['block', 'kick', 'mute', 'ban', 'admin', 'friend'];
         }
         return [];
     }

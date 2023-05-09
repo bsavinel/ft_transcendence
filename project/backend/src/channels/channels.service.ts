@@ -303,9 +303,10 @@ export class ChannelsService {
 	): Promise<ChannelEntity[]> {
 		const nonPrivateChannel = await this.prisma.channel.findMany({
 			where: {
-				mode: { not: 'PRIVATE' },
+				mode: { notIn: ['PRIVATE', 'DIRECT'] },
 				participants: {
 					none: { userId: userId },
+
 					every: { role: { not: 'BAN' } },
 				},
 			},
