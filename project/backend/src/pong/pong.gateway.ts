@@ -579,9 +579,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('mousePosition')
-  manageMousePosition(@ConnectedSocket() socket: Socket, @MessageBody() data: { roomId: string, side: string, mousePos: {x: number, y: number}, window: number }): void
+  manageMousePosition(@ConnectedSocket() socket: Socket, @MessageBody() data: { roomId: string, side: string, mousePos: {x: number, y: number} }): void
   {
-    const{roomId, side, mousePos, window} = data;
+    const{roomId, side, mousePos} = data;
     if (this.player.has(roomId) && this.bonus.has(roomId))
     {
       const player = this.player.get(roomId);
@@ -589,13 +589,21 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
 
       if (side === 'left')
       {
-        if ((mousePos.y * BOARD_HEIGHT) / window + bonus.heightPaddleScale < BOARD_HEIGHT)
-          player.player1Position = {x: player.player1Position.x, y: (mousePos.y * BOARD_HEIGHT) / window}
+        if (mousePos.y + bonus.heightPaddleScale < BOARD_HEIGHT && mousePos.y > 0)
+          player.player1Position = {x: player.player1Position.x, y: mousePos.y}
+        else if (mousePos.y + bonus.heightPaddleScale > BOARD_HEIGHT)
+          player.player1Position = {x: player.player1Position.x, y: BOARD_HEIGHT - bonus.heightPaddleScale}
+        else if (mousePos.y < 0)
+          player.player1Position = {x: player.player1Position.x, y: 0}
       }
       else if (side === 'right')
       {
-        if ((mousePos.y * BOARD_HEIGHT) / window + bonus.heightPaddleScale2 < BOARD_HEIGHT)
-          player.player2Position = {x: player.player2Position.x, y: (mousePos.y * BOARD_HEIGHT) / window}
+        if (mousePos.y + bonus.heightPaddleScale2 < BOARD_HEIGHT && mousePos.y > 0)
+          player.player2Position = {x: player.player2Position.x, y: mousePos.y}
+        else if (mousePos.y + bonus.heightPaddleScale2 > BOARD_HEIGHT)
+          player.player2Position = {x: player.player2Position.x, y: BOARD_HEIGHT - bonus.heightPaddleScale2}
+        else if (mousePos.y < 0)
+          player.player2Position = {x: player.player2Position.x, y: 0}
       }
       
       this.player.set(roomId, player);

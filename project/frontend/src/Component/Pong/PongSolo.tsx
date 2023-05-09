@@ -764,10 +764,19 @@ export default function GameSolo(props: any) {
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      const windowHeight = window.innerHeight;
-      setMousePos({ x: event.clientX, y: event.clientY});
-      if ((mousePos.y * BOARD_HEIGHT) / windowHeight + heightPaddleScale < BOARD_HEIGHT)
-        setPlayer1Position((prev) => ({x: prev.x, y: (mousePos.y * BOARD_HEIGHT) / windowHeight }));
+      const gameBoard = document.querySelector('.gameboard');
+      if (gameBoard)
+      {
+        const pongRect = gameBoard.getBoundingClientRect();
+        const mouseY = event.clientY - pongRect.top;
+        setMousePos({ x: 0, y: mouseY});
+        if (mousePos.y + heightPaddleScale < BOARD_HEIGHT && mousePos.y > 0)
+          setPlayer1Position((prev) => ({x: prev.x, y: mousePos.y }));
+        else if (mousePos.y + heightPaddleScale > BOARD_HEIGHT)
+          setPlayer1Position((prev) => ({x: prev.x, y: BOARD_HEIGHT - heightPaddleScale }));
+        else if (mousePos.y < 0)
+          setPlayer1Position((prev) => ({x: prev.x, y: 0 }));
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -1019,7 +1028,7 @@ export default function GameSolo(props: any) {
   }, [player2Position, ballPosition])
 
     return (
-    <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} style={{ border: '1px solid black' }}>
+    <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} >
       <Board ballState={isPlaying}
             winLose={endGame}
             sideWin={player1Score > player2Score ? 'You won' : 'You lost'}
