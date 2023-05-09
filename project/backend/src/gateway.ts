@@ -68,7 +68,7 @@ import { UserEntity } from './users/entities/user.entity';
 // Permet (seulement pour les events, et pas pour les connection handlers)
 // de check si le client a un token valide.
 @UseGuards(SocketGuard)
-	@WebSocketGateway({
+@WebSocketGateway({
 	namespace: 'chatns',
 	cors: { origin: '*' },
 })
@@ -666,9 +666,9 @@ export class AppGateway
 		const friendOf: User[] = await this.usersService.getFriendsOf(userId);
 		friendOf.map((user) => {
 			const friendSockets: Socket[] = this.usersSockets.get(user.id);
-			if (!friendSockets) return ;
+			if (!friendSockets) return;
 			friendSockets.map((socket) => {
-				this.server.to(socket.id).emit(eventToEmit, {user: userId});
+				this.server.to(socket.id).emit(eventToEmit, { user: userId });
 			});
 		});
 	}

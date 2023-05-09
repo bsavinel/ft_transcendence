@@ -18,6 +18,7 @@ import { reqToken42 } from 'src/type/request42.type';
 import { Response } from 'express';
 import { addDays } from 'date-fns';
 import { UsersService } from 'src/users/users.service';
+import { createWriteStream } from 'fs';
 
 @Controller('oauth')
 export class OauthController {
@@ -38,8 +39,8 @@ export class OauthController {
 		accessToken: string;
 		newUser: boolean;
 	}> {
-		let newUser: boolean = false;
-		let pathApi: string = this.buildPath42(Data.code);
+		let newUser = false;
+		const pathApi: string = this.buildPath42(Data.code);
 
 		// ***** requete pour avoir le token d'acces pour les requete 42 *****
 		try {
@@ -70,11 +71,15 @@ export class OauthController {
 			throw new BadRequestException("Can't get 42 identity");
 		}
 		if (!(await this.userService.user42Exist(responseApi.data.id))) {
+
 			newUser = true;
+
+			const avatarPath: string = await this.downloadImage(responseApi.data.image.versions.medium);
+
 			await this.userService.createUser({
 				id42: responseApi.data.id,
 				username: responseApi.data.login,
-				avatarUrl: responseApi.data.image.link,
+				avatarUrl: avatarPath,
 			});
 		}
 
@@ -98,32 +103,32 @@ export class OauthController {
 	//!#########################     FORCE TO BE SOMEONE      #########################
 	//!################################################################################
 
-	@Post("/force")
+	@Post('/force')
 	async force(
 		@Body() Data: { id42: number; username: string; avatarUrl: string },
 		@Res({ passthrough: true }) response: Response
 	): Promise<{
 		accessToken: string;
 	}> {
-		console.log("coucou");
+		console.log('coucou');
 		if (!(await this.userService.user42Exist(Data.id42))) {
 			await this.userService.createUser(Data);
 		}
-		console.log("truc");
+		console.log('truc');
 		const user = await this.userService.findUserWith42(Data.id42);
 		const refreshToken: string =
 			await this.tokenManager.generateRefreshToken(user.id);
 		const accessToken: string = await this.tokenManager.generateAccessToken(
 			user.id
 		);
-		console.log("cookie");
+		console.log('cookie');
 		const expiration = addDays(new Date(), 6);
-		response.cookie("refreshToken", refreshToken, {
+		response.cookie('refreshToken', refreshToken, {
 			expires: expiration,
-			path: "/",
+			path: '/',
 			httpOnly: true,
 		});
-		console.log("fin");
+		console.log('fin');
 		return { accessToken };
 	}
 
@@ -189,5 +194,20 @@ export class OauthController {
 			code: code,
 		};
 		return `${process.env.VITE_API42}/oauth/token?grant_type=${body42.grant_type}&client_id=${body42.client_id}&client_secret=${body42.client_secret}&code=${body42.code}&redirect_uri=${body42.redirect_uri}`;
+	}
+
+	private async downloadImage(url: string): Promise<string> {
+		const response = await axios({
+			method: 'get',
+			url: url,
+			responseType: 'stream',
+		});
+
+		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+		const path = './uploads/' + uniqueSuffix + '.jpg';
+		const writer = createWriteStream(path);
+		response.data.pipe(writer);
+
+		return path;
 	}
 }

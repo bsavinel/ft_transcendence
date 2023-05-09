@@ -1,10 +1,11 @@
 import { Button, Card, CardActions, CardMedia, Paper, TextField } from '@mui/material';
 import axios from 'axios';
 import { ChangeEvent, useState } from 'react';
-import ApiClient from '../../utils/ApiClient';
+import ApiClient, { getAccessContent } from '../../utils/ApiClient';
 
 export default function DisplayAvatar() {
     const [avatar, setAvatar] = useState<File>();
+	const myId: number = getAccessContent()?.userId as number;
 
     function handleChange(event: ChangeEvent<HTMLInputElement>) {
         if (event.target.files)
@@ -25,12 +26,13 @@ export default function DisplayAvatar() {
         });
     }
 
+
     return (
         <Paper elevation={10}>
             <Card>
                 <CardMedia 
-                    sx={{ height: 300 }}
-                    image={require('./avatar.png')}
+                    sx={{ height: 400 }}
+                    image={import.meta.env.VITE_BACK_URL + '/users/avatar/' + myId }
                     title='Avatar'
                 />
                 <CardActions>
