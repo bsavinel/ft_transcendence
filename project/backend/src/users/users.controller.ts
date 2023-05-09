@@ -51,7 +51,7 @@ export class UsersController {
 		@UploadedFile(
 			new ParseFilePipeBuilder()
 				.addFileTypeValidator({
-					fileType: 'jpg',
+					fileType: 'jpeg',
 				})
 				.addMaxSizeValidator({
 					maxSize: 100000,
