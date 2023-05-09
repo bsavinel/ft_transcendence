@@ -1,18 +1,13 @@
 import { Menu, MenuItem } from '@mui/material';
 
 interface UserOptionsProps {
-    anchorEl: HTMLElement;
+    anchorEl: HTMLElement | undefined;
     handleClickOptions: (opt: string) => void;
     handleClose: () => void;
-    actions: string[];
 }
 
-export default function UserOptions({anchorEl, actions, handleClickOptions, handleClose}: UserOptionsProps) {
-    const open = Boolean(anchorEl && actions.length > 0);
-
-    const items = actions.map((action) => 
-        <MenuItem key={action} onClick={() => handleClickOptions(action)}>{action}</MenuItem>
-    );
+export default function UserOptions({anchorEl, handleClickOptions, handleClose}: UserOptionsProps) {
+    const open = Boolean(anchorEl);
 
     return (
         <div>
@@ -25,7 +20,10 @@ export default function UserOptions({anchorEl, actions, handleClickOptions, hand
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                {items}
+                <MenuItem key='mute' onClick={() => handleClickOptions('mute')} >mute</MenuItem>
+                <MenuItem key='kick' onClick={() => handleClickOptions('kick')} >kick</MenuItem>
+                <MenuItem key='ban' onClick={() => handleClickOptions('ban')} >ban</MenuItem>
+                <MenuItem key='admin' onClick={() => handleClickOptions('admin')} >admin</MenuItem>
             </Menu>
         </div>
     );

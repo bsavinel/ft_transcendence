@@ -1,10 +1,8 @@
 import TextField from '@mui/material/TextField'; import { Avatar, Box, Button, Chip, Collapse, Divider, StyledEngineProvider, Tooltip } from '@mui/material';
 import './ChatRoom.css';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
-import UserOptions from './UserOptions';
 import {getAccessContent} from '../../utils/ApiClient';
-import { ChatSocketContext } from './ChatSocketContext';
 import UsersList from './UsersList';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -25,53 +23,9 @@ interface ChatRoomProps {
 
 
 export default function ChatRoom({ selectedChannel, messagesList, usersList, sendMessage, fetchMessages }: ChatRoomProps) {
-    const [anchorEl, setAnchorEl] = useState<undefined | HTMLElement>();
     const [openUL, setOpenUL] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>();
-    const socket = useContext(ChatSocketContext);
     const myId: number = getAccessContent()?.userId as number;
-    const myRole: string | undefined = usersList.find((uoc) => uoc.userId === myId)?.role;
-
-
-    function displayOpts(e: React.MouseEvent<HTMLElement | undefined>) {
-        setAnchorEl(anchorEl ? undefined : e.currentTarget);
-    }
-
-    // Option must be of: 'ban' / 'kick' / 'mute' / 'block' / 'friend'
-    function handleClickOptions(option: string) {
-        // on emit un ban
-        if (!anchorEl || !selectedChannel) return ;
-        const targetId = anchorEl.textContent;
-        if (!targetId) return ;
-        if (option === 'block') { // juste parceque pas le meme nombre de parametres  :S
-            socket?.emit('block', targetId, () => {
-                fetchMessages(selectedChannel.id)
-            });
-        } else if (option === 'friend') {
-			const invitation = [{
-				type: "FRIEND",
-				friendId: getAccessContent()?.userId,
-				invitedUsers: Number(targetId),
-			}];
-			//FIXME
-			//pass username props from Chat PAGE
-			socket?.emit('newInvit', {invit: invitation, user: "raph"});
-        } else {
-            if (option === 'admin') {
-                socket?.emit('changeRights', {targetId: +targetId, chanId: selectedChannel.id});
-            }
-            socket?.emit(option, {targetId: targetId, chanId: selectedChannel?.id});
-        }
-        // on ferme l'anchor
-        setAnchorEl(undefined);
-    }
-
-    function getUserOnChanRole(userId: number) {
-        const userFromList: UserOnChannelDto | undefined = usersList.find((usr) => usr.userId === userId);
-        if (!userFromList)
-            return 'not found';
-        return userFromList?.role;
-    }
 
     function getUserOnChan(userId: number): UserOnChannelDto | undefined {
        return usersList.find((usr) => usr.userId === userId);
@@ -88,8 +42,6 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
                 label={data.content}
                 avatar={
                     <Avatar id='msgAvatar' 
-                        onClick={data.creatorId === myId ? undefined : displayOpts}
-                        data-useronchan={JSON.stringify(getUserOnChan(data.creatorId))}
                     >
                         {data.creatorId}
                     </Avatar>
@@ -125,36 +77,12 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
              }
      }, [messagesList])
 
-     function handleCloseMenu() {
-         setAnchorEl(undefined);
-     }
-
-
-    function availableActions(): string[] {
-        if (!anchorEl) return [];
-        if (myRole === 'CREATOR')
-            return ['block', 'kick', 'mute', 'ban', 'admin', 'friend'];
-        if (myRole === 'USER')
-            return ['block', 'friend'];
-        if (myRole === 'ADMIN') {
-            if (anchorEl.dataset.useronchan && JSON.parse(anchorEl.dataset.useronchan).role === 'CREATOR')
-                return ['block', 'friend'];
-            return ['block', 'kick', 'mute', 'ban', 'admin', 'friend'];
-        }
-        return [];
-    }
 
      console.debug('Chat room mounted');
 	return (
 		<Box id='chatRoomContainer'>
             <Box id='chatRoom'>
                 <div ref={chatRef} className='messageDisplay'>
-                    {anchorEl ? 
-                        <UserOptions anchorEl={anchorEl}
-                            handleClickOptions={handleClickOptions}
-                            handleClose={handleCloseMenu}
-                            actions={availableActions()} />
-                            : null}
                     {chipData}
                 </div>
 
@@ -181,7 +109,7 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
                     <Collapse className='usersListCollapse'  
                         orientation='horizontal' in={openUL} timeout='auto' >
                         <Box className='usersList'>
-                            <UsersList usersList={usersList}/>
+                            <UsersList selectedChannel={selectedChannel} reloadMessagesList={() => fetchMessages(selectedChannel.id)} usersList={usersList}/>
                         </Box>
                     </Collapse>
                 </Box>
