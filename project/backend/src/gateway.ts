@@ -431,7 +431,7 @@ export class AppGateway
 		// On fait join la room a tous les sockets connected de this user
 		sockets.forEach((s) => s.join(`${chanId}`));
 		// On annonce a tous les sockets / users de ce channel que quelqu'un a join SAUF au sender
-		client.broadcast
+		this.server
 			.to(`${chanId}`)
 			.emit('someoneJoinedRoom', chanId, client.data.accessToken.userId);
 	}
