@@ -537,7 +537,8 @@ export class AppGateway
 			.emit('someoneHasBeenKicked', data.targetId, data.chanId);
 
 		const sockets: Socket[] = this.usersSockets.get(+data.targetId);
-		sockets.forEach((s) => s.leave(`${data.chanId}`));
+		//FIXME: internal server error cannot read prop of undefined car faut set tsconfig a check null!!!
+		sockets?.forEach((s) => s.leave(`${data.chanId}`));
 	}
 
 	@Roles(roleChannel.CREATOR, roleChannel.ADMIN)
