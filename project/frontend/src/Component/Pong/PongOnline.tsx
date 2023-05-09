@@ -605,8 +605,14 @@ export default function Game() {
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      setMousePos({ x: event.clientX, y: event.clientY});
-      socket?.emit('mousePosition', {roomId: room, side: side, mousePos: mousePos, window: window.innerHeight});
+      const gameBoard = document.querySelector('.gameboard');
+      if (gameBoard)
+      {
+        const pongRect = gameBoard.getBoundingClientRect();
+        const mouseY = event.clientY - pongRect.top;
+        setMousePos({ x: 0, y: mouseY});
+        socket?.emit('mousePosition', {roomId: room, side: side, mousePos: mousePos});
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -733,7 +739,7 @@ export default function Game() {
   }, [socket]);
   
   return (
-    <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} style={{ border: '1px solid black' }}>
+    <svg className='gameboard' viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`}>
     <Board timer={timer}
       ballState={gameState.isPlaying}
       side={side}
