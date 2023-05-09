@@ -153,7 +153,6 @@ export default function Layout({ handleTheme }: LayoutProps) {
 		<>
 		<div className="layout">
 			<div className="header" id="backgroudstars">
-				<Link style={{ textDecoration: 'none' }} to={`/`}>
 					<div className="textHeader">
 						<Link style={{ textDecoration: 'none' }} to={`/`}>
 							<h1 className="headerTitle">TRANSCENDANCE</h1>
@@ -184,7 +183,6 @@ export default function Layout({ handleTheme }: LayoutProps) {
 						<div id="stars2"></div>
 						<div id="stars3"></div>
 					</div>
-				</Link>
 			</div>
 			<div className="content">
 				{/* <div className='maincontent'> */}
