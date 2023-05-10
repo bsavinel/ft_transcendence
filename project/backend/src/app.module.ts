@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
 import { InvitationsModule } from './invitations/invitations.module';
+import {OtpModule} from './otp/otp.module';
 
 @Module({
 	imports: [
@@ -22,11 +23,11 @@ import { InvitationsModule } from './invitations/invitations.module';
 		UsersModule,
 		ChannelsModule,
 		MessagesModule,
-    PongModule,
+		PongModule,
 		InvitationsModule,
+		OtpModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
-
 })
 export class AppModule {}

@@ -1,10 +1,10 @@
 import { Collapse, Grid, Paper, } from '@mui/material';
 import { Box } from '@mui/system';
 import { useState } from 'react';
-import axios from 'axios';
 import Activate2FA from '../../Component/Setting2FA/Activate2FA';
 import Deactivate2FA from '../../Component/Setting2FA/Deactivate2FA';
 import IconButtonActivate from './IconButtonActivate';
+import ApiClient from '../../utils/ApiClient';
 
 interface DisplayEtatProps {
     handleEdit2FA: () => void;
@@ -14,45 +14,29 @@ interface DisplayEtatProps {
 }
 
 export default function Display2FA({handleActivate2FA, handleEdit2FA, edit2FA, activate2FA}: DisplayEtatProps) {
-    const [inputToken, setInputToken] = useState('');
-    const [isValidToken, setIsValidToken] = useState(true);
+    const [inputToken, setInputToken] = useState<string>('');
+    const [isValidToken, setIsValidToken] = useState<boolean>(true);
 
     async function activate() {
-        await axios.post('http://localhost:5000/otp/activate', {
-            token: inputToken,
-        })
-        .then(function (response) {
-            if (response.data === true)
-                {
-                    handleActivate2FA();
-                    setIsValidToken(true);
-                }
-            else
-                setIsValidToken(false);
-            setInputToken('');
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        const response = await ApiClient.post('otp/activate', { token: inputToken });
+        if (response.data) {
+            handleActivate2FA();
+            setIsValidToken(true);
+        } else {
+            setIsValidToken(false);
+        }
+        setInputToken('');
     }
 
     async function deactivate() {
-        await axios.post('http://localhost:5000/otp/deactivate', {
-            token: inputToken,
-        })
-        .then(function (response) {
-            if (response.data === true)
-                {
-                    handleActivate2FA();
-                    setIsValidToken(true);
-                }
-            else
-                setIsValidToken(false);
-            setInputToken('');
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        const response = await ApiClient.post('otp/deactivate', { token: inputToken });
+        if (response.data) {
+            handleActivate2FA();
+            setIsValidToken(true);
+        } else {
+            setIsValidToken(false);
+        }
+        setInputToken('');
     }
 
     return (
@@ -75,3 +59,4 @@ export default function Display2FA({handleActivate2FA, handleEdit2FA, edit2FA, a
         </Box>
     );
 }
+
