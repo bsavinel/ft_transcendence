@@ -17,7 +17,7 @@ export interface Game {
 	asWin: number;
 }
 
-interface GameRequest {
+export interface GameRequest {
 	id: number;
 	playerId1: number;
 	player1username: string;

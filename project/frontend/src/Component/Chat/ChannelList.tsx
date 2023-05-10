@@ -85,7 +85,7 @@ export default function ChannelList({ selectedChannel, channelList, setChannelLi
 
 	async function fetchUserFriends() {
 		try {
-			const getUserFriends = await ApiClient.get('users/' + getAccessContent()?.userId + '?friend=true');
+			const getUserFriends = await ApiClient.get('users/profile/' + getAccessContent()?.userId + '?friend=true');
 			setUserFriends(getUserFriends.data.friends);
 		} catch (error) {
             if (error instanceof AxiosError && error.response) {

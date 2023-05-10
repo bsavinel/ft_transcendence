@@ -8,6 +8,10 @@ export class UserEntity implements Partial<User> {
 	updatedAt: Date;
 	friends?: Partial<UserEntity>[];
 	channelsProfiles?: Partial<UserOnChannel>[];
+	win?: number;
+	lose?: number;
+	winRank?: number;
+	levelRank?: number;
 	// messageUser: Message[];
 	// gamePlay: UserOnGame[];
 

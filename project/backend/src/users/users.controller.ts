@@ -82,26 +82,30 @@ export class UsersController {
 	//userById
 	//TODO
 	//add query blocked user
-	@Get(':id')
+	@Get('/profile/:id')
 	async findById(
-		@Param('id') id: string,
+		@Param('id',ParseIntPipe) id: number,
 		@Query('friend') friend: string,
 		@Query('channel') channel: string
 	): Promise<UserEntity> {
 		try {
 			let userFriends: Partial<Partial<UserEntity>>;
 			let userChannels: Partial<Partial<UserEntity>>;
-			let userFind = await this.usersService.findById(+id);
+			let userFind = await this.usersService.findById(id);
 			if (friend === 'true') {
-				userFriends = await this.usersService.findFriends(+id);
+				userFriends = await this.usersService.findFriends(id);
 			}
 			if (channel === 'true') {
-				userChannels = await this.usersService.findChannel(+id);
+				userChannels = await this.usersService.findChannel(id);
 			}
 			userFind = {
 				...userFind,
 				...userFriends,
 				...userChannels,
+				win: (await this.gameService.getGameWinByUserId(id)).length,
+				lose: (await this.gameService.getGameLoseByUserId(id)).length,
+				winRank: await this.usersService.getClassementWin(id),
+				levelRank: await this.usersService.getClassementLevel(id),
 			};
 			return new UserEntity(userFind);
 		} catch (error) {
@@ -211,29 +215,43 @@ export class UsersController {
 	@Get('/:id/games')
 	async getGameOfUser(
 		@Param('id', ParseIntPipe) id: number,
-		@Query('limit', ParseIntPipe) limit: number,
-		@Query('idFirst', ParseIntPipe) idFirst: number,
 		@Query('asWin', ParseBoolPipe) asWin: boolean
 	): Promise<GameData[]> {
 		if (asWin === undefined) {
-			return await this.gameService.getGameByUserId(id, limit, idFirst);
+			return await this.gameService.getGameByUserId(id);
 		} else if (asWin === true) {
 			return await this.gameService.getGameWinByUserId(
-				id,
-				limit,
-				idFirst
+				id
 			);
 		} else {
 			return await this.gameService.getGameLoseByUserId(
-				id,
-				limit,
-				idFirst
+				id
 			);
 		}
 	}
 
 	@Get('/me')
-	me(@Req() req: RequestWithAccess): { id: number } {
-		return { id: req.accessToken.userId };
+	async me(@Req() req: RequestWithAccess): Promise<UserEntity> {
+		return await this.usersService.findById(req.accessToken.userId);
+	}
+
+	@Get()
+	async gatAll(): Promise<UserEntity[]> {
+		console.log('lalalala');
+
+		let users = await this.usersService.getAllUsers();
+		let tmp = users.map(async (user) => ({
+			...user,
+			win: (await this.gameService.getGameWinByUserId(user.id)).length,
+			lose: (await this.gameService.getGameLoseByUserId(user.id)).length
+		}));
+		users = await Promise.all(tmp);
+		return users;
+	}
+
+	@Get('/nbuser')
+	async getNbUsers(): Promise<number> {
+		console.log('getNbUsers');
+		return await this.usersService.getNbUser();
 	}
 }

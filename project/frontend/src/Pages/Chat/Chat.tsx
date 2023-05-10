@@ -34,7 +34,7 @@ export default function Chat() {
 	const myId: number = getAccessContent()?.userId as number;
 
 	async function fetchMe() {
-		const getMyUsername: string = (await ApiClient.get('users/' + getAccessContent()?.userId)).data.username;
+		const getMyUsername: string = (await ApiClient.get('users/profile/' + getAccessContent()?.userId)).data.username;
 		setMyUsername(getMyUsername);
 	}
 
@@ -46,7 +46,7 @@ export default function Chat() {
 			try {
 				const res: UserOnChannelDto[]  = (await ApiClient.get('/channels/users/' + chanId)).data;
 				const lala: UserOnChannelDto[] = await Promise.all(res.map(async (uoc) => {
-					const username: string = (await ApiClient.get('users/' + uoc.userId)).data.username;
+					const username: string = (await ApiClient.get('users/profile/' + uoc.userId)).data.username;
 					const channelName: string = (await ApiClient.get('channels/byid/' + uoc.channelId)).data.channelName;
 					return ({...uoc, username: username, channelName: channelName});
 				}));
@@ -97,7 +97,7 @@ export default function Chat() {
 
 	async function addMsg(newMsg: socketMsgDto) {
 		try {
-			const username = (await ApiClient.get('users/' + newMsg.creatorId)).data
+			const username = (await ApiClient.get('users/profile/' + newMsg.creatorId)).data
 			.username;
 			if (messagesList) {
 				setMessagesList([...messagesList,

@@ -1,39 +1,33 @@
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
 import './LeaderPart.scss';
-
+import ApiClient from '../../../utils/ApiClient';
 interface Profile {
 	userId: number;
 	username: string;
 	avatarUrl: string;
 	level: number;
-	percent: number;
-	win: number;
 	lose: number;
+	win: number;
 }
 
-function ProfileGenerator2(num: number): Profile[] {
-	var profile: Profile[] = [];
-	for (var i = 0; i < num; i++) {
-		var profile1: Profile = {
-			userId: i,
-			username: 'test' + i.toString(),
-			avatarUrl:
-				'https://cdn.intra.42.fr/users/fbdd1b21de009c605831e5f3cdeba836/bsavinel.jpg',
-			level: Math.floor(Math.random() * 10),
-			percent: Math.floor(Math.random() * 100),
-			win: Math.floor(Math.random() * 10),
-			lose: Math.floor(Math.random() * 10),
-		};
-		profile.push(profile1);
+async function getAllPofile() {
+	try {
+		let response = await ApiClient.get('/users');
+		let usersStat = response.data;
+		usersStat = usersStat.map((user: any) => ({
+			...user,
+			userId: user.id,
+			id: undefined,
+		}));
+		return usersStat;
+	} catch (e) {
+		return null;
 	}
-	profile[0].win = 0;
-	profile[0].lose = 0;
-	profile[1].win = 2;
-	profile[1].lose = 0;
-	return profile;
 }
 
-var world = ProfileGenerator2(27);
+// var world
+// = ProfileGenerator2(27);
 
 const columns: GridColDef[] = [
 	{
@@ -106,8 +100,8 @@ const columns: GridColDef[] = [
 		type: 'string',
 		valueGetter: (params: GridValueGetterParams) =>
 			JSON.stringify({
-				level: params.row.level,
-				percent: params.row.percent,
+				level: Math.floor(params.row.level),
+				percent: Math.floor((params.row.level - Math.floor(params.row.level)) * 100),
 			}),
 		width: 150,
 		renderCell: (str) => {
@@ -131,9 +125,15 @@ const columns: GridColDef[] = [
 ];
 
 export default function LeaderPart() {
-	world.sort((a, b) => {
-		return a.level * 100 + a.percent > b.level * 100 + b.percent ? -1 : 1;
-	});
+	const [world, setWorld] = useState<Profile[]>([]);
+
+	useEffect(() => {
+		(async () => {
+			let tmp = await getAllPofile();
+			setWorld(tmp);
+		})();
+	}, []);
+
 	return (
 		<div className="LeaderPart" id="leaderBoard">
 			<div className="LeaderBoard">
@@ -141,6 +141,7 @@ export default function LeaderPart() {
 				<div className="grid">
 					<DataGrid
 						rows={world.map((e, id) => {
+							console.log("coucou", e);
 							return { ...e, id };
 						})}
 						columns={columns}
@@ -160,27 +161,39 @@ export default function LeaderPart() {
 			<div className="Podium">
 				<h1>Podium</h1>
 				<div className="marche">
-					<div className="secondPlace">
-					<img className="avatar" src={world[1].avatarUrl} />
-						<div className="pseudo">
-							<p className="username">{world[1].username}</p>
-							<p className="personalId">#{world[1].userId}</p>
+					{world[1] === undefined ? (
+						<div className="secondPlace" />
+					) : (
+						<div className="secondPlace">
+							<img className="avatar" src={world[1].avatarUrl} />
+							<div className="pseudo">
+								<p className="username">{world[1].username}</p>
+								<p className="personalId">#{world[1].userId}</p>
+							</div>
 						</div>
-					</div>
-					<div className="firstPlace">
-					<img className="avatar" src={world[0].avatarUrl} />
-						<div className="pseudo">
-							<p className="username">{world[0].username}</p>
-							<p className="personalId">#{world[0].userId}</p>
+					)}
+					{world[0] === undefined ? (
+						<div className="firstPlace" />
+					) : (
+						<div className="firstPlace">
+							<img className="avatar" src={world[0].avatarUrl} />
+							<div className="pseudo">
+								<p className="username">{world[0].username}</p>
+								<p className="personalId">#{world[0].userId}</p>
+							</div>
 						</div>
-					</div>
-					<div className="thirdPlace">
-					<img className="avatar" src={world[2].avatarUrl} />
-						<div className="pseudo">
-							<p className="username">{world[2].username}</p>
-							<p className="personalId">#{world[2].userId}</p>
+					)}
+					{world[2] === undefined ? (
+						<div className="thirdPlace" />
+					) : (
+						<div className="thirdPlace">
+							<img className="avatar" src={world[2].avatarUrl} />
+							<div className="pseudo">
+								<p className="username">{world[2].username}</p>
+								<p className="personalId">#{world[2].userId}</p>
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			</div>
 		</div>

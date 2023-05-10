@@ -1,5 +1,5 @@
-import ChatIcon from '@mui/icons-material/Chat';
-import { IconButton } from '@mui/material';
+import { useEffect, useState } from 'react';
+import ApiClient, { getAccessContent } from '../../../utils/ApiClient';
 
 import './FriendPart.scss';
 
@@ -11,23 +11,21 @@ interface Profile {
 	percent: number;
 }
 
-function ProfileGenerator(num: number): Profile[] {
-	var profile: Profile[] = [];
-	for (var i = 0; i < num; i++) {
-		var profile1: Profile = {
-			id: i,
-			username: 'test' + i.toString(),
-			avatarUrl:
-				'https://cdn.intra.42.fr/users/fbdd1b21de009c605831e5f3cdeba836/bsavinel.jpg',
-			level: Math.floor(Math.random() * 10),
-			percent: Math.floor(Math.random() * 100),
-		};
-		profile.push(profile1);
+async function getAllFriend() {
+	try {
+		let response = await ApiClient.get(
+			`/users/${getAccessContent()?.userId}/friends`
+		);
+		let usersStat = response.data;
+		return usersStat.map((user: any) => ({
+			...user,
+			userId: user.id,
+			id: undefined,
+		}));
+	} catch (e) {
+		return null;
 	}
-	return profile;
 }
-
-var amis = ProfileGenerator(35);
 
 function RowProfileFriend({ profile }: { profile: Profile }) {
 	return (
@@ -38,11 +36,18 @@ function RowProfileFriend({ profile }: { profile: Profile }) {
 				<p className="personalId">#{profile.id}</p>
 			</div>
 			<div className="levelBox">
-				<div className="levelNumber">Level {profile.level}</div>
+				<div className="levelNumber">
+					Level {Math.floor(profile.level)}
+				</div>
 				<div className="progress">
 					<div
 						className="progress-bar"
-						style={{ width: `${profile.percent}%` }}
+						style={{
+							width: `${Math.floor(
+								(profile.level - Math.floor(profile.level)) *
+									100
+							)}%`,
+						}}
 					>
 						{profile.percent}%
 					</div>
@@ -53,14 +58,28 @@ function RowProfileFriend({ profile }: { profile: Profile }) {
 }
 
 export default function FriendPart() {
+	const [amis, setAmis] = useState<Profile[]>([]);
+
+	useEffect(() => {
+		(async () => {
+			let tmp = await getAllFriend();
+			console.log(amis);
+			setAmis(tmp);
+		})();
+	}, []);
+
 	return (
 		<div className="FriendPart" id="friend">
 			<div className="FriendScroll">
 				<div className="FriendHeader">Friends :</div>
 				<div className="FriendList">
-					{amis.map((a, index) => (
-						<RowProfileFriend key={index} profile={a} />
-					))}
+					{!amis ? (
+						<div className="noFriend">No friend</div>
+					) : (
+						amis.map((a, id) => (
+							<RowProfileFriend key={id} profile={a} />
+						))
+					)}
 				</div>
 			</div>
 		</div>

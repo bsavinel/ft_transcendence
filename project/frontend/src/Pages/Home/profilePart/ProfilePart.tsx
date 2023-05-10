@@ -1,29 +1,37 @@
-import { generateGame, GameRequestToGame, Game } from '../utils';
+import { generateGame, GameRequestToGame, Game, GameRequest } from '../utils';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import ApiClient, {
+	getAccess,
+	getAccessContent,
+} from '../../../utils/ApiClient';
+import { useEffect, useState } from 'react';
 
 import './ProfilePart.scss';
+import { id } from 'date-fns/locale';
 
-var defValueMe = {
-	userId: 3,
-	level: 5,
-	percent: 85,
-	username: 'bsavinel',
-	avatarUrl:
-		'https://cdn.intra.42.fr/users/fbdd1b21de009c605831e5f3cdeba836/bsavinel.jpg',
-	gameWins: 2,
-	gameLoses: 1,
-};
+interface UserProfile {
+	userId: string;
+	username: string;
+	level: number;
+	percent: number;
+	avatarUrl: string;
+	game: Game;
+	win: number;
+	lose: number;
+	winRank: number;
+	levelRank: number;
+}
 
 function resultGame(game: Game): string {
 	if (game.asWin === 1) {
 		return `Won ${
-			game.yourScore === 5
+			game.yourScore === 11
 				? `with +${game.yourScore - game.oponentScore}`
 				: 'by forfeit'
 		}`;
 	} else {
 		return `Lose ${
-			game.oponentScore === 5
+			game.oponentScore === 11
 				? `with ${game.yourScore - game.oponentScore}`
 				: 'by forfeit'
 		}`;
@@ -79,55 +87,119 @@ const columns: GridColDef[] = [
 	},
 ];
 
-var defValueGames = GameRequestToGame(generateGame(37));
-//TODO les fleche pour reorganiser le tableau ne marche pas
+async function getProfile(id: number): Promise<UserProfile | undefined> {
+	try {
+		let res = await ApiClient.get(`/users/profile/${id}`);
+		let user = {
+			...res.data,
+			userId: res.data.id,
+			id: undefined,
+			level: Math.floor(res.data.level),
+			percent: Math.floor((res.data.level - Math.floor(res.data.level)) * 100),
+		};
+		return user;
+	} catch (e) {
+		return undefined;
+	}
+}
+
+async function getGame(id: number): Promise<GameRequest[]> {
+	try {
+		let res = await ApiClient.get(`/users/${id}/games`);
+		return res.data;
+	} catch (e) {
+		return [];
+	}
+}
+
+async function getNumberUser(): Promise<number> {
+	try {
+		let res = await ApiClient.get("/users/nbuser");
+		return res.data;
+	} catch (e) {
+		console.error(e);
+		
+		return 0;
+	}
+}
+
 export default function ProfilePart() {
+	const [user, setUser] = useState<UserProfile | undefined>(undefined);
+	const [game, setGame] = useState<Game[]>([]);
+	const [nbUser, setNbUser] = useState<number>(0);
+
+	useEffect(() => {
+		(async () => {
+			let tmp = await getProfile(getAccessContent()!.userId);
+			setUser(tmp);
+		})();
+	}, []);
+
+	useEffect(() => {
+		(async () => {
+			let tmp = await getGame(getAccessContent()!.userId);
+			setGame(GameRequestToGame(tmp));
+		})();
+	}, []);
+
+	useEffect(() => {
+		(async () => {
+			console.log('test');
+			let tmp = await getNumberUser();
+			setNbUser(tmp);
+		})();
+	}, []);
+
+	if (user === undefined)
+		return (
+			<div className="profile" id="profile">
+				Profile dosen't exist
+			</div>
+		);
+
 	return (
 		<div className="profile" id="profile">
 			<div className="ProfileInfo">
-				<img className="avatar" src={defValueMe.avatarUrl} />
+				<img className="avatar" src={user.avatarUrl} />
 				<div className="PlayerStats">
 					<div className="NameAndClass">
 						<div className="pseudo">
-							<p className="username">{defValueMe.username}</p>
-							<p className="personalId">#{defValueMe.userId}</p>
+							<p className="username">{user.username}</p>
+							<p className="personalId">#{user.userId}</p>
 						</div>
 						<div className="Clasement">
 							<div className="IndividualStat">
 								<p className="statName">Win</p>
-								<p className="statValue">1</p>
+								<p className="statValue">{user.win}</p>
 							</div>
 							<div className="IndividualStat">
 								<p className="statName">Lose</p>
+								<p className="statValue">{user.lose}</p>
+							</div>
+							<div className="IndividualStat">
+								<p className="statName">Win rank :</p>
 								<p className="statValue">
-									{defValueMe.gameWins}
+									{user.winRank}
+									<span>/ {nbUser}</span>
 								</p>
 							</div>
 							<div className="IndividualStat">
-								<p className="statName">Global rank :</p>
+								<p className="statName">Level rank :</p>
 								<p className="statValue">
-									{defValueMe.gameWins}{' '}
-									<span className="onN">/ val</span>
-								</p>
-							</div>
-							<div className="IndividualStat">
-								<p className="statName">Friend rank :</p>
-								<p className="statValue">
-									{defValueMe.gameWins} <span>/ val</span>
+									{user.levelRank}
+									<span>/ {nbUser}</span>
 								</p>
 							</div>
 						</div>
 					</div>
 					<div className="levelBox">
-						<div className="levelNumber">
-							Level {defValueMe.level}
-						</div>
+						<div className="levelNumber">Level {user.level}</div>
 						<div className="progress">
 							<div
 								className="progress-bar"
-								style={{ width: `${defValueMe.percent}%` }}
+								style={{ width: `${user.percent}%` }}
 							>
-							{defValueMe.percent}%
+								{user.percent}%
 							</div>
 						</div>
 					</div>
@@ -135,7 +207,7 @@ export default function ProfilePart() {
 			</div>
 			<div className="grid">
 				<DataGrid
-					rows={defValueGames.map((e, id) => {
+					rows={game.map((e, id) => {
 						return { ...e, id };
 					})}
 					columns={columns}

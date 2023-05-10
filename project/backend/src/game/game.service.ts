@@ -20,8 +20,12 @@ export class GameService {
 	//! ######################### (last -> first) ##############################
 	//! ########################################################################
 
-	async createGame(idPlayer1: number, idPlayer2: number, mode: gameMode): Promise<number> {
-		const newGame = await this.prisma.game.create({ data: {mode} });
+	async createGame(
+		idPlayer1: number,
+		idPlayer2: number,
+		mode: gameMode
+	): Promise<number> {
+		const newGame = await this.prisma.game.create({ data: { mode } });
 		await this.prisma.userOnGame.create({
 			data: { gameId: newGame.id, userId: idPlayer1 },
 		});
@@ -82,6 +86,43 @@ export class GameService {
 			where: { id: idGame },
 			data: { isFinish: true },
 		});
+		let user = await this.prisma.user.findMany({
+			where: { id: { in: [player1.id, player2.id] } },
+		});
+		await this.prisma.user.update({
+			where: { id: user[0].id },
+			data: {
+				level: this.getNewLevel(
+					user[0].level,
+					Math.abs(player1.score - player2.score),
+					user[0].id === winerId
+				),
+			},
+		});
+		await this.prisma.user.update({
+			where: { id: user[1].id },
+			data: {
+				level: this.getNewLevel(
+					user[1].level,
+					Math.abs(player1.score - player2.score),
+					user[1].id === winerId
+				),
+			},
+		});
+	}
+
+	getNewLevel(
+		oldLevel: number,
+		scoreDiference: number,
+		asWin: boolean
+	): number {
+		if (asWin) {
+			return oldLevel + scoreDiference * 0.1;
+		} else {
+			if (oldLevel - scoreDiference * 0.1 < Math.floor(oldLevel))
+				return Math.floor(oldLevel);
+			return oldLevel - scoreDiference * 0.1;
+		}
 	}
 
 	//! ########################################################################
@@ -123,12 +164,7 @@ export class GameService {
 		});
 	}
 
-	async getGameByUserId(
-		id: number,
-		limit?: number,
-		idFirst?: number
-	): Promise<GameData[]> {
-		if (!limit || limit > 50) limit = 50;
+	async getGameByUserId(id: number): Promise<GameData[]> {
 		let tab = await this.prisma.game.findMany({
 			where: { players: { some: { userId: id } } },
 			select: {
@@ -141,19 +177,12 @@ export class GameService {
 			orderBy: {
 				createdAt: 'desc',
 			},
-			take: limit + 1,
-			cursor: idFirst ? { id: idFirst } : undefined,
 		});
 		tab.shift();
 		return tab;
 	}
 
-	async getGameWinByUserId(
-		id: number,
-		limit?: number,
-		idFirst?: number
-	): Promise<GameData[]> {
-		if (!limit || limit > 50) limit = 50;
+	async getGameWinByUserId(id: number): Promise<GameData[]> {
 		let tab = await this.prisma.game.findMany({
 			where: {
 				players: { some: { userId: id, asWin: true } },
@@ -168,19 +197,12 @@ export class GameService {
 			orderBy: {
 				createdAt: 'desc',
 			},
-			take: limit + 1,
-			cursor: idFirst ? { id: idFirst } : undefined,
 		});
 		tab.shift();
 		return tab;
 	}
 
-	async getGameLoseByUserId(
-		id: number,
-		limit?: number,
-		idFirst?: number
-	): Promise<GameData[]> {
-		if (!limit || limit > 50) limit = 50;
+	async getGameLoseByUserId(id: number): Promise<GameData[]> {
 		let tab = await this.prisma.game.findMany({
 			where: {
 				players: { some: { userId: id, asWin: false } },
@@ -195,8 +217,6 @@ export class GameService {
 			orderBy: {
 				createdAt: 'desc',
 			},
-			take: limit + 1,
-			cursor: idFirst ? { id: idFirst } : undefined,
 		});
 		tab.shift();
 		return tab;

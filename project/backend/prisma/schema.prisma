@@ -19,8 +19,9 @@ model User {
     username         String          @unique
     id42             Int             @unique
     avatarUrl        String
-    secretOtp       String?
-    activeOtp       Boolean         @default(false)
+    level            Float           @default(0)
+    secretOtp        String?
+    activeOtp        Boolean         @default(false)
     blocked          User[]          @relation("blockedRelation")
     blockedBy        User[]          @relation("blockedRelation")
     friends          User[]          @relation("friendsRelation")
@@ -28,7 +29,7 @@ model User {
     channelsProfiles UserOnChannel[]
     messagesUser     Message[]
     gamesPlay        UserOnGame[]
-	invitation      Invitation[]    @relation("invitation")
+    invitation       Invitation[]    @relation("invitation")
 }
 
 model UserOnChannel {
@@ -40,8 +41,9 @@ model UserOnChannel {
     user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     channelId Int
     channel   Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+    mutedAt   DateTime?
+
     @@unique([userId, channelId])
-    mutedAt         DateTime?
 }
 
 model Channel {
@@ -50,7 +52,7 @@ model Channel {
     updateAt     DateTime        @updatedAt
     channelName  String
     password     String?
-	salt		 String?
+    salt         String?
     mode         channelMode
     participants UserOnChannel[]
     messagesUser Message[]
@@ -68,12 +70,12 @@ model Message {
 
 model UserOnGame {
     id     Int      @id @default(autoincrement())
-	score  Int?
+    score  Int?
     asWin  Boolean?
     userId Int
-    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     gameId Int
-    game   Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    game   Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Game {
@@ -94,19 +96,19 @@ model Authentification {
 }
 
 model Invitation {
-		id			        Int		@id @default(autoincrement())
-		type		        invitMode
-    username        String
-		friendId	      Int?
-		channelId	      Int?
-		invitedUsers    User[] @relation("invitation")
+    id           Int       @id @default(autoincrement())
+    type         invitMode
+    username     String
+    friendId     Int?
+    channelId    Int?
+    invitedUsers User[]    @relation("invitation")
 }
 
 enum channelMode {
     PRIVATE
     PUBLIC
     PROTECTED
-	DIRECT
+    DIRECT
 }
 
 enum gameMode {
@@ -123,7 +125,7 @@ enum roleChannel {
 }
 
 enum invitMode {
-	GAME
-	CHAT
-	FRIEND
-	}
+    GAME
+    CHAT
+    FRIEND
+}
