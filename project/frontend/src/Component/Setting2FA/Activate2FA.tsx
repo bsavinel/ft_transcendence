@@ -1,7 +1,8 @@
 import { Grid, TextField, Button } from '@mui/material';
 import { authenticator } from '@otplib/preset-default';
 import qrcode from 'qrcode';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import ApiClient from '../../utils/ApiClient';
 
 interface Activate2FAProps {
     setInputToken: Dispatch<SetStateAction<string>>;
@@ -13,7 +14,17 @@ interface Activate2FAProps {
 //     - display secret / qrcode
 //     - display token verif input
 export default function Activate2FA({setInputToken, inputToken, activate, isValidToken}: Activate2FAProps) {
-    const secret = 'EK5KBRUZKY3GVAN7';
+	const [secret, setSecret] = useState<string>('');
+
+	async function getSecret() {
+		const getSecret = await ApiClient.get('otp/secret');
+		setSecret(getSecret.data.secretOtp);
+	}
+
+	useEffect(() => {
+		getSecret();
+	},[])
+
     const user = 'A user name, possibly an email';
     const service = 'A service name';
     let qrcodePath = '';
@@ -27,11 +38,12 @@ export default function Activate2FA({setInputToken, inputToken, activate, isVali
         qrcodePath = imageUrl;
     });
 
+	//FIXME revoir la gestion des grid!
     return (
         <Grid container justifyContent='space-evenly'>
             <Grid container direction='column' spacing={1} xs={4}>
                 <Grid item>
-                    <TextField disabled label='Secret' defaultValue='FJFTM4HLTR3WQI'/>
+                    <TextField disabled label='Secret' value={secret}/>
                 </Grid>
                 <Grid item>
                     <img src={qrcodePath}/>
@@ -54,3 +66,4 @@ export default function Activate2FA({setInputToken, inputToken, activate, isVali
         </Grid>
     );
 }
+

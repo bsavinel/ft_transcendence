@@ -25,6 +25,9 @@ export default function Setting() {
         setEdit2FA(!edit2FA);
     }
     
+	//FIXME
+	//fetch pour check si il est deja activate
+	//sinon a la reco il propose activate instead of deactivate
     function handleActivate2FA() {
         setActivate2FA(!activate2FA);
     }
