@@ -5,17 +5,31 @@ import DisplayUsername from '../../Component/SettingUsername/DisplayUsername';
 import InputUsername from '../../Component/SettingUsername/InputUserName';
 import { Button, Paper } from '@mui/material';
 import DisplayAvatar from '../../Component/SettingAvatar/DisplayAvatar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Display2FA from '../../Component/Setting2FA/Display2FA';
+import {getAccessContent} from '../../utils/ApiClient';
 
 // editUser: boolean | used for collapse in DisplayUsername
 // edit2FA: boolean | used for collapse in Display2FA
 // activate2FA: boolean | usef for swtich collapse content (Activate2FA/Deactivate2FA) in Display2FA
 export default function Setting() {
-    const [editUser, setEditUser] = useState(false);
-    const [edit2FA, setEdit2FA] = useState(false);
-    const [activate2FA, setActivate2FA] = useState(false);
+	const [editUser, setEditUser] = useState<boolean>(false);
+	const [edit2FA, setEdit2FA] = useState<boolean>(false);
+	const [activate2FA, setActivate2FA] = useState<boolean>(false);
+
+	async function fetchOtpIsActive(): Promise<boolean> {
+		const userId = getAccessContent()?.userId;
+		const response = await axios.get(`${import.meta.env.VITE_BACK_URL}/otp/isActive?userId=` + userId);
+		return response.data;
+	}
+
+	useEffect(() => {
+		fetchOtpIsActive()
+		.then((isActive: boolean) => {
+			setActivate2FA(isActive);
+		})
+	},[])
 
     function handleEditUser() {
         setEditUser(!editUser);
@@ -24,10 +38,7 @@ export default function Setting() {
     function handleEdit2FA() {
         setEdit2FA(!edit2FA);
     }
-    
-	//FIXME
-	//fetch pour check si il est deja activate
-	//sinon a la reco il propose activate instead of deactivate
+
     function handleActivate2FA() {
         setActivate2FA(!activate2FA);
     }
