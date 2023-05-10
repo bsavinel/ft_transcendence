@@ -41,16 +41,24 @@ OK :
 - Probleme de winerId fonction finishGame a fix (normal car je fais mes test avec le mm userId)
 - Probleme affichage de score a la fin de la aprtie il manque une unite au vainqueur (Valide car changement de once en on dans le front)
 - Possibilite de connexion a deux socket avec un user ???
-
-KO :
-
-- Modifier conditionalRender pour le socket provider 
 - Remettre la position de la souris avec -20% de l'ecran en haut
 - Marge en haut du composant pong
 - Repositionner le composant pong
 
+KO :
+
+- Modifier conditionalRender pour le socket provider 
+
+- Appbar en haut -> changer la photo profil
+- Reduire vitesse bonus pong solo
+- Check stroke pong online (width)
+- NotificationList
+- Repositionner les elements appbar
+
+
 JSP :
 
+- Faire en sorte que les regles redescendent en bas en slidant
 - Changer URL socket context par var env
 - Header ft_transcendance
 - Theme du site ?
@@ -66,6 +74,7 @@ Tuto websocket nestJS youtube : https://www.youtube.com/watch?v=fBtNgqIu63g
 
 
 https://mui.com/material-ui/react-snackbar/
+https://mui.com/material-ui/react-app-bar/
 
 Power-UP :
 Attaque surpuissante => Player : envoi une balle droite tres vite

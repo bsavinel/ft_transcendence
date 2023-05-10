@@ -1,9 +1,23 @@
 import {useContext, useEffect, useState} from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {ChatSocketContext} from '../../Component/Chat/ChatSocketContext';
 import NavBar from '../../Component/NavBar/NavBar';
 import {invitDTO} from '../../Component/Notification/NotificationList';
 import showToast, {ChatInvite, ToastFriendRequest, GameInvite} from '../../Component/toast/toast';
+
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 
 import './Layout.css';
 import './stars.scss';
@@ -12,116 +26,6 @@ interface LayoutProps {
 	handleTheme: () => void;
 }
 
-const Ball = () => {
-	return (
-		<circle
-			cx={50}
-			cy={50}
-			r={5}
-			fill="grey"
-			stroke="white"
-			strokeWidth="2"
-		/>
-	);
-};
-
-const Title = () => {
-	return (
-		<text
-			x={200}
-			y={100}
-			fill="white"
-			fontSize="50"
-			fontFamily="Lobster"
-			fontStyle="italic"
-			fontWeight="bold"
-		>
-			TRANSCENDANCE
-		</text>
-	);
-};
-
-const Background = ({}: {}) => {
-	return (
-		<svg width={2000} height={150} viewBox={`0 0 ${2000} ${150}`}>
-			<Title />
-		</svg>
-	);
-};
-
-// <<<<<<< HEAD
-// export default function Layout({handleTheme}: LayoutProps) {
-// 	const socket = useContext(ChatSocketContext);
-// 	const [invitChat, setInvitChat] = useState<boolean>(false);
-// 	const [invitFriend, setInvitFriend] = useState<boolean>(false);
-// 	const [invitGame, setInvitGame] = useState<boolean>(false);
-// 	const [author, setAuthor] = useState<string>('');
-// 	const [chanId, setChanId] = useState<number | undefined>(undefined);
-// 	const [friendId, setFriendId] = useState<number | undefined>(undefined);
-
-// 	useEffect(() => {
-// 		socket?.on('displayInvit', (reponse: invitDTO) => {
-// 			if (reponse.type === 'CHAT') {
-// 				setInvitChat(true)
-// 				setChanId(reponse.channelId);
-// 			} else if (reponse.type === 'FRIEND') {
-// 				setInvitFriend(true);
-// 				setFriendId(reponse.friendId);
-// 			} else {
-// 				setInvitGame(true);
-// 			}
-// 			setAuthor(reponse.username);
-// 		});
-// 		return () => {
-// 			socket?.off('displayInvit');
-// 		}
-// 	},[socket]);
-
-// 	// Les parenthèses vides à la fin de la condition sont en fait une façon de s'assurer que la fonction anonyme est exécutée immédiatement.
-
-// 	// En JavaScript, une paire de parenthèses autour d'une expression fonctionnelle la transforme en une expression de fonction appelée immédiatement (IIFE - Immediately Invoked Function Expression). Cela signifie que la fonction sera exécutée immédiatement au moment de la compilation, plutôt qu'attendre qu'elle soit appelée plus tard dans le code.
-
-// 	// Dans ce cas, nous utilisons une IIFE pour que la fonction anonyme soit exécutée immédiatement lorsque la condition est remplie. Cela garantit que `showToast(ChatInvite(author, chanId))` et `setInvitChat(false)` seront tous deux exécutés dans l'ordre correct.
-//   return (
-//     <>
-//       <div className='layout'>
-//         <div className='header' id='backgroudstars'>
-//           <Link to={`/`}>
-//             <Background />
-//             <div id="stars"></div>
-//             <div id="stars2"></div>
-//             <div id="stars3"></div>
-//           </Link>
-//         </div>
-//         <div className='content'>
-//           <div className='maincontent'>
-//             <Outlet />
-//           </div>
-//           <div className='navcontent'>
-//             <NavBar handleTheme={handleTheme}/>
-//           </div>
-//         </div>
-//       </div>
-//       {invitChat && chanId && (() => {
-//         showToast(ChatInvite(author, chanId));
-//         setInvitChat(false);
-//         setAuthor('');
-//         setChanId(undefined);
-//       })()}
-//       {invitFriend && friendId && (() => {
-//         showToast(ToastFriendRequest(author, friendId));
-//         setInvitFriend(false);
-//         setAuthor('');
-//         setFriendId(undefined);
-//       })()}
-//       {invitGame && (() => {
-//         showToast(GameInvite(author));
-//         setInvitGame(false);
-//         setAuthor('');
-//       })()}
-//     </>
-//   );
-// =======
 export default function Layout({ handleTheme }: LayoutProps) {
 	const socket = useContext(ChatSocketContext);
 	const [invitChat, setInvitChat] = useState<boolean>(false);
@@ -130,6 +34,72 @@ export default function Layout({ handleTheme }: LayoutProps) {
 	const [author, setAuthor] = useState<string>('');
 	const [chanId, setChanId] = useState<number | undefined>(undefined);
 	const [friendId, setFriendId] = useState<number | undefined>(undefined);
+	
+	const navigate = useNavigate();
+
+	function ResponsiveAppBar() {
+	function handleClickGame() {
+		navigate('/game');
+	}
+
+	function handleClickChat() {
+		navigate('/chat');
+	}
+
+	function handleClickSettings() {
+		navigate('/setting');
+	}
+
+	return (
+		<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main }}>
+			<Container maxWidth="xl">
+				<Toolbar disableGutters>
+				<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+				<Typography
+					variant="h6"
+					noWrap
+					component="a"
+					href="/"
+					sx={{
+					mr: 2,
+					display: { xs: 'none', md: 'flex' },
+					fontFamily: 'monospace',
+					fontWeight: 700,
+					letterSpacing: '.3rem',
+					color: 'inherit',
+					textDecoration: 'none',
+					}}
+				>
+					Transcendance
+				</Typography>
+				<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+					<Button
+						key='Game'
+						onClick={handleClickGame}
+						sx={{ my: 2, color: 'white', display: 'block', ml: 3 }}
+					>
+						Game
+					</Button>
+					<Button
+						key='Chat'
+						onClick={handleClickChat}
+						sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
+					>
+						Chat
+					</Button>
+				</Box>
+				<Box sx={{ flexGrow: 0 }}>
+					<Tooltip title="Open settings">
+					<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
+						<Avatar alt="YOU" src="/static/images/avatar/2.jpg" />
+					</IconButton>
+					</Tooltip>
+				</Box>
+				</Toolbar>
+			</Container>
+			</AppBar>
+		);
+	}
 
 	useEffect(() => {
 		socket?.on('displayInvit', (reponse: invitDTO) => {
@@ -152,45 +122,18 @@ export default function Layout({ handleTheme }: LayoutProps) {
 	return (
 		<>
 		<div className="layout">
-			<div className="header" id="backgroudstars">
-					<div className="textHeader">
-						<Link style={{ textDecoration: 'none' }} to={`/`}>
-							<h1 className="headerTitle">TRANSCENDANCE</h1>
-						</Link>
-						<div className="router">
-							<Link
-								style={{ textDecoration: 'none' }}
-								to={`/game`}
-							>
-								<p>Game</p>
-							</Link>
-							<Link
-								style={{ textDecoration: 'none' }}
-								to={`/chat`}
-							>
-								<p>Chat</p>
-							</Link>
-							<Link
-								style={{ textDecoration: 'none' }}
-								to={`/setting`}
-							>
-								<p>Settings</p>
-							</Link>
-						</div>
-					</div>
-					<div id="backgroudstars">
-						<div id="stars"></div>
-						<div id="stars2"></div>
-						<div id="stars3"></div>
-					</div>
+			<div className="header">
+				<div className='appbar'>
+					<ResponsiveAppBar/>
+				</div>
 			</div>
 			<div className="content">
-				{/* <div className='maincontent'> */}
 				<Outlet />
-				{/* </div> */}
-				{/* <div className='navcontent'>
-                    <NavBar handleTheme={handleTheme}/>
-                </div> */}
+			</div>
+			<div className='background'>
+				<div id="stars"></div>
+				<div id="stars2"></div>
+				<div id="stars3"></div>
 			</div>
 		</div>
       {invitChat && chanId && (() => {

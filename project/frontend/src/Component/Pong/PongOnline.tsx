@@ -312,8 +312,8 @@ const Background = () => {
         width={BOARD_WIDTH}
         height={BOARD_HEIGHT}
         fill="#333333"
-        stroke="black"
-        strokeWidth="8"
+        stroke="white"
+        strokeWidth="5"
       />
     );
   };

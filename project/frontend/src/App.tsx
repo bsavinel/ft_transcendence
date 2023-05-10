@@ -23,19 +23,16 @@ const dark = createTheme({
 	palette: {
 		mode: 'dark',
 		primary: {
-			main: '#42566a',
+		  main: '#5161b7',
 		},
 		secondary: {
-			main: '#877861',
+		  main: '#f50057',
 		},
 		background: {
-			default: '#212f3d',
-			paper: '#516a81',
-		},
-	},
-	shape: {
-		borderRadius: 4,
-	},
+			default: '#2f2e2e',
+			paper: '#40434c',
+		  },
+	  },
 });
 
 const light = createTheme({

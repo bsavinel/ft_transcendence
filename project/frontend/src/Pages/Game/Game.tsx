@@ -8,6 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -113,9 +114,23 @@ export default function HomeGame() {
 
   const SoloPong = () => {
     return (
-      <div className='section2'>
+      <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        '& > :not(style)': {
+          m: '4%',
+          width: '40vh',
+          maxWidth: '400px',
+          height: '40vh',
+          maxHeight: '400px',
+        },
+      }}
+      >
+      <Paper elevation={8}>
         <h2 className='title2'>Solo</h2>
-        <Button sx={{ width: '30%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlaySolo}>Lancer une partie</Button>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Button sx={{ width: '60%', borderRadius: '5px', mb: '1vh', fontSize: '1.5vh'}} variant="contained" color="primary" onClick={handleOpenPlaySolo}>Lancer une partie</Button>
         <Dialog open={isOpenPlaySolo} onClose={handleClosePlaySolo}
         PaperProps={{
           style: {
@@ -141,17 +156,6 @@ export default function HomeGame() {
                 }}
                 sx={{
                   textAlign: 'center',
-                  backgroundColor: 'grey',
-                  color: 'white',
-                  '& .MuiSelect-icon': {
-                    color: 'white',
-                  },
-                  '& .MuiSelect-select:focus': {
-                    backgroundColor: 'grey',
-                  },
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
                 }}
               >
                 <MenuItem value={1}>Facile</MenuItem>
@@ -161,22 +165,38 @@ export default function HomeGame() {
               </Select>
             </FormControl>
           </Box>
-          <Button variant="contained" color="inherit" onClick={handleLaunchSolo}>PLAY</Button>
+          <Button variant="contained" color="primary" onClick={handleLaunchSolo}>PLAY</Button>
           <DialogActions>
-            <Button onClick={handleClosePlaySolo} color="inherit">
+            <Button onClick={handleClosePlaySolo} color="primary">
               Annuler
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
+        </Box>
+        </Paper>
+      </Box>
     );
   };
   
   const OnlinePong = () => {
     return (
-      <div className='section2'>
+      <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        '& > :not(style)': {
+          m: '4%',
+          width: '40vh',
+          maxWidth: '400px',
+          height: '40vh',
+          maxHeight: '400px',
+        },
+      }}
+      >
+      <Paper elevation={8}>
         <h2 className='title2'>Online</h2>
-          <Button sx={{ width: '35%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlayOnline}>Matchmaking Classic</Button>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <Button sx={{ width: '60%', borderRadius: '5px', mb: '1vh', fontSize: '1.5vh'}} variant="contained" color="primary" onClick={handleOpenPlayOnline}>Matchmaking Classic</Button>
           <Dialog open={isOpenPlayOnline} onClose={handleClosePlayOnline} 
           PaperProps={{
             style: {
@@ -193,13 +213,13 @@ export default function HomeGame() {
               {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
             </Box>
             <DialogActions>
-              <Button onClick={handleClosePlayOnline} color="inherit">
+              <Button onClick={handleClosePlayOnline} color="primary">
                 Annuler
               </Button>
             </DialogActions>
           </Dialog>
   
-          <Button sx={{ width: '35%', borderRadius: '5px'}} variant="contained" color="inherit" onClick={handleOpenPlayOnlinePowerUp}>Matchmaking Power</Button>
+          <Button sx={{ width: '60%', borderRadius: '5px', mb: '1vh', fontSize: '1.5vh'}} variant="contained" color="primary" onClick={handleOpenPlayOnlinePowerUp}>Matchmaking Power</Button>
           <Dialog open={isOpenPlayOnlinePowerUp} onClose={handleClosePlayOnlinePowerUp}
           PaperProps={{
             style: {
@@ -216,20 +236,36 @@ export default function HomeGame() {
               {playerAvailable && <LinearProgress variant="determinate" value={progress} />}
             </Box>
             <DialogActions>
-              <Button onClick={handleClosePlayOnlinePowerUp} color="inherit">
+              <Button onClick={handleClosePlayOnlinePowerUp} color="primary">
                 Annuler
               </Button>
             </DialogActions>
           </Dialog>
-      </div>
+        </Box>
+      </Paper>
+    </Box>
     );
   };
 
   const Rules = () => {
     return (
-      <div className='section2'>
+      <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        '& > :not(style)': {
+          m: '4%',
+          width: '40vh',
+          maxWidth: '400px',
+          height: '40vh',
+          maxHeight: '400px',
+        },
+      }}
+      >
+      <Paper elevation={8}>
         <h2 className='title2'>Regles</h2>
-        <Button variant="contained" color="inherit" onClick={handleOpenRulesClassic}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Button sx={{ width: '60%', borderRadius: '5px', mb: '1vh', fontSize: '1.5vh'}} variant="contained" color="primary" onClick={handleOpenRulesClassic}>
         Classic
         </Button>
         <Dialog
@@ -238,11 +274,6 @@ export default function HomeGame() {
           keepMounted
           onClose={handleCloseRulesClassic}
           aria-describedby="alert-dialog-slide-description"
-          PaperProps={{
-            style: {
-              backgroundColor: 'grey',
-            },
-          }}
         >
           <h1 style={{ fontSize: '25px' }}>{"Regles Pong Classic"}</h1>
           <DialogContent>
@@ -256,7 +287,7 @@ export default function HomeGame() {
             </p>
           </DialogContent>
         </Dialog>
-        <Button variant="contained" color="inherit" onClick={handleOpenRulesPower}>
+        <Button sx={{ width: '60%', borderRadius: '5px', mb: '1vh', fontSize: '1.5vh'}} variant="contained" color="primary" onClick={handleOpenRulesPower}>
         Power
         </Button>
         <Dialog
@@ -265,11 +296,6 @@ export default function HomeGame() {
           keepMounted
           onClose={handleCloseRulesPower}
           aria-describedby="alert-dialog-slide-description"
-          PaperProps={{
-            style: {
-              backgroundColor: 'grey',
-            },
-          }}
         >
           <h1 style={{ fontSize: '25px' }}>{"Regles Pong Power"}</h1>
           <DialogContent>
@@ -291,7 +317,9 @@ export default function HomeGame() {
             </p>
           </DialogContent>
         </Dialog>
-      </div>
+        </Box>
+      </Paper>
+      </Box>
     );
   };
   
@@ -306,10 +334,8 @@ export default function HomeGame() {
     {
       socket?.on("disconnect", (reason) => {
         if (reason === "io server disconnect") {
-          // the disconnection was initiated by the server, you need to reconnect manually
           socket?.connect();
         }
-        // else the socket? will automatically try to reconnect
       });
     }
   }, [isOpenPlayOnline]); 
@@ -333,13 +359,13 @@ export default function HomeGame() {
   }, [launchGame, isOpenPlayOnline]);
 
   return (
-    <div className="container">
+    <div className='container'>
       <h1 className='title1'>PONG GAME</h1>
-      <div>
-        <SoloPong />
-        <OnlinePong />
-        <Rules />
-      </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <SoloPong />
+          <OnlinePong />
+          <Rules />
+        </Box>
       <h1 className='title12'>PONG GAME</h1>
     </div>
   );

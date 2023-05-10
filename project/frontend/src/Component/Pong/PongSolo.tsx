@@ -207,7 +207,7 @@ const Background = () => {
         width={BOARD_WIDTH}
         height={BOARD_HEIGHT}
         fill="#333333"
-        stroke="black"
+        stroke="white"
         strokeWidth="5"
       />
     );

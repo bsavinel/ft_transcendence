@@ -22,8 +22,8 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 50px;
-  margin-bottom: 50px;
+  margin-top: 20vh;
+  margin-bottom: 20vh;
   width: 100%;
 }
 
@@ -49,50 +49,18 @@ p {
   	}
 }
 
-.section2 {
-	width: 80%;
-	margin-left: 10%;
-	border: 1px solid rgb(0, 0, 0);
-	border-radius: 60px;
-	padding: 10px;
-	margin-bottom: 20px;
-	text-align: center;
-	justify-content: center;
-	flex-wrap: wrap;
-	background-color: rgb(49, 49, 49);
-	animation: blinkMargin2 10s ease-in-out infinite;
-  }
-
-  @keyframes blinkMargin2 {
-	0% {
-		box-shadow: 0px 0px 10px rgb(0, 0, 0);
-	}
-	25% {
-		box-shadow: 0px 0px 10px rgb(255, 255, 255);
-	}
-	50% {
-		box-shadow: 0px 0px 10px rgb(0, 0, 0);
-	}
-	75% {
-		box-shadow: 0px 0px 10px rgb(255, 255, 255);
-	}
-	100% {
-		box-shadow: 0px 0px 10px rgb(0, 0, 0);
-	}
-  }
-
 .title1 {
-	animation: moveLeft 10s linear infinite, blinkTitle 5s ease-in-out infinite;
+	animation: moveLeft 10s linear infinite;
 	text-align: center;
-	text-shadow: 0px 0px 5px white;
-	font-size: 30px;
+	text-shadow: 0px 0px 10px white;
+	font-size: 3vh;
 }
 
 .title12 {
-	animation: moveRight 10s linear infinite, blinkTitle 5s ease-in-out infinite;
+	animation: moveRight 10s linear infinite;
 	text-align: center;
-	text-shadow: 0px 0px 5px white;
-	font-size: 30px;
+	text-shadow: 0px 0px 10px white;
+	font-size: 3vh;
 }
 
 @keyframes moveLeft {
@@ -146,11 +114,7 @@ p {
 .title2 {
 	animation: blink 10s ease-in-out infinite;
 	text-align: center;
-}
-
-.title3 {
-	animation: blink 1s ease-in-out infinite;
-	text-align: left;
+	font-size: 4vh;
 }
 
 @keyframes blink {
