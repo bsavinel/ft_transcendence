@@ -1,13 +1,11 @@
 import { GameRequestToGame, Game, GameRequest } from '../utils';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import ApiClient, {
-	getAccess,
-	getAccessContent,
-} from '../../../utils/ApiClient';
+import ApiClient from '../../../utils/ApiClient';
 import { useEffect, useState } from 'react';
 
 import './ProfilePart.scss';
 import { id } from 'date-fns/locale';
+import { Box, CircularProgress } from '@mui/material';
 
 interface UserProfile {
 	userId: string;
@@ -115,6 +113,8 @@ async function getGame(id: number): Promise<GameRequest[]> {
 async function getNumberUser(): Promise<number> {
 	try {
 		let res = await ApiClient.get("/users/nbuser");
+		// await new Promise(resolve => setTimeout(resolve, 5000));
+		// console.log('HIHI');
 		return res.data;
 	} catch (e) {
 		console.error(e);
@@ -123,40 +123,39 @@ async function getNumberUser(): Promise<number> {
 	}
 }
 
-export default function ProfilePart() {
+export default function ProfilePart({userId}: { userId: number }) {
 	const [user, setUser] = useState<UserProfile | undefined>(undefined);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [game, setGame] = useState<Game[]>([]);
 	const [nbUser, setNbUser] = useState<number>(0);
 
 	useEffect(() => {
-		(async () => {
-			let tmp = await getProfile(getAccessContent()!.userId);
-			setUser(tmp);
-		})();
+		Promise.all([
+			getProfile(userId),
+			getNumberUser(),
+			getGame(userId)
+		]).then(([profile, nbUser, game]) => {
+			setUser(profile);
+			setNbUser(nbUser);
+			setGame(GameRequestToGame(game, userId));
+			setIsLoading(false);
+		});
 	}, []);
 
-	useEffect(() => {
-		(async () => {
-			let tmp = await getGame(getAccessContent()!.userId);
-			setGame(GameRequestToGame(tmp, getAccessContent()!.userId));
-		})();
-	}, []);
 
-	useEffect(() => {
-		(async () => {
-			console.log('test');
-			let tmp = await getNumberUser();
-			setNbUser(tmp);
-		})();
-	}, []);
-
-	if (user === undefined)
+	if (isLoading) {
+		return (
+			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}} >
+				<CircularProgress size={120}/>
+			</Box>
+		);
+	} else if (user === undefined) {
 		return (
 			<div className="profile" id="profile">
 				Profile dosen't exist
 			</div>
 		);
-
+	}
 	return (
 		<div className="profile" id="profile">
 			<div className="ProfileInfo">

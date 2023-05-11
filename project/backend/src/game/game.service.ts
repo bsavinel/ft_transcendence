@@ -211,8 +211,6 @@ export class GameService {
 				createdAt: 'desc',
 			},
 		});
-		console.log(tab);
-		console.log(tab[0].players);
 		return tab;
 	}
 

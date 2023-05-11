@@ -86,7 +86,6 @@ const columns: GridColDef[] = [
 			}`,
 		width: 150,
 		sortComparator: (v1, v2) => {
-			console.log(v1, v2);
 			if (v1 === '100%') return 1;
 			if (v2 === '100%') return -1;
 			if (v1 === '-') return -1;
@@ -114,7 +113,6 @@ const columns: GridColDef[] = [
 			);
 		},
 		sortComparator: (v1, v2) => {
-			console.log(v1, v2);
 			let param1 = JSON.parse(v1);
 			let param2 = JSON.parse(v2);
 			let val1 = param1.level * 100 + param1.percent;
@@ -141,7 +139,6 @@ export default function LeaderPart() {
 				<div className="grid">
 					<DataGrid
 						rows={world.map((e, id) => {
-							console.log("coucou", e);
 							return { ...e, id };
 						})}
 						columns={columns}

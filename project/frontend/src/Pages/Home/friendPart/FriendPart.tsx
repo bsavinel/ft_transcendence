@@ -63,7 +63,6 @@ export default function FriendPart() {
 	useEffect(() => {
 		(async () => {
 			let tmp = await getAllFriend();
-			console.log(amis);
 			setAmis(tmp);
 		})();
 	}, []);

@@ -16,6 +16,7 @@ import PongSolo from './Component/Pong/PongSolo';
 import './index.css';
 import CallBackPage from "./Pages/CallBackPage/CallBackPage";
 import { ToastContainer } from "react-toastify";
+import Profile from './Pages/profile/profile';
 
 import './App.css';
 
@@ -75,6 +76,7 @@ export default function App() {
 							path="/"
 							element={<Layout handleTheme={handleTheme} />}
 						>
+							<Route path="/profile/:userId" element={<Profile />} />
 							<Route index element={<Home />} />
 							<Route path="game" element={<Game />} />
 							<Route

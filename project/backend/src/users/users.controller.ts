@@ -216,6 +216,8 @@ export class UsersController {
 		@Param('id', ParseIntPipe) id: number,
 		@Query('asWin') asWin: string | undefined
 	): Promise<GameData[]> {
+		try 
+		{
 		if (asWin === undefined) {
 			return await this.gameService.getGameByUserId(id);
 		} else if (asWin === "true") {
@@ -226,6 +228,8 @@ export class UsersController {
 			return await this.gameService.getGameLoseByUserId(
 				id
 			);
+		}} catch (error) {
+			return [];
 		}
 	}
 

@@ -9,9 +9,7 @@ export default function TestPage() {
 		<div className="HomePage">
 			<NavHome />
 			<div className="HomeContent" id="HomeContent">
-				<ProfilePart />
-				<FriendPart />
-				<LeaderPart />
+
 			</div>
 		</div>
 	);
