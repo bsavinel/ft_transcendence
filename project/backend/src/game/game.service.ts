@@ -8,7 +8,7 @@ export interface GameData {
 	winnerId: number;
 	isFinish: boolean;
 	createdAt: Date;
-	players: { score: number; asWin: boolean; user: User; userId: number; }[];
+	players: { score: number; asWin: boolean; user: User; userId: number }[];
 }
 
 @Injectable()
@@ -48,7 +48,6 @@ export class GameService {
 		winerId?: number
 	): Promise<void> {
 		const players = await this.findUserOnGame(idGame);
-
 		if (players.length != 2) throw new Error('Game not found');
 		else if (
 			players[0].userId != player1.id &&
@@ -96,6 +95,15 @@ export class GameService {
 		let user = await this.prisma.user.findMany({
 			where: { id: { in: [player1.id, player2.id] } },
 		});
+		if (winerId === undefined)
+		{
+			if (player1.score != 11 && player2.score != 11)
+				return ;
+			if (player1.score > player2.score)
+				winerId = player1.id;
+			else
+				winerId = player2.id;
+		}
 		await this.prisma.user.update({
 			where: { id: user[0].id },
 			data: {
@@ -123,6 +131,7 @@ export class GameService {
 		scoreDiference: number,
 		asWin: boolean
 	): number {
+		console.log(oldLevel, scoreDiference, asWin);
 		if (asWin) {
 			return oldLevel + scoreDiference * 0.1;
 		} else {
@@ -203,7 +212,7 @@ export class GameService {
 			},
 		});
 		console.log(tab);
-		console.log(tab[0].players)
+		console.log(tab[0].players);
 		return tab;
 	}
 

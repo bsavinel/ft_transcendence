@@ -11,7 +11,7 @@ export default function BrutForce() {
 
 	const handleSubmit = () => {
 		try {
-			axios.post('http://localhost:5000/oauth/force', value, {
+			axios.post(`${import.meta.env.VITE_BACK_URL}/oauth/force`, value, {
 				withCredentials: true,
 			});
 		} catch (e) {
