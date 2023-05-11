@@ -288,11 +288,6 @@ export class AppGateway
 				{ user: client.data.accessToken.userId, chanId: data.chanId },
 				client
 			);
-			this.channelsService.joinChan(
-				client.data.accessToken.userId,
-				data.chanId,
-				''
-			);
 		}
 		try {
 			const invitation = {
@@ -354,7 +349,7 @@ export class AppGateway
 			await this.usersService.getBlockedBy(client.data.accessToken.userId)
 		).map((usr) => usr.id);
 
-		let socketIdsWhoBlocked : string[];
+		let socketIdsWhoBlocked : string[] = [];
 		this.usersSockets.forEach((uSockets, userId) => {
 			if (blockedByIdsArray.includes(userId)) {
 				const ids: string[] = uSockets.map((socket) => socket.id);

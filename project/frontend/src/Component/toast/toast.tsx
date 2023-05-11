@@ -1,12 +1,17 @@
 import { useContext } from 'react';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Socket } from 'socket.io-client';
 import { ChatSocketContext } from '../Chat/ChatSocketContext';
 import "./toast.css";
 
 
-export function ToastFriendRequest(author: string, friendId: number) {
-	const socket = useContext(ChatSocketContext);
+interface ToastFriendRequestProps {
+	author: string,
+	friendId: number,
+	socket: Socket,
+}
+export function ToastFriendRequest({author, friendId, socket} : ToastFriendRequestProps) {
 	return (
 		<>
 			<div className="textFriendRequest">
@@ -16,14 +21,19 @@ export function ToastFriendRequest(author: string, friendId: number) {
 				 want to be your friend!
 			</div>
 			<div className="buttonToast">
-				<button className="accept" onClick={() => socket?.emit('handleFriendInvit', { friendId: friendId, accept: true })}>Accept</button>
-				<button className="refuse" onClick={() => socket?.emit('handleFriendInvit', { friendId: friendId, accept: false })}>Refuse</button>
+				<button className="accept" onClick={() => socket.emit('handleFriendInvit', { friendId: friendId, accept: true })}>Accept</button>
+				<button className="refuse" onClick={() => socket.emit('handleFriendInvit', { friendId: friendId, accept: false })}>Refuse</button>
 			</div>
 		</>
 	);
 }
 
-export function GameInvite(author: string) {
+interface GameInviteProps {
+	author: string,
+	socket: Socket,
+}
+
+export function GameInvite({author, socket}: GameInviteProps) {
 	return (
 		<>
 			<div className="textFriendRequest">
@@ -40,8 +50,12 @@ export function GameInvite(author: string) {
 	);
 }
 
-export function ChatInvite(author: string, chanId: number) {
-	const socket = useContext(ChatSocketContext);
+interface ChatInviteProps {
+	author: string,
+	chanId: number,
+	socket: Socket,
+}
+export function ChatInvite({author, chanId, socket} : ChatInviteProps) {
 	return (
 		<>
 			<div className="textFriendRequest">

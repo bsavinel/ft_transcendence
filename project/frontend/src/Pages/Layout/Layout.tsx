@@ -38,81 +38,81 @@ export default function Layout({ handleTheme }: LayoutProps) {
 	const navigate = useNavigate();
 
 	function ResponsiveAppBar() {
-	function handleClickGame() {
-		navigate('/game');
-	}
+		function handleClickGame() {
+			navigate('/game');
+		}
 
-	function handleClickChat() {
-		navigate('/chat');
-	}
+		function handleClickChat() {
+			navigate('/chat');
+		}
 
-	function handleClickSettings() {
-		navigate('/setting');
-	}
+		function handleClickSettings() {
+			navigate('/setting');
+		}
 
-	return (
-		<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main }}>
-			<Container maxWidth="xl">
-				<Toolbar disableGutters>
-				<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-				<Typography
-					variant="h6"
-					noWrap
-					component="a"
-					href="/"
-					sx={{
-					mr: 2,
-					display: { xs: 'none', md: 'flex' },
-					fontFamily: 'monospace',
-					fontWeight: 700,
-					letterSpacing: '.3rem',
-					color: 'inherit',
-					textDecoration: 'none',
-					}}
-				>
-					Transcendance
-				</Typography>
-				<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-					<Button
-						key='Game'
-						onClick={handleClickGame}
-						sx={{ my: 2, color: 'white', display: 'block', ml: 3 }}
-					>
-						Game
-					</Button>
-					<Button
-						key='Chat'
-						onClick={handleClickChat}
-						sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
-					>
-						Chat
-					</Button>
-				</Box>
-				<Box sx={{ flexGrow: 0 }}>
-					<Tooltip title="Open settings">
-					<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
-						<Avatar alt="YOU" src="/static/images/avatar/2.jpg" />
-					</IconButton>
-					</Tooltip>
-				</Box>
-				</Toolbar>
-			</Container>
+		return (
+			<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main }}>
+				<Container maxWidth="xl">
+					<Toolbar disableGutters>
+						<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+						<Typography
+							variant="h6"
+							noWrap
+							component="a"
+							href="/"
+							sx={{
+								mr: 2,
+								display: { xs: 'none', md: 'flex' },
+							fontFamily: 'monospace',
+							fontWeight: 700,
+							letterSpacing: '.3rem',
+							color: 'inherit',
+							textDecoration: 'none',
+							}}
+						>
+							Transcendance
+						</Typography>
+						<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+							<Button
+								key='Game'
+								onClick={handleClickGame}
+								sx={{ my: 2, color: 'white', display: 'block', ml: 3 }}
+							>
+								Game
+							</Button>
+							<Button
+								key='Chat'
+								onClick={handleClickChat}
+								sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
+							>
+								Chat
+							</Button>
+						</Box>
+						<Box sx={{ flexGrow: 0 }}>
+							<Tooltip title="Open settings">
+								<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
+									<Avatar alt="YOU" src="/static/images/avatar/2.jpg" />
+								</IconButton>
+							</Tooltip>
+						</Box>
+					</Toolbar>
+				</Container>
 			</AppBar>
 		);
 	}
 
 	useEffect(() => {
-		socket?.on('displayInvit', (reponse: invitDTO) => {
+		if (!socket) return ;
+		socket.on('displayInvit', (reponse: invitDTO) => {
 			if (reponse.type === 'CHAT') {
-				setInvitChat(true)
-				setChanId(reponse.channelId);
+				if (reponse.channelId)
+					showToast(<ChatInvite author={reponse.username} chanId={reponse.channelId} socket={socket} />);
 			} else if (reponse.type === 'FRIEND') {
-				setInvitFriend(true);
-				setFriendId(reponse.friendId);
+				if (reponse.friendId)
+					showToast(<ToastFriendRequest author={reponse.username} friendId={reponse.friendId} socket={socket} />);
 			} else {
-				setInvitGame(true);
+				showToast(<GameInvite author={reponse.username} socket={socket} />);
 			}
-			setAuthor(reponse.username);
 		});
 		return () => {
 			socket?.off('displayInvit');
@@ -120,7 +120,6 @@ export default function Layout({ handleTheme }: LayoutProps) {
 	},[socket]);
 
 	return (
-		<>
 		<div className="layout">
 			<div className="header">
 				<div className='appbar'>
@@ -136,23 +135,5 @@ export default function Layout({ handleTheme }: LayoutProps) {
 				<div id="stars3"></div>
 			</div>
 		</div>
-      {invitChat && chanId && (() => {
-        showToast(ChatInvite(author, chanId));
-        setInvitChat(false);
-        setAuthor('');
-        setChanId(undefined);
-      })()}
-      {invitFriend && friendId && (() => {
-        showToast(ToastFriendRequest(author, friendId));
-        setInvitFriend(false);
-        setAuthor('');
-        setFriendId(undefined);
-      })()}
-      {invitGame && (() => {
-        showToast(GameInvite(author));
-        setInvitGame(false);
-        setAuthor('');
-      })()}
-    </>
 	);
 }
