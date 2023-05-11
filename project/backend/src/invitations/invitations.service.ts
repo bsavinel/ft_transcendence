@@ -1,20 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { PrismaService } from 'src/prisma.service';
-import { invitMode } from '@prisma/client';
+import { Invitation, invitMode } from '@prisma/client';
 import { DeleteInvitationDto } from './dto/delete-invitation.dto';
 
 @Injectable()
 export class InvitationsService {
 	constructor(private prisma: PrismaService) {}
 
+	// Returns null if the invite already exists, otherwise returns the
+	// newly created invite.
 	async createInvitation(
 		type: invitMode,
 		channelId: number,
 		friendId: number,
 		userId: number,
 		username: string
-	) {
+	): Promise<Invitation | null> {
+		if (type !== 'CHAT') {
+			const exists: Invitation | null =
+				await this.prisma.invitation.findFirst({
+					where: {
+						friendId: friendId,
+						invitedUsers: { every: { id: userId } },
+					},
+				});
+			if (exists) return null;
+		}
 		const channelInvitation = await this.prisma.invitation.create({
 			data: {
 				type: type,

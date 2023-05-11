@@ -7,6 +7,7 @@ export class UserEntity implements Partial<User> {
 	avatarUrl: string;
 	updatedAt: Date;
 	friends?: Partial<UserEntity>[];
+	level?: number;
 	channelsProfiles?: Partial<UserOnChannel>[];
 	win?: number;
 	lose?: number;

@@ -13,19 +13,18 @@ interface Profile {
 
 async function getAllFriend() {
 	try {
-		let response = await ApiClient.get(
+		return (await ApiClient.get(
 			`/users/${getAccessContent()?.userId}/friends`
-		);
-		let usersStat = response.data;
-		return usersStat.map((user: any) => ({
-			...user,
-			userId: user.id,
-			id: undefined,
-		}));
+		)).data.friends;
 	} catch (e) {
 		return null;
 	}
 }
+
+function getPourcentage(level: number) {
+	return Math.floor( (level - Math.floor(level)) * 100);
+}
+
 
 function RowProfileFriend({ profile }: { profile: Profile }) {
 	return (
@@ -43,13 +42,10 @@ function RowProfileFriend({ profile }: { profile: Profile }) {
 					<div
 						className="progress-bar"
 						style={{
-							width: `${Math.floor(
-								(profile.level - Math.floor(profile.level)) *
-									100
-							)}%`,
+							width: `${getPourcentage(profile.level)}%`
 						}}
 					>
-						{profile.percent}%
+						{getPourcentage(profile.level)}%
 					</div>
 				</div>
 			</div>

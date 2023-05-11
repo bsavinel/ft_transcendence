@@ -31,7 +31,7 @@ import {
 import { UsersService } from './users/users.service';
 // import { instrument } from '@socket.io/admin-ui';
 import { Roles } from './channels/roles.decorator';
-import { invitMode, roleChannel, User } from '@prisma/client';
+import { Invitation, invitMode, roleChannel, User } from '@prisma/client';
 import { ChanRoleGuard, MutedGuard } from './channels/channels.roles.guard';
 import { PrismaExceptionFilter } from './prisma-exception/prisma-exception.filter';
 import { JwtService } from '@nestjs/jwt';
@@ -256,7 +256,16 @@ export class AppGateway
 	newInvit(
 		@MessageBody() data: { invit: CreateInvitationDto[]; user: string }
 	) {
-		data.invit.map((invit: CreateInvitationDto) => {
+		data.invit.map(async (invit: CreateInvitationDto) => {
+			const created: Invitation | null =
+				await this.invitationsService.createInvitation(
+					invit.type,
+					invit.channelId,
+					invit.friendId,
+					invit.invitedUsers,
+					data.user
+				);
+			if (created === null) return;
 			const user: Socket[] = this.usersSockets.get(invit.invitedUsers);
 			if (user) {
 				user.forEach((user) => {
@@ -268,13 +277,6 @@ export class AppGateway
 					});
 				});
 			}
-			this.invitationsService.createInvitation(
-				invit.type,
-				invit.channelId,
-				invit.friendId,
-				invit.invitedUsers,
-				data.user
-			);
 		});
 	}
 

@@ -142,7 +142,6 @@ export default function ProfilePart({userId}: { userId: number }) {
 		});
 	}, []);
 
-
 	if (isLoading) {
 		return (
 			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}} >

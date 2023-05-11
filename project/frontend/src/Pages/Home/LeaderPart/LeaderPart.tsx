@@ -108,7 +108,7 @@ const columns: GridColDef[] = [
 			if (param.level === null) return '';
 			return (
 				<span>
-					Level {param.level} {param.percent}%
+					Level {param.level}{param.percent ? `.${Math.floor(param.percent / 10)}` : ""}
 				</span>
 			);
 		},
