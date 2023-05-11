@@ -11,7 +11,6 @@ export class TokenService {
 		private readonly jwt: JwtService
 	) {}
 
-	// TODO on fait un cookie de session ou on met un champ user
 	async generateAccessToken(id: number): Promise<string> {
 		let payload: Token = {
 			type: 'access',

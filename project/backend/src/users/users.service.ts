@@ -213,7 +213,6 @@ export class UsersService {
 	}
 
 	async getNbUser(): Promise<number> {
-		console.log(await this.prisma.user.count());
 		return await this.prisma.user.count();
 	}
 }

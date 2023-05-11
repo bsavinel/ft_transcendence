@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 
-import "./LoginPage.css";
+import "./LoginPage.scss";
 import "./Fleche.scss";
 import "./stars.scss";
 import {Navigate} from "react-router-dom";
@@ -15,7 +15,6 @@ interface interfaceBodyApi {
 	state?: string;
 }
 
-// TODO degager de la une fois que le login du back seras ok
 function SignUpButton() {
 	const handlerClick = () => {
 		//!########################################################################
@@ -49,14 +48,14 @@ function SignUpButton() {
 }
 
 export default function LoginPage() {
-	let fleche = require("../../assets/chevron.png");
+	// let fleche = require("../../assets/chevron.png");
 
-	let ft_scroll_to_bottom = () => {
-		document.getElementById("ScrollPart")!.scrollTo({
-			top: document.getElementById("ScrollPart")!.scrollHeight,
-			behavior: "smooth",
-		});
-	};
+	// let ft_scroll_to_bottom = () => {
+	// 	document.getElementById("ScrollPart")!.scrollTo({
+	// 		top: document.getElementById("ScrollPart")!.scrollHeight,
+	// 		behavior: "smooth",
+	// 	});
+	// };
 	return (
 		<>
 			<div id="backgroudStars">
@@ -67,16 +66,16 @@ export default function LoginPage() {
 			<div id="ScrollPart">
 				<div id="upPage">
 					<h1>TRANSANDANCE</h1>
-					<img
+					{/* <img
 						id="Fleche"
 						src={fleche}
 						alt="fleche"
 						onClick={ft_scroll_to_bottom}
-					/>
-				</div>
-				<div id="downPage">
+					/> */}
 					<SignUpButton />
 				</div>
+				{/* <div id="downPage">
+				</div> */}
 			</div>
 		</>
 	);

@@ -22,15 +22,8 @@ export class GameController {
 	//* ############################## ALL GAMES ##############################
 
 	@Get()
-	getAllGames(
-		@Query('limit', ParseIntPipe) limit: number,
-		@Query('idFirst', ParseIntPipe) idFirst: number
-	): Promise<GameData[]> {
-		if (idFirst && idFirst < 0)
-			throw new BadRequestException('idFirst must be positive');
-		if (limit && limit < 0)
-			throw new BadRequestException('limit must be positive');
-		return this.gameService.getGames(limit, idFirst);
+	getAllGames(): Promise<GameData[]> {
+		return this.gameService.getGames();
 	}
 
 	//* ############################## ONE GAME ###############################

@@ -117,7 +117,6 @@ export class UsersController {
 	@Get(':id/friends')
 	async allFriends(@Param('id') id: string) {
 		const userFriends = await this.usersService.findFriends(+id);
-		console.log(userFriends);
 		return userFriends;
 	}
 
@@ -181,12 +180,12 @@ export class UsersController {
 	@Delete('/deleteBlockedUser?')
 	async deleteBlockedUser(
 		@Req() request: RequestWithAccess,
-		@Query('blockedId') blockedId: string
+		@Query('blockedId', ParseIntPipe) blockedId: number
 	): Promise<UserEntity> {
 		try {
 			const delBlockedUser = await this.usersService.deleteBlockedUser(
 				request.accessToken.userId,
-				+blockedId
+				blockedId
 			);
 			return new UserEntity(delBlockedUser);
 		} catch (error) {
@@ -215,11 +214,11 @@ export class UsersController {
 	@Get('/:id/games')
 	async getGameOfUser(
 		@Param('id', ParseIntPipe) id: number,
-		@Query('asWin', ParseBoolPipe) asWin: boolean
+		@Query('asWin') asWin: string | undefined
 	): Promise<GameData[]> {
 		if (asWin === undefined) {
 			return await this.gameService.getGameByUserId(id);
-		} else if (asWin === true) {
+		} else if (asWin === "true") {
 			return await this.gameService.getGameWinByUserId(
 				id
 			);
@@ -237,8 +236,6 @@ export class UsersController {
 
 	@Get()
 	async gatAll(): Promise<UserEntity[]> {
-		console.log('lalalala');
-
 		let users = await this.usersService.getAllUsers();
 		let tmp = users.map(async (user) => ({
 			...user,
@@ -251,7 +248,6 @@ export class UsersController {
 
 	@Get('/nbuser')
 	async getNbUsers(): Promise<number> {
-		console.log('getNbUsers');
 		return await this.usersService.getNbUser();
 	}
 }

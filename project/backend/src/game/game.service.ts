@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserOnGame } from '@prisma/client';
+import { UserOnGame, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { gameMode } from '@prisma/client';
 
@@ -8,7 +8,7 @@ export interface GameData {
 	winnerId: number;
 	isFinish: boolean;
 	createdAt: Date;
-	players: UserOnGame[];
+	players: { score: number; asWin: boolean; user: User; userId: number; }[];
 }
 
 @Injectable()
@@ -84,7 +84,14 @@ export class GameService {
 		});
 		await this.prisma.game.update({
 			where: { id: idGame },
-			data: { isFinish: true },
+			data: {
+				isFinish: true,
+				winnerId: winerId
+					? winerId
+					: player1.score > player2.score
+					? player1.id
+					: player2.id,
+			},
 		});
 		let user = await this.prisma.user.findMany({
 			where: { id: { in: [player1.id, player2.id] } },
@@ -140,27 +147,37 @@ export class GameService {
 				createdAt: true,
 				winnerId: true,
 				isFinish: true,
-				players: true,
+				players: {
+					select: {
+						userId: true,
+						score: true,
+						asWin: true,
+						user: true,
+					},
+				},
 			},
 		});
 	}
 
-	async getGames(limit?: number, idFirst?: number): Promise<GameData[]> {
-		if (!limit || limit > 50) limit = 50;
-		if (idFirst < 0) idFirst = undefined;
+	async getGames(): Promise<GameData[]> {
 		return await this.prisma.game.findMany({
 			select: {
 				id: true,
 				createdAt: true,
 				winnerId: true,
 				isFinish: true,
-				players: true,
+				players: {
+					select: {
+						userId: true,
+						score: true,
+						asWin: true,
+						user: true,
+					},
+				},
 			},
 			orderBy: {
 				createdAt: 'desc',
 			},
-			take: limit + 1,
-			cursor: idFirst ? { id: idFirst } : undefined,
 		});
 	}
 
@@ -172,13 +189,21 @@ export class GameService {
 				createdAt: true,
 				winnerId: true,
 				isFinish: true,
-				players: true,
+				players: {
+					select: {
+						userId: true,
+						score: true,
+						asWin: true,
+						user: true,
+					},
+				},
 			},
 			orderBy: {
 				createdAt: 'desc',
 			},
 		});
-		tab.shift();
+		console.log(tab);
+		console.log(tab[0].players)
 		return tab;
 	}
 
@@ -192,13 +217,19 @@ export class GameService {
 				createdAt: true,
 				winnerId: true,
 				isFinish: true,
-				players: true,
+				players: {
+					select: {
+						userId: true,
+						score: true,
+						asWin: true,
+						user: true,
+					},
+				},
 			},
 			orderBy: {
 				createdAt: 'desc',
 			},
 		});
-		tab.shift();
 		return tab;
 	}
 
@@ -212,13 +243,19 @@ export class GameService {
 				createdAt: true,
 				winnerId: true,
 				isFinish: true,
-				players: true,
+				players: {
+					select: {
+						userId: true,
+						score: true,
+						asWin: true,
+						user: true,
+					},
+				},
 			},
 			orderBy: {
 				createdAt: 'desc',
 			},
 		});
-		tab.shift();
 		return tab;
 	}
 }

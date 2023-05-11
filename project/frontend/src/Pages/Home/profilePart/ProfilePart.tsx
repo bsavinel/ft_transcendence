@@ -1,4 +1,4 @@
-import { generateGame, GameRequestToGame, Game, GameRequest } from '../utils';
+import { GameRequestToGame, Game, GameRequest } from '../utils';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import ApiClient, {
 	getAccess,
@@ -138,7 +138,7 @@ export default function ProfilePart() {
 	useEffect(() => {
 		(async () => {
 			let tmp = await getGame(getAccessContent()!.userId);
-			setGame(GameRequestToGame(tmp));
+			setGame(GameRequestToGame(tmp, getAccessContent()!.userId));
 		})();
 	}, []);
 
