@@ -271,7 +271,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							gameId,
 							player1,
 							player2,
-							side === 'left' ? player2.id : player1.id
+							side === 'left' ? player1.id : player2.id
 						);
 					}
 					const indexPlayerArrayRoom = arrayRoom.findIndex(
@@ -550,7 +550,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const player2 = {id: player2Id, score: playerState.player2Score};
             const gameId = this.gameIdPrisma.get(player.room);
 
-            this.gameService.FinishGame(gameId, player1, player2, side === 'left' ? player2.id : player1.id);
+            this.gameService.FinishGame(gameId, player1, player2, side === 'left' ? player1.id : player2.id);
           }
           const indexPlayerArrayRoom = arrayRoom.findIndex(index => index.client === socket);
           if (indexPlayerArrayRoom !== -1)
