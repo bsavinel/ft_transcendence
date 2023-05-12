@@ -125,6 +125,8 @@ const columns: GridColDef[] = [
 export default function LeaderPart() {
 	const [world, setWorld] = useState<Profile[]>([]);
 
+	world.sort((a, b) => (b.level - a.level));
+
 	useEffect(() => {
 		(async () => {
 			let tmp = await getAllPofile();
