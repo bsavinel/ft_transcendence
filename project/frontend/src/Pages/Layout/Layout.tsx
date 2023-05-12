@@ -133,7 +133,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 				showToast(<GameInvite author={reponse.username} friendId={reponse.friendId} socket={socketPong} />);
 			}
 		})
-		socketPong.on('launchOn', () => {
+		socketPong.on('launchOnInvit', () => {
 			navigate('/game/pong-online');
 		})
 		return () => {
