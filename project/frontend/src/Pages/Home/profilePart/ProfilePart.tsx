@@ -6,6 +6,7 @@ import './ProfilePart.scss';
 import { id } from 'date-fns/locale';
 import { Box, CircularProgress } from '@mui/material';
 import Paper from '@mui/material/Paper';
+import NoMatch from '../../404';
 
 interface UserProfile {
 	userId: string;
@@ -147,11 +148,7 @@ export default function ProfilePart({userId}: { userId: number }) {
 			</Box>
 		);
 	} else if (user === undefined) {
-		return (
-			<div className="profile" id="profile">
-				Profile dosen't exist
-			</div>
-		);
+		return <NoMatch/>
 	}
 	return (
 		<div className="profile" id="profile">
