@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Channel, User, UserOnChannel } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserEntity } from './entities/user.entity';
 import { count } from 'console';
@@ -19,6 +19,15 @@ export class UsersService {
 			where: { id: userId },
 			data: { avatarUrl: path },
 		});
+	}
+
+	async getFriendsOfWithoutThrow(userId: number): Promise<User[]> {
+		return (
+			await this.prisma.user.findUnique({
+				where: { id: userId },
+				select: { friendsOf: true },
+			})
+		)?.friendsOf;
 	}
 
 	async getFriendsOf(userId: number): Promise<User[]> {
@@ -147,8 +156,14 @@ export class UsersService {
 		});
 	}
 
+	async findChannelWithoutThrow(id: number): Promise<UserOnChannel[]> {
+		return await this.prisma.userOnChannel.findMany({
+			where: { userId: id },
+		})
+	}
+
 	async findChannel(id: number): Promise<Partial<Partial<UserEntity>>> {
-		return this.prisma.user.findUniqueOrThrow({
+		return await this.prisma.user.findUniqueOrThrow({
 			where: { id: id },
 			select: {
 				channelsProfiles: {
@@ -187,10 +202,10 @@ export class UsersService {
 	}
 
 	async getClassementWin(id: number): Promise<number> {
-		let nbWinUser = await this.prisma.userOnGame.count({
+		const nbWinUser = await this.prisma.userOnGame.count({
 			where: { userId: id, asWin: true },
 		});
-		let tmp = await this.prisma.userOnGame.groupBy({
+		const tmp = await this.prisma.userOnGame.groupBy({
 			by: ['userId'],
 			where: { asWin: true },
 			having: {
@@ -201,13 +216,13 @@ export class UsersService {
 	}
 
 	async getClassementLevel(id: number): Promise<number> {
-		let levelUser = (
+		const levelUser = (
 			await this.prisma.user.findUnique({
 				where: { id },
 				select: { level: true },
 			})
 		).level;
-		let tmp = await this.prisma.user.findMany({
+		const tmp = await this.prisma.user.findMany({
 			where: { level: { gt: levelUser } },
 		});
 		return tmp.length + 1;

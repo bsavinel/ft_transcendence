@@ -31,7 +31,13 @@ import {
 import { UsersService } from './users/users.service';
 // import { instrument } from '@socket.io/admin-ui';
 import { Roles } from './channels/roles.decorator';
-import { Invitation, invitMode, roleChannel, User } from '@prisma/client';
+import {
+	Invitation,
+	invitMode,
+	roleChannel,
+	User,
+	UserOnChannel,
+} from '@prisma/client';
 import { ChanRoleGuard, MutedGuard } from './channels/channels.roles.guard';
 import { PrismaExceptionFilter } from './prisma-exception/prisma-exception.filter';
 import { JwtService } from '@nestjs/jwt';
@@ -351,7 +357,7 @@ export class AppGateway
 			await this.usersService.getBlockedBy(client.data.accessToken.userId)
 		).map((usr) => usr.id);
 
-		let socketIdsWhoBlocked : string[] = [];
+		const socketIdsWhoBlocked: string[] = [];
 		this.usersSockets.forEach((uSockets, userId) => {
 			if (blockedByIdsArray.includes(userId)) {
 				const ids: string[] = uSockets.map((socket) => socket.id);
@@ -649,25 +655,28 @@ export class AppGateway
 	}
 
 	protected async makeClientJoinSusChannels(client: Socket) {
-		const getUserChan = await this.usersService.findChannel(
-			client.data.accessToken.userId
-		);
-
-		client.join(
-			Array.from(getUserChan.channelsProfiles)
-				.filter((channelProfile) => channelProfile.role !== 'BAN')
-				.map((channelProfile) => `${channelProfile.channelId}`)
-		);
+		const getUserChan: UserOnChannel[] =
+			await this.usersService.findChannelWithoutThrow(
+				client.data.accessToken.userId
+			);
+		if (getUserChan.length > 0) {
+			const nonBanFromChans: string[] = getUserChan
+			.filter((channelProfile) => channelProfile.role !== 'BAN')
+			.map((channelProfile) => `${channelProfile.channelId}`);
+			client.join(nonBanFromChans);
+		} 
 	}
 
 	protected async emitToFriends(userId: number, eventToEmit: string) {
-		const friendOf: User[] = await this.usersService.getFriendsOf(userId);
-		friendOf.map((user) => {
-			const friendSockets: Socket[] = this.usersSockets.get(user.id);
-			if (!friendSockets) return;
-			friendSockets.map((socket) => {
-				this.server.to(socket.id).emit(eventToEmit, { user: userId });
+		const friendOf: User[] = await this.usersService.getFriendsOfWithoutThrow(userId);
+		if (friendOf) {
+			friendOf.map((user) => {
+				const friendSockets: Socket[] = this.usersSockets.get(user.id);
+				if (!friendSockets) return;
+				friendSockets.map((socket) => {
+					this.server.to(socket.id).emit(eventToEmit, { user: userId });
+				});
 			});
-		});
+		}
 	}
 }

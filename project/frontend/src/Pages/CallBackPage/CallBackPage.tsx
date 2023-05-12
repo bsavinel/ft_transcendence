@@ -71,7 +71,7 @@ export default function CallBackPage() {
 			.then((newUser: boolean) => {
 				if (newUser) {
 					generateSecretOtp();
-					navigate('/profile');
+					navigate('/setting');
 				} else {
 					fetchOtpIsActive().then((askOTP: boolean) => {
 						if (askOTP) {
