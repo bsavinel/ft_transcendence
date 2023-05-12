@@ -29,7 +29,7 @@ function getPourcentage(level: number) {
 function RowProfileFriend({ profile }: { profile: Profile }) {
 	return (
 		<div className="FriendBox">
-			<img className="avatarFriend" src={profile.avatarUrl} />
+			<img className="avatarFriend" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + profile.id} />
 			<div className="pseudo">
 				<p className="username">{profile.username}</p>
 				<p className="personalId">#{profile.id}</p>
