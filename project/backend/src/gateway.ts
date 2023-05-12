@@ -325,6 +325,7 @@ export class AppGateway
 				data.friendId,
 				client.data.accessToken.userId
 			);
+			this.server.emit('friendListEdited');
 		}
 		try {
 			const invitation = {

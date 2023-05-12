@@ -31,6 +31,13 @@ export default function Chat() {
 		setMajChanList(!majChanList);
 	}
 
+	const [majFriendList, setMajFriendList] = useState<boolean>(false);
+
+	// To call when need to refresh ChannelBrowse component.
+	function reloadFriendList() {
+		setMajFriendList(!majFriendList);
+	}
+
 	const myId: number = getAccessContent()?.userId as number;
 
 	async function fetchMe() {
@@ -156,6 +163,9 @@ export default function Chat() {
 			reloadChanList();
 			reloadBrowseList();
 		});
+		socket.on('friendListEdited', () => {
+			reloadFriendList();
+		})
 		socket?.on('someoneJoinedRoom', (chanId: number, userId: number) => {
 			if (userId !== myId) {
 				if (selectedChannel && selectedChannel.id === chanId)
@@ -213,6 +223,7 @@ export default function Chat() {
 							majBrowseList={majBrowseList}
 							reloadBrowseList={reloadBrowseList}
 							majChanList={majChanList}
+							majFriendList={majFriendList}
 							reloadChanList={reloadChanList}
 							myUsername={myUsername}
 						/>

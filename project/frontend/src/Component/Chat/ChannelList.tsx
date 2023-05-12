@@ -26,11 +26,12 @@ interface ChanListProps {
     majBrowseList: boolean;
     reloadBrowseList: () => void;
     majChanList: boolean;
+    majFriendList: boolean;
     reloadChanList: () => void;
     myUsername: string;
 };
 
-export default function ChannelList({ selectedChannel, channelList, setChannelList, handleSelectChannel, isOwner, majBrowseList, reloadBrowseList, majChanList, reloadChanList, myUsername }: ChanListProps) {
+export default function ChannelList({ selectedChannel, channelList, setChannelList, handleSelectChannel, isOwner, majBrowseList, reloadBrowseList, majChanList, majFriendList, reloadChanList, myUsername }: ChanListProps) {
 	const [browseChanList, setBrowseChanList] = useState<ChannelDto[]>();
 	const [isAddChanOpen, setIsAddChanOpen] = useState(false);
 	const [isEditChanOpen, setEditChanOpen] = useState(false);
@@ -81,7 +82,7 @@ export default function ChannelList({ selectedChannel, channelList, setChannelLi
 
     useEffect(() => {
         fetchUserFriends();
-    }, []);
+    }, [majFriendList]);
 
 	async function fetchUserFriends() {
 		try {
