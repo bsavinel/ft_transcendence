@@ -41,11 +41,13 @@ export default function AddChanDialog({isOpen, closeModal, addChan, userFriends,
 			return ;
 		try {
 			const newChan = await (addChan(name, whichMode, password));
-			if (invitList) {
-				const formatList = invitList.map((invitList) => {
-					return { type: 'CHAT', channelId: newChan.id, invitedUsers: invitList.id };
-				})
-				socket?.emit('newInvit', {invit: formatList, user: myUsername});
+			if (whichMode === 'PRIVATE') {
+				if (invitList) {
+					const formatList = invitList.map((invitList) => {
+						return { type: 'CHAT', channelId: newChan.id, invitedUsers: invitList.id };
+					})
+					socket?.emit('newInvit', {invit: formatList, user: myUsername});
+				}
 			}
 		} catch(e) {
 			if (e instanceof AxiosError)
