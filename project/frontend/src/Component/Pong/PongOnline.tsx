@@ -692,12 +692,12 @@ export default function Game() {
   useEffect(() => {
     if (winLose)
     {
-      const timer_wall = setInterval(() => {
+      const timer_redirect = setInterval(() => {
         if (timer > 0) {
           setTimer(prevTimer => prevTimer - 1);
         }
       }, 1000);
-      return () => clearInterval(timer_wall);
+      return () => clearInterval(timer_redirect);
     }
   }, [winLose, timer]);
 
@@ -705,9 +705,10 @@ export default function Game() {
   {
     if (winLose)
     {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         navigate("/game");
       }, 5000)
+      return () => clearTimeout(timeout);
     }
   }, [winLose]);
 
