@@ -65,7 +65,7 @@ export default function LoginPage() {
 			</div>
 			<div id="ScrollPart">
 				<div id="upPage">
-					<h1>TRANSANDANCE</h1>
+					<h1>TRANSCENDENCE</h1>
 					{/* <img
 						id="Fleche"
 						src={fleche}

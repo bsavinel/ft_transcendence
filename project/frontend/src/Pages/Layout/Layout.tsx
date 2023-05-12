@@ -76,7 +76,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 						textDecoration: 'none',
 						}}
 					>
-						Transcendance
+						Transcendence
 					</Typography>
 					<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
 						<Tooltip title="Open Game">
