@@ -52,14 +52,13 @@ export class UsersController {
 					cb(new BadRequestException('Unsupported file type'), false);
 				}
 			},
-			limits: { fileSize: 5000000 },
+			limits: { fileSize: 100000 },
 		})
 	)
 	UploadAvatar(
 		@UploadedFile() avatar: Express.Multer.File,
 		@Req() request: RequestWithAccess
 	) {
-		console.log(avatar);
 		this.usersService.saveAvatarPath(
 			request.accessToken.userId,
 			avatar.path
