@@ -44,25 +44,46 @@ OK :
 - Remettre la position de la souris avec -20% de l'ecran en haut
 - Marge en haut du composant pong
 - Repositionner le composant pong
+- Reduire vitesse bonus pong solo
+- Check stroke pong online (width)
+- Repositionner les elements appbar
+- NotificationList
+- Changement des tailles friend, profil, leader a 100vh
+- Changement des src avatar pour affichage photo avatar sur la page de profil
+- Bouton switch theme
+- accel la balle dans le pong power (a test)
+- page 404 redirection pong online -> redirection vers /game si pas en partie online
+- Revoir la position de la souris (probleme quand differente taille de terrain)
+- Appbar en haut -> changer la photo profil
+- Bouton switch theme (rajouter le changement du bouton -> animation)
+- Reset les intervals des bonus apres point gagne (paddle tjrs reduit au debut de partie)
+- Erreur : TypeError: Cannot read properties of undefined (reading 'id') at GameService.FinishGame (/usr/src/app/src/game/game.service.ts:103:25)
+-> Quand le composant se deconnecte ( )
+- Changer couleur navbar HOME theme primary
 
 KO :
 
-- Modifier conditionalRender pour le socket provider 
+- Theme du site ?
+ALL: changer couleur des boutons
 
-- Appbar en haut -> changer la photo profil
-- Reduire vitesse bonus pong solo
-- Check stroke pong online (width)
-- NotificationList
-- Repositionner les elements appbar
+
+
+Benoit :
+- degage force
+- changer route profil/setting
+
+
+
 
 
 JSP :
 
+- Ajouter paper page home
+- mathrandom sur les bonus
+- souris hide que sur composant pong
+- Modifier conditionalRender pour le socket provider 
 - Faire en sorte que les regles redescendent en bas en slidant
 - Changer URL socket context par var env
-- Header ft_transcendance
-- Theme du site ?
-- Revoir la position de la souris (probleme quand differente taille de terrain)
 - Probleme pour lancer un sort quand il y en a deja un actif (swing puis mind control)
 
 

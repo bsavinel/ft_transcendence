@@ -127,7 +127,7 @@ export default function NotificationList() {
 	return (
 		<>
 			<IconButton onClick={handleMenuOpen}>
-				<NotificationsNoneIcon color='error' />
+				<NotificationsNoneIcon color='inherit' />
 			</IconButton>
 			<Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
 				{invit?.length === 0 ? 

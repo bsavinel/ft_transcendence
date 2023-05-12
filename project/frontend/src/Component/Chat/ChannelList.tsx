@@ -237,7 +237,6 @@ export default function ChannelList({ selectedChannel, channelList, setChannelLi
                   <SettingsIcon/>
               </Button>
           </ButtonGroup>
-          <NotificationList />
           <Snackbar open={error ? true : false} autoHideDuration={6000} onClose={() => setError(undefined)}>
               <Alert severity="error">{error}</Alert>
           </Snackbar>

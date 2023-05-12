@@ -32,11 +32,12 @@ const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 80;
 const BONUS_WIDTH = 50;
 const BONUS_HEIGHT = 50;
-const BONUS_SPEED = 5;
+const BONUS_SPEED = 4;
 const TIME_LEFT = 5;
 const SCORE_LIMIT = 11;
 const STROKE = 2;
 const TIME_LAUNCH_BALL = 2;
+const INCREASE_SPEED = 0.5;
 
 const Bonus = ({ position, color }: { position: Position, color?: string }) => {
   return (
@@ -503,7 +504,11 @@ export default function GameSolo(props: any) {
     }
     else if (ballPosition.x - BALL_RADIUS <= player1Position.x + PADDLE_WIDTH && ballPosition.y >= player1Position.y && ballPosition.y <= player1Position.y + heightPaddleScale && ballDirection.x < 0)
     {
-      setBallPower(false);
+      if (ballPower)
+      {
+        setBallPower(false);
+        setBallSpeed(BALL_SPEED);
+      }
       if ( ballPosition.y > player1Position.y && ballPosition.y < player1Position.y + (heightPaddleScale / 5) ) 
       {
         setBallDirection(({x: 1, y: Math.random() * -2.5}));
@@ -524,8 +529,8 @@ export default function GameSolo(props: any) {
       {
         setBallDirection(({x: 1, y: Math.random() * 0.5}));
       }
-      setBallSpeed(BALL_SPEED);
       playPaddle1Sound();
+      setBallSpeed((prev) => prev + INCREASE_SPEED);
       if (player1ActivateBonus)
       {
         setBallPower(true);
@@ -540,7 +545,11 @@ export default function GameSolo(props: any) {
     }
     else if (ballPosition.x + BALL_RADIUS >= player2Position.x && ballPosition.y >= player2Position.y && ballPosition.y <= player2Position.y + heightPaddleScale2 && ballDirection.x > 0)
     {
-      setBallPower(false);
+      if (ballPower)
+      {
+        setBallPower(false);
+        setBallSpeed(BALL_SPEED);
+      }
       if ( ballPosition.y > player1Position.y && ballPosition.y < player1Position.y + (heightPaddleScale2 / 5) ) 
       {
         setBallDirection(({x: -1, y: Math.random() * -2.5}));
@@ -561,8 +570,8 @@ export default function GameSolo(props: any) {
       {
         setBallDirection(({x: -1, y: Math.random() * 0.5}));
       }
-      setBallSpeed(BALL_SPEED);
       playPaddle2Sound();
+      setBallSpeed((prev) => prev + INCREASE_SPEED);
       if (player2ActivateBonus)
       {
         setBallPower(true);
@@ -597,7 +606,7 @@ export default function GameSolo(props: any) {
 
     if (ballDirection.x > 0)
     {
-      if (distance + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+      if (distance <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
       {
         setShowBonus(false);
         setplayer1GetBonus(true);
@@ -607,7 +616,7 @@ export default function GameSolo(props: any) {
         setTimeLeft(TIME_LEFT);
         playBonusSound();
       }
-      if (distance2 + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+      if (distance2 <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
       {
         setShowBonus2(false);
         setplayer1GetBonus(true);
@@ -620,7 +629,7 @@ export default function GameSolo(props: any) {
     }
     else if (ballDirection.x < 0)
     {
-      if (distance + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+      if (distance <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
       {
         setShowBonus(false);
         setplayer2GetBonus(true);
@@ -630,7 +639,7 @@ export default function GameSolo(props: any) {
         setTimeLeft(TIME_LEFT);
         playBonusSound();
       }
-      if (distance2 + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+      if (distance2 <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
       {
         setShowBonus2(false);
         setplayer2GetBonus(true);

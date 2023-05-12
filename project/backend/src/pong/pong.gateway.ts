@@ -380,12 +380,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       const player2 = this.queuePower.shift();
       const player1IdPrisma = player1.socket.data.accessToken.userId;
       const player2IdPrisma = player2.socket.data.accessToken.userId;
-      if (player1IdPrisma === player2IdPrisma)
-      {
-        console.log(`Can't match players. ${player1.id} and ${player2.id} are the same user.`);
-        this.queuePower.push(player1);
-        return;
-      }
+      // if (player1IdPrisma === player2IdPrisma)
+      // {
+      //   console.log(`Can't match players. ${player1.id} and ${player2.id} are the same user.`);
+      //   this.queuePower.push(player1);
+      //   return;
+      // }
       console.log(`Matching players ${player1.id} and ${player2.id}.`);
 
       const gameId = v4();
@@ -772,7 +772,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       {
         if (bonus.showBonus)
         {
-          if (distance + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+          if (distance <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
           {
             bonus.showBonus = false;
             player.player1GetBonus = true;
@@ -790,7 +790,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         }
         if (bonus.showBonus2)
         {
-          if (distance2 + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+          if (distance2 <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
           {
             bonus.showBonus2 = false;
             player.player1GetBonus = true;
@@ -811,7 +811,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       {
         if (bonus.showBonus)
         {
-          if (distance + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+          if (distance <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
           {
             bonus.showBonus = false;
             player.player2GetBonus = true;
@@ -830,7 +830,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         }
         if (bonus.showBonus2)
         {
-          if (distance2 + BALL_RADIUS + STROKE <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
+          if (distance2 <= BONUS_WIDTH / 2 + BONUS_HEIGHT / 2)
           {
             bonus.showBonus2 = false;
             player.player2GetBonus = true;
@@ -871,6 +871,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.player2ActivateBonus = false;
         bonus.showBonus = false;
         bonus.showBonus2 = false;
+        bonus.heightPaddle2 = false;
+        bonus.heightPaddle = false;
+        bonus.heightPaddleScale2 = PADDLE_HEIGHT;
+        bonus.heightPaddleScale = PADDLE_HEIGHT;
         ball.ballSpeed = BALL_SPEED;
         bonus.timeLeft = TIME_LEFT;
         bonus.timeLeft2 = TIME_LEFT;
@@ -906,6 +910,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
         player.player2ActivateBonus = false;
         bonus.showBonus = false;
         bonus.showBonus2 = false;
+        bonus.heightPaddle2 = false;
+        bonus.heightPaddle = false;
+        bonus.heightPaddleScale2 = PADDLE_HEIGHT;
+        bonus.heightPaddleScale = PADDLE_HEIGHT;
         ball.ballSpeed = BALL_SPEED;
         bonus.timeLeft = TIME_LEFT;
         bonus.timeLeft2 = TIME_LEFT;
@@ -931,7 +939,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       }
       else if (ball.ballPosition.x - BALL_RADIUS <= player.player1Position.x + PADDLE_WIDTH && ball.ballPosition.y >= player.player1Position.y && ball.ballPosition.y <= player.player1Position.y + bonus.heightPaddleScale && ball.ballDirection.x < 0)
       {
-        ball.ballPower = false;
+        if (ball.ballPower)
+        {
+          ball.ballPower = false;
+          ball.ballSpeed = BALL_SPEED;
+        }
+        ball.ballSpeed += INCREASE_SPEED;
         if (ball.ballPosition.y > player.player1Position.y && ball.ballPosition.y < player.player1Position.y + (bonus.heightPaddleScale / 5) ) 
         {
           ball.ballDirection = {x: 1, y: Math.random() * -2.5};
@@ -953,7 +966,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
           ball.ballDirection = {x: 1, y: Math.random() * 0.5};
         }
         socket.to(roomId).emit("paddle1Audio");
-        ball.ballSpeed = BALL_SPEED;
         if (player.player1ActivateBonus)
         {
           if (player.whichSpellPlayer1?.name == "Super strike")
@@ -974,7 +986,12 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
       }
       else if (ball.ballPosition.x + BALL_RADIUS >= player.player2Position.x && ball.ballPosition.y >= player.player2Position.y && ball.ballPosition.y <= player.player2Position.y + bonus.heightPaddleScale2 && ball.ballDirection.x > 0)
       {
-        ball.ballPower = false;
+        if (ball.ballPower)
+        {
+          ball.ballPower = false;
+          ball.ballSpeed = BALL_SPEED;
+        }
+        ball.ballSpeed += INCREASE_SPEED;
         if ( ball.ballPosition.y > player.player2Position.y && ball.ballPosition.y < player.player2Position.y + (bonus.heightPaddleScale2 / 5) ) 
         {
           ball.ballDirection = {x: -1, y: Math.random() * -2.5};
@@ -996,7 +1013,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect
           ball.ballDirection = {x: -1, y: Math.random() * 0.5};
         }
         socket.to(roomId).emit("paddle2Audio");
-        ball.ballSpeed = BALL_SPEED;
         if (player.player2ActivateBonus)
         {
           if (player.whichSpellPlayer2?.name == "Super strike")

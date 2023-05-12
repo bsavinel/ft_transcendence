@@ -7,6 +7,8 @@ import './ProfilePart.scss';
 import { id } from 'date-fns/locale';
 import { Box, CircularProgress } from '@mui/material';
 
+import Paper from '@mui/material/Paper';
+
 interface UserProfile {
 	userId: string;
 	username: string;
@@ -158,7 +160,7 @@ export default function ProfilePart({userId}: { userId: number }) {
 	return (
 		<div className="profile" id="profile">
 			<div className="ProfileInfo">
-				<img className="avatar" src={user.avatarUrl} />
+				<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + user.userId } />
 				<div className="PlayerStats">
 					<div className="NameAndClass">
 						<div className="pseudo">
@@ -216,7 +218,7 @@ export default function ProfilePart({userId}: { userId: number }) {
 							},
 						},
 					}}
-					// getRowClassName={(params) => params.row.asWin === 1 ? 'wining' : 'losing'}
+					getRowClassName={(params : any) => params.row.asWin === 1 ? 'wining' : 'losing'}
 					pageSizeOptions={[10]}
 					disableRowSelectionOnClick
 				/>

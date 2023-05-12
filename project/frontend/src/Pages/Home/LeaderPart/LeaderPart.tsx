@@ -162,7 +162,7 @@ export default function LeaderPart() {
 						<div className="secondPlace" />
 					) : (
 						<div className="secondPlace">
-							<img className="avatar" src={world[1].avatarUrl} />
+							<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + world[1].userId } />
 							<div className="pseudo">
 								<p className="username">{world[1].username}</p>
 								<p className="personalId">#{world[1].userId}</p>
@@ -173,7 +173,7 @@ export default function LeaderPart() {
 						<div className="firstPlace" />
 					) : (
 						<div className="firstPlace">
-							<img className="avatar" src={world[0].avatarUrl} />
+							<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + world[0].userId } />
 							<div className="pseudo">
 								<p className="username">{world[0].username}</p>
 								<p className="personalId">#{world[0].userId}</p>
@@ -184,7 +184,7 @@ export default function LeaderPart() {
 						<div className="thirdPlace" />
 					) : (
 						<div className="thirdPlace">
-							<img className="avatar" src={world[2].avatarUrl} />
+							<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + world[2].userId } />
 							<div className="pseudo">
 								<p className="username">{world[2].username}</p>
 								<p className="personalId">#{world[2].userId}</p>

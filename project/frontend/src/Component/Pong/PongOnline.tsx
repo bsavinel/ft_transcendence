@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'
 import "./Pong.css";
 import { Socket } from 'socket.io-client';
@@ -512,6 +512,8 @@ export default function Game() {
   const [otherPlayerReady, setOtherPlayerReady] = useState<boolean>(false);
   const [launchBallTimer, setLaunchBallTimer] = useState<number>(0);
   const [timer, setTimer] = useState<number>(5);
+  const [allowPlay, setAllowPlay] = useState<boolean>(false);
+  const [checkAllowPlay, setCheckAllowPlay] = useState<boolean>(false);
   
   useEffect(() => {
     socket?.emit('pageLoaded');
@@ -651,6 +653,7 @@ export default function Game() {
         setBonusState(data.bonus)
         setBallState(data.ball)
         setGameState(data.game)
+        setAllowPlay(true);
       });
       return () => {
         socket?.off("updatePowerUp");
@@ -667,6 +670,7 @@ export default function Game() {
         setBonusState(data.bonus)
         setBallState(data.ball)
         setGameState(data.game)
+        setAllowPlay(true);
       });
       return () => {
         socket?.off("update");
@@ -706,6 +710,23 @@ export default function Game() {
       }, 5000)
     }
   }, [winLose]);
+
+  useEffect(() => {
+    
+    const timeoutRef = setTimeout(() => {
+      setCheckAllowPlay(true);
+    }, 2000);
+    if (checkAllowPlay)
+    {
+      if (!allowPlay) {
+        navigate('/game'); 
+      }
+    }
+
+    return () => {
+      clearTimeout(timeoutRef);
+    };
+  }, [allowPlay, checkAllowPlay]);
 
 
   useEffect(() =>

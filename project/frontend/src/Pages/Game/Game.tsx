@@ -26,7 +26,6 @@ export default function HomeGame() {
   const [launchsolo, setLaunchSolo] = useState<boolean>(false);
   const [launchGame, setLaunchGame] = useState<boolean>(false);
   const [playerAvailable, setPlayerAvailable] = useState<boolean>(false);
-  const [timeOut, setTimeOut] = useState<NodeJS.Timeout>();
   const [levelValue, setLevelValue] = useState<string>("1");
   const [progress, setProgress] = useState<number>(25);
   const [openRulesClassic, setOpenRulesClassic] = useState<boolean>(false);
@@ -304,6 +303,8 @@ export default function HomeGame() {
             Au debut du jeu et après chaque point marqué, il y a un délai de 3 secondes avant que la balle ne soit relancée. <br/>
             Le but est de marquer des points en faisant passer la balle derrière le paddle de l'adversaire. <br/>
             Le premier joueur à atteindre 11 points remporte la partie. <br/>
+            La vitesse de la balle augmente à chaque fois qu'elle touche un paddle, rendant le jeu de plus en plus difficile. <br/>
+            Certains pouvoirs peuvent redonner la vitesse d'origine à la balle si elle tape un paddle. <br/>
             Si un joueur se deconnecte ou quitte la partie en cours, il est considéré comme perdant peu importe le score. <br/>
 
             Ce mode comporte 4 pouvoirs différents, qui peuvent être acqueris en touchant un bloc spécial qui tombe sur le terrain. Il faut ensuite appuyer sur le clic gauche pour activer le pouvoir. <br/>
@@ -348,14 +349,14 @@ export default function HomeGame() {
     if (launchGame)
     {
       setPlayerAvailable(true);
-      setTimeOut(setTimeout(() => {
+      const timeOut = setTimeout(() => {
         setLaunchGame(false);
         setIsOpenPlayOnline(false);
         setIsOpenPlayOnlinePowerUp(false);
         navigate("/game/pong-online")
-      }, 4000))
+      }, 4000)
+      return () => clearTimeout(timeOut);
     }
-    return () => clearTimeout(timeOut);
   }, [launchGame, isOpenPlayOnline]);
 
   return (

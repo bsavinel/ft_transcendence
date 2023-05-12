@@ -40,19 +40,19 @@ const light = createTheme({
 	palette: {
 		mode: 'light',
 		primary: {
-			main: '#768ca3',
+		  main: '#d50000',
 		},
 		secondary: {
-			main: '#877861',
+		  main: '#f50057',
 		},
 		background: {
-			default: '#FDEDEC',
-			paper: '#516a81',
+		  default: '#353434',
+		  paper: '#4c4340',
 		},
-	},
-	shape: {
-		borderRadius: 4,
-	},
+		text: {
+		  primary: '#ffebee',
+		},
+	  },
 });
 
 export default function App() {

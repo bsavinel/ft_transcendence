@@ -22,8 +22,7 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 20vh;
-  margin-bottom: 20vh;
+  margin-top: 15vh;
   width: 100%;
 }
 

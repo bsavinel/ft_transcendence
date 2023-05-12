@@ -44,7 +44,7 @@ export default function Setting() {
     }
 
     return (
-        <Box>
+        <Box sx={{ mt: '10vh'}}>
             <Grid
                 container
                 direction="row"
