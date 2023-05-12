@@ -42,8 +42,10 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
                 label={data.content}
                 avatar={
                     <Avatar id='msgAvatar' 
+                        src={
+                            `${import.meta.env.VITE_BACK_URL}/users/avatar/${data.creatorId}`
+                        }
                     >
-                        {data.creatorId}
                     </Avatar>
                 }
             />
