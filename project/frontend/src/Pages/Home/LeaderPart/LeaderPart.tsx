@@ -2,6 +2,7 @@ import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import './LeaderPart.scss';
 import ApiClient from '../../../utils/ApiClient';
+import { useNavigate } from 'react-router-dom';
 interface Profile {
 	userId: number;
 	username: string;
@@ -124,6 +125,7 @@ const columns: GridColDef[] = [
 
 export default function LeaderPart() {
 	const [world, setWorld] = useState<Profile[]>([]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		(async () => {
@@ -131,6 +133,11 @@ export default function LeaderPart() {
 			setWorld(tmp);
 		})();
 	}, []);
+
+	function handlerRow(param: any)
+	{
+		navigate(`/profile/${param.row.userId}`)
+	}
 
 	return (
 		<div className="LeaderPart" id="leaderBoard">
@@ -151,7 +158,7 @@ export default function LeaderPart() {
 							},
 						}}
 						pageSizeOptions={[20]}
-						// autoHeight
+						onRowClick={(param) => handlerRow(param)}
 						disableRowSelectionOnClick
 					/>
 				</div>

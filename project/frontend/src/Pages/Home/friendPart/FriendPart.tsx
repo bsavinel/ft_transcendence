@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import ApiClient, { getAccessContent } from '../../../utils/ApiClient';
 
 import './FriendPart.scss';
+import { Link } from 'react-router-dom';
 
 interface Profile {
 	id: number;
@@ -28,28 +29,34 @@ function getPourcentage(level: number) {
 
 function RowProfileFriend({ profile }: { profile: Profile }) {
 	return (
-		<div className="FriendBox">
-			<img className="avatarFriend" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + profile.id} />
-			<div className="pseudo">
-				<p className="username">{profile.username}</p>
-				<p className="personalId">#{profile.id}</p>
-			</div>
-			<div className="levelBox">
-				<div className="levelNumber">
-					Level {Math.floor(profile.level)}
+		<Link to={`/profile/${profile.id}`}>
+			<div className="FriendBox">
+				<img className="avatarFriend" src={profile.avatarUrl} />
+				<div className="pseudo">
+					<p className="username">{profile.username}</p>
+					<p className="personalId">#{profile.id}</p>
 				</div>
-				<div className="progress">
-					<div
-						className="progress-bar"
-						style={{
-							width: `${getPourcentage(profile.level)}%`
-						}}
-					>
-						{getPourcentage(profile.level)}%
+				<div className="levelBox">
+					<div className="levelNumber">
+						Level {Math.floor(profile.level)}
+					</div>
+					<div className="progress">
+						<div
+							className="progress-bar"
+							style={{
+								width: `${Math.floor(
+									(profile.level -
+										Math.floor(profile.level)) *
+										100
+								)}%`,
+							}}
+						>
+							{profile.percent}%
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }
 

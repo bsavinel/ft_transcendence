@@ -147,6 +147,11 @@ export default function UsersList({usersList, reloadMessagesList, selectedChanne
             socket?.emit(option, {targetId: targetRef.current.userId, chanId: selectedChannel.id});
         handleCloseMenu();
     }
+	
+	function handlerProfile(userId :number)
+	{
+		navigate(`/profile/${userId}`)
+	}
 
     const users = usersList.map((usr) => 
         <ListItem divider id='userListItem' 
@@ -186,7 +191,7 @@ export default function UsersList({usersList, reloadMessagesList, selectedChanne
                         </CustomIconButton>
                     </Tooltip>
                     <Tooltip title='Go to profile'>
-                        <CustomIconButton>
+                        <CustomIconButton onClick={() => handlerProfile(usr.userId)}>
                             <AccountCircleOutlinedIcon sx={{fontSize: '1rem'}} />
                         </CustomIconButton>
                     </Tooltip>
