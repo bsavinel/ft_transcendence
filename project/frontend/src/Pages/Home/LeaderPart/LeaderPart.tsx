@@ -139,6 +139,7 @@ export default function LeaderPart() {
 				<div className="grid">
 					<DataGrid
 						rows={world.map((e, id) => {
+							console.log("coucou", e);
 							return { ...e, id };
 						})}
 						columns={columns}

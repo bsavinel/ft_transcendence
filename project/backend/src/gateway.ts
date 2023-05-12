@@ -42,6 +42,7 @@ import { CreateInvitationDto } from './invitations/dto/create-invitation.dto';
 import { ChannelEntity } from './channels/entities/channel.entity';
 import { CreateChannelDto } from './channels/dto/create-channel.dto';
 import { UserEntity } from './users/entities/user.entity';
+import { InitializedRelationError } from 'typeorm';
 
 /*
  * We can consumme or emit event on the gateway server.
@@ -107,7 +108,6 @@ export class AppGateway
 
 	afterInit() {
 		this.logger.log('Init done');
-		// instrument(this.server, { auth: false, mode: 'development' });
 	}
 
 	async handleConnection(client: Socket) {

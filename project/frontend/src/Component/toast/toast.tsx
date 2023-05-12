@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Socket } from 'socket.io-client';
 import { ChatSocketContext } from '../Chat/ChatSocketContext';
+import { PongSocketContext } from '../Pong/PongSocketContext';
 import "./toast.css";
 
 
@@ -31,9 +32,10 @@ export function ToastFriendRequest({author, friendId, socket} : ToastFriendReque
 interface GameInviteProps {
 	author: string,
 	socket: Socket,
+	friendId: number | undefined,
 }
 
-export function GameInvite({author, socket}: GameInviteProps) {
+export function GameInvite({author, socket, friendId}: GameInviteProps) {
 	return (
 		<>
 			<div className="textFriendRequest">
@@ -43,8 +45,8 @@ export function GameInvite({author, socket}: GameInviteProps) {
 				 invite you to play!
 			</div>
 			<div className="buttonToast">
-				<button className="accept" onClick={() => console.log("accept")}>Play</button>
-				<button className="refuse" onClick={() => console.log("refuse")}>Denied</button>
+				<button className="accept" onClick={() => socket?.emit('handleGameInvit', { friendId: friendId, accept: true })}>Play</button>
+				<button className="refuse" onClick={() => socket?.emit('handleGameInvit', { friendId: friendId, accept: false })}>Denied</button>
 			</div>
 		</>
 	);

@@ -12,6 +12,8 @@ import { ChannelDto, UserOnChannelDto} from './interfaces';
 import {ChatSocketContext} from './ChatSocketContext';
 import {Socket} from 'socket.io-client';
 import UserOptions from './UserOptions';
+import { PongSocketContext } from '../Pong/PongSocketContext';
+import { useNavigate } from 'react-router-dom';
 
 interface UsersListProps {
     usersList: UserOnChannelDto[];
@@ -34,7 +36,9 @@ export default function UsersList({usersList, reloadMessagesList, selectedChanne
 	const myId: number = getAccessContent()?.userId as number;
     const [status, setStatus] = useState<UserStatus[]>([]);
     const socket: Socket | null = useContext(ChatSocketContext);
+    const socketPong: Socket | null = useContext(PongSocketContext);
     const me: UserOnChannelDto | undefined = usersList.find((uoc) => uoc.userId === myId);
+    const navigate = useNavigate();
 
     function roleBadge(role: string) {
         if (role === 'ADMIN') return (
@@ -118,6 +122,15 @@ export default function UsersList({usersList, reloadMessagesList, selectedChanne
         socket?.emit('newInvit', {invit: invitation, user: me?.username});
     }
 
+    function sendGameInvit(toUserId: number) {
+        const invitation = [{
+            type: "GAME",
+            friendId: me?.userId,
+            invitedUsers: toUserId,
+        }];
+        socketPong?.emit('newInvit', {invit: invitation, user: me?.username});
+    }
+
     function emitBlockUser(targetId: number) {
         socket?.emit('block', targetId, () => {
             reloadMessagesList();
@@ -178,7 +191,7 @@ export default function UsersList({usersList, reloadMessagesList, selectedChanne
                         </CustomIconButton>
                     </Tooltip>
                     <Tooltip title='Game invite'>
-                        <CustomIconButton  >
+                        <CustomIconButton onClick={() => sendGameInvit(usr.userId)} >
                             <SportsEsportsOutlinedIcon sx={{fontSize: '1rem'}} />
                         </CustomIconButton>
                     </Tooltip>

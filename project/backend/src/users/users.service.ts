@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UserEntity } from './entities/user.entity';
+import { count } from 'console';
 
 type UserCreation = {
 	id42: number;

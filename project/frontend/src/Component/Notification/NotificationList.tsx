@@ -9,6 +9,7 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ApiClient from '../../utils/ApiClient';
 import {ChatSocketContext} from '../Chat/ChatSocketContext';
+import { PongSocketContext } from '../Pong/PongSocketContext';
 
 export interface invitDTO {
 	type: "GAME" | "CHAT" | "FRIEND";
@@ -26,6 +27,7 @@ export default function NotificationList() {
 	const [deniedSnack, setDeniedSnack] = useState<boolean>(false);
 	const [errorSnack, setErrorSnack] = useState<boolean>(false);
 	const socket = useContext(ChatSocketContext);
+	const socketPong = useContext(PongSocketContext);
 
 	const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -67,11 +69,16 @@ export default function NotificationList() {
 							<SportsEsportsOutlinedIcon />
 						</ListItemIcon>
 						<ListItemText>{data.username} invite you to play</ListItemText>
-				 
-						<IconButton>
+						<IconButton onClick={() =>
+							socketPong?.emit('handleGameInvit',
+															 { friendId: data.friendId, accept: true},
+															 () => socketPong.emit('deleteThisSocketPongEmit---->navigateTo--->pong'))}
+							>
 							<DoneIcon color='success'/>
 						</IconButton>
-						<IconButton>
+						<IconButton onClick={() => 
+							socketPong?.emit('handleGameInvit', { friendId: data.friendId, accept: false})}
+						>
 							<ClearIcon color='error' />
 						</IconButton>
 					</>

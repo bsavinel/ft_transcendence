@@ -76,6 +76,17 @@ Benoit :
 
 
 
+KO :
+
+- Modifier conditionalRender pour le socket provider 
+
+- Appbar en haut -> changer la photo profil
+- Reduire vitesse bonus pong solo
+- Check stroke pong online (width)
+- NotificationList
+- Repositionner les elements appbar
+
+
 JSP :
 
 - Ajouter paper page home

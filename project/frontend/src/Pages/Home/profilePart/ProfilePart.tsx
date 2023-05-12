@@ -2,11 +2,9 @@ import { GameRequestToGame, Game, GameRequest } from '../utils';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import ApiClient from '../../../utils/ApiClient';
 import { useEffect, useState } from 'react';
-
 import './ProfilePart.scss';
 import { id } from 'date-fns/locale';
 import { Box, CircularProgress } from '@mui/material';
-
 import Paper from '@mui/material/Paper';
 
 interface UserProfile {
@@ -115,8 +113,6 @@ async function getGame(id: number): Promise<GameRequest[]> {
 async function getNumberUser(): Promise<number> {
 	try {
 		let res = await ApiClient.get("/users/nbuser");
-		// await new Promise(resolve => setTimeout(resolve, 5000));
-		// console.log('HIHI');
 		return res.data;
 	} catch (e) {
 		console.error(e);
