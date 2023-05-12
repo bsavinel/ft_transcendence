@@ -45,24 +45,21 @@ export class UsersController {
 			storage: diskStorage({
 				destination: './uploads/',
 			}),
+			fileFilter: (req, file, cb) => {
+				if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+					cb(null, true);
+				} else {
+					cb(new BadRequestException('Unsupported file type'), false);
+				}
+			},
+			limits: { fileSize: 5000000 },
 		})
 	)
 	UploadAvatar(
-		@UploadedFile(
-			new ParseFilePipeBuilder()
-				.addFileTypeValidator({
-					fileType: 'jpeg',
-				})
-				.addMaxSizeValidator({
-					maxSize: 100000,
-				})
-				.build({
-					errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-				})
-		)
-		avatar: Express.Multer.File,
+		@UploadedFile() avatar: Express.Multer.File,
 		@Req() request: RequestWithAccess
 	) {
+		console.log(avatar);
 		this.usersService.saveAvatarPath(
 			request.accessToken.userId,
 			avatar.path
@@ -84,7 +81,7 @@ export class UsersController {
 	//add query blocked user
 	@Get('/profile/:id')
 	async findById(
-		@Param('id',ParseIntPipe) id: number,
+		@Param('id', ParseIntPipe) id: number,
 		@Query('friend') friend: string,
 		@Query('channel') channel: string
 	): Promise<UserEntity> {
@@ -216,19 +213,15 @@ export class UsersController {
 		@Param('id', ParseIntPipe) id: number,
 		@Query('asWin') asWin: string | undefined
 	): Promise<GameData[]> {
-		try 
-		{
-		if (asWin === undefined) {
-			return await this.gameService.getGameByUserId(id);
-		} else if (asWin === "true") {
-			return await this.gameService.getGameWinByUserId(
-				id
-			);
-		} else {
-			return await this.gameService.getGameLoseByUserId(
-				id
-			);
-		}} catch (error) {
+		try {
+			if (asWin === undefined) {
+				return await this.gameService.getGameByUserId(id);
+			} else if (asWin === 'true') {
+				return await this.gameService.getGameWinByUserId(id);
+			} else {
+				return await this.gameService.getGameLoseByUserId(id);
+			}
+		} catch (error) {
 			return [];
 		}
 	}
@@ -244,7 +237,7 @@ export class UsersController {
 		let tmp = users.map(async (user) => ({
 			...user,
 			win: (await this.gameService.getGameWinByUserId(user.id)).length,
-			lose: (await this.gameService.getGameLoseByUserId(user.id)).length
+			lose: (await this.gameService.getGameLoseByUserId(user.id)).length,
 		}));
 		users = await Promise.all(tmp);
 		return users;
