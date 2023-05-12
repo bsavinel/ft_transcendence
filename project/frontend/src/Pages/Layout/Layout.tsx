@@ -3,9 +3,13 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {ChatSocketContext} from '../../Component/Chat/ChatSocketContext';
 import NavBar from '../../Component/NavBar/NavBar';
 import {invitDTO} from '../../Component/Notification/NotificationList';
+import NotificationList from "../../Component/Notification/NotificationList"
 import showToast, {ChatInvite, ToastFriendRequest, GameInvite} from '../../Component/toast/toast';
+import { getAccessContent } from '../../utils/ApiClient';
 
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import VideogameAssetTwoToneIcon from '@mui/icons-material/VideogameAssetTwoTone';
+import ChatTwoToneIcon from '@mui/icons-material/ChatTwoTone';
 
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -13,11 +17,11 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import BoutonThemeMode from '../../Component/BoutonThemeMode/BoutonThemeMode';
 
 import './Layout.css';
 import './stars.scss';
@@ -30,13 +34,14 @@ interface LayoutProps {
 export default function Layout({ handleTheme }: LayoutProps) {
 	const socket = useContext(ChatSocketContext);
 	const socketPong = useContext(PongSocketContext);
-	// const [invitChat, setInvitChat] = useState<boolean>(false);
-	// const [invitFriend, setInvitFriend] = useState<boolean>(false);
-	// const [invitGame, setInvitGame] = useState<boolean>(false);
-	// const [author, setAuthor] = useState<string>('');
-	// const [chanId, setChanId] = useState<number | undefined>(undefined);
-	// const [friendId, setFriendId] = useState<number | undefined>(undefined);
+	const [invitChat, setInvitChat] = useState<boolean>(false);
+	const [invitFriend, setInvitFriend] = useState<boolean>(false);
+	const [invitGame, setInvitGame] = useState<boolean>(false);
+	const [author, setAuthor] = useState<string>('');
+	const [chanId, setChanId] = useState<number | undefined>(undefined);
+	const [friendId, setFriendId] = useState<number | undefined>(undefined);
 	
+	const myId: number = getAccessContent()?.userId as number;
 	const navigate = useNavigate();
 
 	function ResponsiveAppBar() {
@@ -53,52 +58,60 @@ export default function Layout({ handleTheme }: LayoutProps) {
 		}
 
 		return (
-			<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main }}>
-				<Container maxWidth="xl">
-					<Toolbar disableGutters>
-						<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-						<Typography
-							variant="h6"
-							noWrap
-							component="a"
-							href="/"
-							sx={{
-								mr: 2,
-								display: { xs: 'none', md: 'flex' },
-							fontFamily: 'monospace',
-							fontWeight: 700,
-							letterSpacing: '.3rem',
-							color: 'inherit',
-							textDecoration: 'none',
-							}}
+			<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main}}>
+				<Toolbar disableGutters sx={{ marginLeft: '3vh' }}>
+					<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+					<Typography
+						variant="h6"
+						noWrap
+						component="a"
+						href="/"
+						sx={{
+						mr: 2,
+						display: { xs: 'none', md: 'flex' },
+						fontFamily: 'monospace',
+						fontWeight: 1000,
+						letterSpacing: '.3rem',
+						color: 'inherit',
+						textDecoration: 'none',
+						}}
+					>
+						Transcendance
+					</Typography>
+					<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+						<Tooltip title="Open Game">
+						<Button
+							key='Game'
+							onClick={handleClickGame}
+							sx={{ my: 2, color: 'white', display: 'block', ml: 3 }}
 						>
-							Transcendance
-						</Typography>
-						<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-							<Button
-								key='Game'
-								onClick={handleClickGame}
-								sx={{ my: 2, color: 'white', display: 'block', ml: 3 }}
+							<VideogameAssetTwoToneIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+						</Button>
+						</Tooltip>
+						<Tooltip title="Open Chat">
+						<Button
+							key='Chat'
+							onClick={handleClickChat}
+							sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
 							>
-								Game
-							</Button>
-							<Button
-								key='Chat'
-								onClick={handleClickChat}
-								sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
-							>
-								Chat
-							</Button>
-						</Box>
-						<Box sx={{ flexGrow: 0 }}>
-							<Tooltip title="Open settings">
-								<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
-									<Avatar alt="YOU" src="/static/images/avatar/2.jpg" />
-								</IconButton>
-							</Tooltip>
-						</Box>
-					</Toolbar>
-				</Container>
+							<ChatTwoToneIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+						</Button>
+						</Tooltip>
+					</Box>
+					<Box sx={{ flexGrow: 0, marginRight: '1vh' }}>
+						<NotificationList />
+					</Box>
+					<Box sx={{ flexGrow: 0, marginRight: '2vh' }}>
+						<BoutonThemeMode handleTheme={handleTheme} />
+					</Box>
+					<Box sx={{ flexGrow: 0, marginRight: '3vh' }}>
+						<Tooltip title="Open settings">
+						<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
+							<Avatar alt="YOU" src={ import.meta.env.VITE_BACK_URL + '/users/avatar/' + myId } />
+						</IconButton>
+						</Tooltip>
+					</Box>
+				</Toolbar>
 			</AppBar>
 		);
 	}
@@ -115,7 +128,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 					showToast(<ToastFriendRequest author={reponse.username} friendId={reponse.friendId} socket={socket} />);
 			}
 		});
-		socketPong.on('displayInvit', (reponse: invitDTO) => {
+		socketPong?.on('displayInvit', (reponse: invitDTO) => {
 			if (reponse.type === 'GAME') {
 				showToast(<GameInvite author={reponse.username} friendId={reponse.friendId} socket={socketPong} />);
 			}
