@@ -190,8 +190,8 @@ export class UsersService {
 		});
 	}
 
-	updateUserName(userId: number, username: string): Promise<UserEntity> {
-		return this.prisma.user.update({
+	async updateUserName(userId: number, username: string): Promise<UserEntity> {
+		return await this.prisma.user.update({
 			where: { id: userId },
 			data: { username: username },
 		});

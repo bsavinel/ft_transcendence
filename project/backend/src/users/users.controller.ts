@@ -201,7 +201,7 @@ export class UsersController {
 				throw new BadRequestException(
 					'Username must be between 9 and 20 characters'
 				);
-			const newUserName = this.usersService.updateUserName(
+			const newUserName = await this.usersService.updateUserName(
 				request.accessToken.userId,
 				data.username
 			);

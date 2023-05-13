@@ -7,7 +7,6 @@ import { getAccessContent } from '../../utils/ApiClient';
 import './Home.scss';
 
 export default function TestPage() {
-	window.addEventListener("load", () => {document.getElementById("HomeContent")?.scrollTo(0,0);});
 	return (
 		<div className="HomePage">
 			<NavHome />
