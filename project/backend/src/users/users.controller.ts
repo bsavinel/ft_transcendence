@@ -195,13 +195,19 @@ export class UsersController {
 		@Body() data: { username: string }
 	): Promise<UserEntity> {
 		try {
+			if (!data.username)
+				throw new BadRequestException("Username can't be empty");
+			if (data.username.length < 9 || data.username.length > 20)
+				throw new BadRequestException(
+					'Username must be between 9 and 20 characters'
+				);
 			const newUserName = this.usersService.updateUserName(
 				request.accessToken.userId,
 				data.username
 			);
 			return newUserName;
 		} catch (error) {
-			throw new BadRequestException(error.name);
+			throw new BadRequestException('Usename already taken');
 		}
 	}
 
