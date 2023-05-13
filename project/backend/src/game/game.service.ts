@@ -131,7 +131,6 @@ export class GameService {
 		scoreDiference: number,
 		asWin: boolean
 	): number {
-		console.log(oldLevel, scoreDiference, asWin);
 		if (asWin) {
 			return oldLevel + scoreDiference * 0.1;
 		} else {

@@ -61,7 +61,7 @@ export default function NavBar({handleTheme}: NavBarProps) {
                     <BugReportIcon color='warning'/>
                 </ToggleButton>
             </ToggleButtonGroup>
-            <BoutonThemeMode handleTheme={handleTheme}/>
+            <BoutonThemeMode handleTheme={handleTheme} isLightTheme={true}/>
         </div>
     );
 }

@@ -29,9 +29,10 @@ import { PongSocketContext } from '../../Component/Pong/PongSocketContext';
 
 interface LayoutProps {
 	handleTheme: () => void;
+	isLightTheme: boolean;
 }
 
-export default function Layout({ handleTheme }: LayoutProps) {
+export default function Layout({ handleTheme, isLightTheme }: LayoutProps, ) {
 	const socket = useContext(ChatSocketContext);
 	const socketPong = useContext(PongSocketContext);
 	const [invitChat, setInvitChat] = useState<boolean>(false);
@@ -40,7 +41,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 	const [author, setAuthor] = useState<string>('');
 	const [chanId, setChanId] = useState<number | undefined>(undefined);
 	const [friendId, setFriendId] = useState<number | undefined>(undefined);
-	
+
 	const myId: number = getAccessContent()?.userId as number;
 	const navigate = useNavigate();
 
@@ -102,7 +103,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 						<NotificationList />
 					</Box>
 					<Box sx={{ flexGrow: 0, marginRight: '2vh' }}>
-						<BoutonThemeMode handleTheme={handleTheme} />
+						<BoutonThemeMode handleTheme={handleTheme} isLightTheme={isLightTheme}/>
 					</Box>
 					<Box sx={{ flexGrow: 0, marginRight: '3vh' }}>
 						<Tooltip title="Open settings">

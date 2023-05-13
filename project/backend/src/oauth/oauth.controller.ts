@@ -110,7 +110,6 @@ export class OauthController {
 	): Promise<{
 		accessToken: string;
 	}> {
-		console.log('coucou');
 		if (!(await this.userService.user42Exist(Data.id42))) {
 			await this.userService.createUser(Data);
 		}

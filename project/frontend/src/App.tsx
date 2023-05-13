@@ -57,10 +57,12 @@ const light = createTheme({
 
 export default function App() {
 	const [theme, setTheme] = useState(dark);
+	const [isLightTheme, setIsLightTheme] = useState<boolean>(true);
 
 	function handleTheme() {
 		if (theme === dark) setTheme(light);
 		else setTheme(dark);
+		setIsLightTheme(!isLightTheme);
 	}
 
 	return (
@@ -74,7 +76,7 @@ export default function App() {
 					<Route path="/" element={<LogGuard />}>
 						<Route
 							path="/"
-							element={<Layout handleTheme={handleTheme} />}
+							element={<Layout handleTheme={handleTheme} isLightTheme={isLightTheme} />}
 						>
 							<Route path="/profile/:userId" element={<Profile />} />
 							<Route index element={<Home />} />

@@ -4,25 +4,19 @@ import "./bouton.scss";
 
 interface BoutonThemeModeProps {
     handleTheme: () => void;
+	isLightTheme: boolean;
 }
 
-export default function BoutonThemeMode({handleTheme}: BoutonThemeModeProps) {
-	// TODO passer le mode par redux
-	const [isLightTheme, setTheme] = useState(true);
+export default function BoutonThemeMode({handleTheme, isLightTheme}: BoutonThemeModeProps) {
 	const isInitial = useRef(true)
 
 	useEffect(() => {
 	  isInitial.current = false
 	}, [])
 
-	function handleClick() {
-		setTheme(!isLightTheme);
-        handleTheme();
-	}
-
 	return (
 		<>
-			<button className="modeButton" onClick={handleClick}>
+			<button className="modeButton" onClick={handleTheme}>
 				<div
 					id={isLightTheme ? "activeThemeIcon" : "inactiveThemeIcon"}
 					style={isInitial.current ? {animationDuration: "0ms"} : {animationDuration: "400ms"}}
