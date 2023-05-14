@@ -127,6 +127,7 @@ export default function ProfilePart({userId}: { userId: number }) {
 	const [game, setGame] = useState<Game[]>([]);
 	const [nbUser, setNbUser] = useState<number>(0);
 
+	console.log(userId);
 	useEffect(() => {
 		Promise.all([
 			getProfile(userId),

@@ -10,6 +10,7 @@ import { getAccessContent } from '../../utils/ApiClient';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import VideogameAssetTwoToneIcon from '@mui/icons-material/VideogameAssetTwoTone';
 import ChatTwoToneIcon from '@mui/icons-material/ChatTwoTone';
+import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone';
 
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -21,6 +22,7 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import GroupIcon from '@mui/icons-material/Group';
 import BoutonThemeMode from '../../Component/BoutonThemeMode/BoutonThemeMode';
 
 import './Layout.css';
@@ -57,9 +59,17 @@ export default function Layout({ handleTheme }: LayoutProps) {
 			navigate('/setting');
 		}
 
+		function handleClickFriend() {
+			navigate('/friend');
+		}
+
+		function handleClickLeader() {
+			navigate('/leader');
+		}
+
 		return (
 			<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main}}>
-				<Toolbar disableGutters sx={{ marginLeft: '3vh' }}>
+				<Toolbar disableGutters sx={{ marginLeft: '50px' }}>
 					<RocketLaunchIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
 					<Typography
 						variant="h6"
@@ -97,14 +107,32 @@ export default function Layout({ handleTheme }: LayoutProps) {
 							<ChatTwoToneIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
 						</Button>
 						</Tooltip>
+						<Tooltip title="Open friend">
+						<Button
+							key='friend'
+							onClick={handleClickFriend}
+							sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
+							>
+							<GroupIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+						</Button>
+						</Tooltip>
+						<Tooltip title="Open leader">
+						<Button
+							key='leader'
+							onClick={handleClickLeader}
+							sx={{ my: 2, color: 'white', display: 'block', ml: 1 }}
+							>
+							<LeaderboardTwoToneIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+						</Button>
+						</Tooltip>
 					</Box>
-					<Box sx={{ flexGrow: 0, marginRight: '1vh' }}>
+					<Box sx={{ flexGrow: 0, marginRight: '10px' }}>
 						<NotificationList />
 					</Box>
-					<Box sx={{ flexGrow: 0, marginRight: '2vh' }}>
+					<Box sx={{ flexGrow: 0, marginRight: '20px' }}>
 						<BoutonThemeMode handleTheme={handleTheme} />
 					</Box>
-					<Box sx={{ flexGrow: 0, marginRight: '3vh' }}>
+					<Box sx={{ flexGrow: 0, marginRight: '30px' }}>
 						<Tooltip title="Open settings">
 						<IconButton  sx={{ p: 0 }} onClick={handleClickSettings}>
 							<Avatar alt="YOU" src={ import.meta.env.VITE_BACK_URL + '/users/avatar/' + myId } />

@@ -17,8 +17,12 @@ import './index.css';
 import CallBackPage from "./Pages/CallBackPage/CallBackPage";
 import { ToastContainer } from "react-toastify";
 import Profile from './Pages/profile/profile';
+import FriendPart from './Pages/Home/friendPart/FriendPart';
+import LeaderPart from './Pages/Home/LeaderPart/LeaderPart';
 
 import './App.css';
+import ProfilePart from './Pages/Home/profilePart/ProfilePart';
+import { getAccessContent } from './utils/ApiClient';
 
 const dark = createTheme({
 	palette: {
@@ -76,8 +80,10 @@ export default function App() {
 							path="/"
 							element={<Layout handleTheme={handleTheme} />}
 						>
-							<Route path="/profile/:userId" element={<Profile />} />
 							<Route index element={<Home />} />
+							<Route path="/profile/:userId" element={<Profile />} />
+							<Route path="/friend" element={<FriendPart />} />
+							<Route path="/leader" element={<LeaderPart />} />
 							<Route path="game" element={<Game />} />
 							<Route
 								path="game/pong-online"

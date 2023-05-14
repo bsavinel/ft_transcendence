@@ -7,14 +7,16 @@ import { getAccessContent } from '../../utils/ApiClient';
 import './Home.scss';
 
 export default function TestPage() {
-	return (
-		<div className="HomePage">
-			<NavHome />
-			<div className="HomeContent" id="HomeContent">
-				<ProfilePart userId={getAccessContent()!.userId}/>
-				<FriendPart />
-				<LeaderPart />
-			</div>
-		</div>
-	);
+	return <ProfilePart userId={getAccessContent()!.userId}/>
+
+	// return (
+	// 	<div className="HomePage">
+	// 		<NavHome />
+	// 		<div className="HomeContent" id="HomeContent">
+	// 			<ProfilePart userId={getAccessContent()!.userId}/>
+	// 			<FriendPart />
+	// 			<LeaderPart />
+	// 		</div>
+	// 	</div>
+	// );
 }

@@ -18,7 +18,6 @@ function isnumber(str: string) {
 
 export default function Profile() {
 	let {userId} = useParams();
-
 	if (userId === undefined || userId === null || !isnumber(userId))
 		return <NoMatch />;
 	return <ProfilePart userId={+userId} />;
