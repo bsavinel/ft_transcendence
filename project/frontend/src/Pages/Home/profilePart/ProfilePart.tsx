@@ -58,6 +58,7 @@ const columns: GridColDef[] = [
 				</div>
 			);
 		},
+		
 	},
 	{
 		field: 'Your Score',
