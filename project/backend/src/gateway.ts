@@ -655,17 +655,32 @@ export class AppGateway
 			client.data.accessToken.userId,
 			+targetId
 		);
-		this.server.emit('friendListEdited');
-		// On a tous les sockets du mec qui a ban de resfresh l'info
+		await this.usersService.deleteFriend(
+			+targetId,
+			client.data.accessToken.userId
+		);
 		const clientAllSockets: Socket[] = this.usersSockets.get(
 			client.data.accessToken.userId
 		);
 		if (clientAllSockets) {
 			clientAllSockets.map((socket) => {
+				this.server.to(`${socket.id}`).emit('friendRemoved', +targetId);
+				this.server.to(`${socket.id}`).emit('friendListEdited');
+			});
+			clientAllSockets.map((socket) => {
 				this.server
 					.to(`${socket.id}`)
 					.emit('youBlockedUser', +targetId);
 				this.server.to(`${socket.id}`).emit('needReloadMsgList');
+			});
+		}
+		const newFriendSockets: Socket[] = this.usersSockets.get(+targetId);
+		if (newFriendSockets) {
+			newFriendSockets.map((socket) => {
+				this.server
+					.to(`${socket.id}`)
+					.emit('friendRemoved', client.data.accessToken.userId);
+				this.server.to(`${socket.id}`).emit('friendListEdited');
 			});
 		}
 		return 'Succes';
