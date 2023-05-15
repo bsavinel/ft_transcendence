@@ -326,7 +326,7 @@ export class AppGateway
 				data.friendId,
 				client.data.accessToken.userId
 			);
-		if (!getFriendInvitation) return;
+		if (getFriendInvitation.length === 0) return;
 		if (data.accept) {
 			await this.usersService.addFriend(
 				client.data.accessToken.userId,
