@@ -572,7 +572,6 @@ export default function Game() {
   {
     const timerLaunchBall = setInterval(() => {
       if (launchBallTimer > 0) {
-        console.log(launchBallTimer);
         setLaunchBallTimer(prevTimer => prevTimer - 1);
       }
     }, 1000);

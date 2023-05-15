@@ -59,7 +59,6 @@ export default function ChannelList({ selectedChannel, channelList, setChannelLi
     }
 
 	async function fetchChannels() {
-		console.debug('fetching Channels list');
 		try {
 			const subChanRes: ChannelDto[] = (await ApiClient.get('/channels')).data.filter((data:ChannelDto) => data.mode !== 'DIRECT');
         setChannelList(subChanRes);

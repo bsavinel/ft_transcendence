@@ -154,7 +154,6 @@ export default function ProfilePart({userId}: { userId: number }) {
 	const chatSocket: Socket | null = useContext(ChatSocketContext); 
 	const myId: number = getAccessContent()?.userId as number;
 
-	console.log(userId);
 	useEffect(() => {
 		Promise.all([
 			getProfile(userId),

@@ -20,7 +20,6 @@ async function internAuthentification(): Promise<boolean> {
 		withCredentials: true,
 	});
 
-	console.log('data : ', response.data);
 	setAccess(response.data.accessToken);
 	return response.data.newUser;
 }
@@ -33,7 +32,6 @@ async function generateSecretOtp() {
 		`${import.meta.env.VITE_BACK_URL}/otp/generate`,
 		params
 	);
-	console.log(generateSecret);
 }
 
 async function fetchOtpIsActive(): Promise<boolean> {

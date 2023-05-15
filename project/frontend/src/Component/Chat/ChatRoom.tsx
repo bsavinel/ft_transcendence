@@ -79,7 +79,6 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
      }, [messagesList])
 
 
-     console.debug('Chat room mounted');
 	return (
 		<Box id='chatRoomContainer'>
             <Box id='chatRoom'>

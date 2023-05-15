@@ -166,7 +166,6 @@ function Row(props: { row: ReturnType<typeof createData> }) { //object props qui
   const { row } = props;
   const [open, setOpen] = React.useState(false);
 
-  console.log(row);
   return (
     <React.Fragment>
       <StyledTableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
