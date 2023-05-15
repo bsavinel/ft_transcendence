@@ -22,7 +22,6 @@ export class UserController {
     }),
   )
   UploadAvatar(@UploadedFile() avatar: Express.Multer.File) {
-    console.log(avatar);
     return this.userService.SaveAvatar();
   }
 }

@@ -65,7 +65,6 @@ export class OauthController {
 			);
 		} catch (e) {
 			if (e.responseApi.status == 404) {
-				console.log('the api probably change');
 				throw new NotFoundException('Api not found');
 			}
 			throw new BadRequestException("Can't get 42 identity");

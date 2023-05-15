@@ -6,8 +6,6 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   SaveAvatar() {
-    console.log('>>>>>>>>>> UserService <<<<<<<<<<<');
-    console.log('>>>>>>>>>> SaveAvatar  <<<<<<<<<<<');
     return;
   }
 }
