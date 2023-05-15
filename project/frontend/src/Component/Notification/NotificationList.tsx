@@ -122,9 +122,12 @@ export default function NotificationList() {
 	}
 
 	async function fetchInvit() {
-		const getInvit: invitDTO[] = (await ApiClient.get('invitations')).data;
-		console.log(getInvit);
-		setInvit(getInvit);
+		try {
+			const getInvit: invitDTO[] = (await ApiClient.get('invitations')).data;
+			setInvit(getInvit);
+		} catch (error) {
+
+		}
 	}
 
 	useEffect(() => {
