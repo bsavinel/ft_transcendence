@@ -7,14 +7,6 @@ import { getAccessContent } from '../../utils/ApiClient';
 import './Home.scss';
 
 export default function Home() {
-	return (
-		<div className="HomePage">
-			<NavHome />
-			<div className="HomeContent" id="HomeContent">
-				<ProfilePart userId={getAccessContent()!.userId}/>
-				<FriendPart />
-				<LeaderPart />
-			</div>
-		</div>
+	return ( <ProfilePart userId={getAccessContent()!.userId}/>
 	);
 }
