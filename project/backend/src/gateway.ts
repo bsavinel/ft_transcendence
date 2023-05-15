@@ -704,6 +704,20 @@ export class AppGateway
 				invitedUsers: Number(targetId),
 			};
 			this.invitationsService.deleteInvitation(invitationGame);
+			const invitationFriend2 = {
+				type: invitMode.FRIEND,
+				friendId: Number(targetId),
+				channelId: null,
+				invitedUsers: client.data.accessToken.userId,
+			};
+			this.invitationsService.deleteInvitation(invitationFriend2);
+			const invitationGame2 = {
+				type: invitMode.GAME,
+				friendId: Number(targetId),
+				channelId: null,
+				invitedUsers: client.data.accessToken.userId,
+			};
+			this.invitationsService.deleteInvitation(invitationGame2);
 		} catch (error) {
 			console.log(error);
 		}
