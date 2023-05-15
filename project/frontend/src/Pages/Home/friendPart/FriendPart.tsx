@@ -29,9 +29,9 @@ function getPourcentage(level: number) {
 
 function RowProfileFriend({ profile }: { profile: Profile }) {
 	return (
-		<Link to={`/profile/${profile.id}`}>
+		<Link to={`/profile/${profile.id}`} style={{textDecoration: "none"}}>
 			<div className="FriendBox">
-				<img className="avatarFriend" src={profile.avatarUrl} />
+				<img className="avatarFriend" src={`${import.meta.env.VITE_BACK_URL}/users/avatar/${profile.id}`} />
 				<div className="pseudo">
 					<p className="username">{profile.username}</p>
 					<p className="personalId">#{profile.id}</p>
@@ -44,14 +44,10 @@ function RowProfileFriend({ profile }: { profile: Profile }) {
 						<div
 							className="progress-bar"
 							style={{
-								width: `${Math.floor(
-									(profile.level -
-										Math.floor(profile.level)) *
-										100
-								)}%`,
+								width: `${getPourcentage(profile.level)}%`,
 							}}
 						>
-							{profile.percent}%
+							{getPourcentage(profile.level)}%
 						</div>
 					</div>
 				</div>

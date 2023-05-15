@@ -73,7 +73,7 @@ export default function App() {
 			<CssBaseline />
 			<div className="app">
 				<Routes>
-					<Route path="/force" element={<BrutForce />} />
+					{/* <Route path="/force" element={<BrutForce />} /> */}
 					<Route path="/callback" element={<CallBackPage />} />
 					<Route path="/" element={<LogGuard />}>
 						<Route
