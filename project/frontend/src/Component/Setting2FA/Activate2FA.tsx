@@ -38,30 +38,25 @@ export default function Activate2FA({setInputToken, inputToken, activate, isVali
         qrcodePath = imageUrl;
     });
 
-	//FIXME revoir la gestion des grid!
     return (
         <Grid container justifyContent='space-evenly'>
-            <Grid container direction='column' spacing={1} xs={4}>
-                <Grid item>
-                    <TextField disabled label='Secret' value={secret}/>
-                </Grid>
-                <Grid item>
-                    <img src={qrcodePath}/>
-                </Grid>
+            <Grid item>
+                <TextField disabled label='Secret' value={secret}/>
             </Grid>
-            <Grid container direction='column' spacing={1} xs={4}>
-                <Grid item>
-                    <TextField 
-                        error={!isValidToken}
-                        helperText={!isValidToken ? "Invalid token" : ""}
-                        label='Token'
-                        onChange={(e) => setInputToken(e.target.value)}
-                        value={inputToken}
-                    />
-                </Grid>
-                <Grid item>
-                    <Button onClick={activate} variant='contained'>Activate 2FA</Button>
-                </Grid>
+            <Grid item>
+                <img src={qrcodePath}/>
+            </Grid>
+            <Grid item>
+                <TextField 
+                    error={!isValidToken}
+                    helperText={!isValidToken ? "Invalid token" : ""}
+                    label='Token'
+                    onChange={(e) => setInputToken(e.target.value)}
+                    value={inputToken}
+                />
+            </Grid>
+            <Grid item>
+                <Button onClick={activate} variant='contained'>Activate 2FA</Button>
             </Grid>
         </Grid>
     );
