@@ -66,6 +66,28 @@ export class UsersController {
 		return 'SUCCESS';
 	}
 
+	@Get('isFriend/:userId')
+	async getIsFriendOf(
+		@Param('userId', ParseIntPipe) userId: number,
+		@Req() request: RequestWithAccess
+	): Promise<boolean> {
+		return await this.usersService.isFriendOf(
+			request.accessToken.userId,
+			userId
+		);
+	}
+
+	@Get('isBlocked/:userId')
+	async getHasBlockedUser(
+		@Param('userId', ParseIntPipe) userId: number,
+		@Req() request: RequestWithAccess
+	): Promise<boolean> {
+		return await this.usersService.hasBlockedUser(
+			request.accessToken.userId,
+			userId
+		);
+	}
+
 	@Get('/avatar/:id')
 	async getAvatars(
 		@Param('id', ParseIntPipe) id: number
@@ -233,7 +255,7 @@ export class UsersController {
 	@Get()
 	async gatAll(): Promise<UserEntity[]> {
 		let users = await this.usersService.getAllUsers();
-		let tmp = users.map(async (user) => ({
+		const tmp = users.map(async (user) => ({
 			...user,
 			win: (await this.gameService.getGameWinByUserId(user.id)).length,
 			lose: (await this.gameService.getGameLoseByUserId(user.id)).length,

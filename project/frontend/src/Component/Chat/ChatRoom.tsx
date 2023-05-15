@@ -17,12 +17,11 @@ interface ChatRoomProps {
     messagesList: MessageDto[];
     usersList: UserOnChannelDto[];
     sendMessage: (msg: string) => void;
-    fetchMessages: (chanId: number) => Promise<void>;
 }
 
 
 
-export default function ChatRoom({ selectedChannel, messagesList, usersList, sendMessage, fetchMessages }: ChatRoomProps) {
+export default function ChatRoom({ selectedChannel, messagesList, usersList, sendMessage }: ChatRoomProps) {
     const [openUL, setOpenUL] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>();
     const myId: number = getAccessContent()?.userId as number;
@@ -111,7 +110,7 @@ export default function ChatRoom({ selectedChannel, messagesList, usersList, sen
                     <Collapse className='usersListCollapse'  
                         orientation='horizontal' in={openUL} timeout='auto' >
                         <Box className='usersList'>
-                            <UsersList selectedChannel={selectedChannel} reloadMessagesList={() => fetchMessages(selectedChannel.id)} usersList={usersList}/>
+                            <UsersList selectedChannel={selectedChannel}  usersList={usersList}/>
                         </Box>
                     </Collapse>
                 </Box>

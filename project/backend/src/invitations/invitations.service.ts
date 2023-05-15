@@ -23,6 +23,7 @@ export class InvitationsService {
 					where: {
 						friendId: friendId,
 						invitedUsers: { every: { id: userId } },
+						type: type,
 					},
 				});
 			if (exists) return null;

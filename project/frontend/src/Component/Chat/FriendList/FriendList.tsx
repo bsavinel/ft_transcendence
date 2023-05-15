@@ -40,9 +40,13 @@ export default function FriendList({addChan, userFriends, handleSelectChannel}: 
 					setMapDirectChanStatus(newDirectChanStatus);
 					handleSelectChannel(reponse);
 				} else {
-					const newChan: ChannelDto = await addChan('JackyChan', 'DIRECT', '');
-					socket?.emit('joinRoom', { user: friendId, chanId: newChan.id });
-					handleSelectChannel(newChan);
+					try {
+						const newChan: ChannelDto = await addChan('JackyChan', 'DIRECT', '');
+						socket?.emit('joinRoom', { user: friendId, chanId: newChan.id });
+						handleSelectChannel(newChan);
+					} catch (e) {
+						console.error('An error occured while creating direct channel', e);
+					}
 				}
 			});
 		} else {

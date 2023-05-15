@@ -30,6 +30,24 @@ export class UsersService {
 		)?.friendsOf;
 	}
 
+	async hasBlockedUser(userId: number, blockedIdToFind: number): Promise<boolean> {
+		const res = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { blocked: { where: { id: blockedIdToFind } } },
+		});
+		if (res && res.blocked && res.blocked.length > 0) return true;
+		return false;
+	}
+
+	async isFriendOf(userId: number, friendToFindId: number): Promise<boolean> {
+		const res = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { friends: { where: { id: friendToFindId } } },
+		});
+		if (res && res.friends && res.friends.length > 0) return true;
+		return false;
+	}
+
 	async getFriendsOf(userId: number): Promise<User[]> {
 		return (
 			await this.prisma.user.findUniqueOrThrow({
@@ -159,7 +177,7 @@ export class UsersService {
 	async findChannelWithoutThrow(id: number): Promise<UserOnChannel[]> {
 		return await this.prisma.userOnChannel.findMany({
 			where: { userId: id },
-		})
+		});
 	}
 
 	async findChannel(id: number): Promise<Partial<Partial<UserEntity>>> {

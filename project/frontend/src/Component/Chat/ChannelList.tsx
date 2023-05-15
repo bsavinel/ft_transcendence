@@ -165,9 +165,9 @@ export default function ChannelList({ selectedChannel, channelList, setChannelLi
             if (error instanceof AxiosError && error.response) {
                 console.error(error.response.data.message);
                 setError(error.response.data.message.join(" | "));
-            }
-            setError('An error occured while creating chan.');
-            return Promise.reject();
+            } else
+                setError('An error occured while creating chan.');
+            throw error;
         }
 	}
 

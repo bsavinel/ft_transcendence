@@ -65,7 +65,6 @@ export default function EditChan({isOpen, closeDialog, selectedChannel }: EditCh
 						<TextField select label='Select mode' value={choosenMode} onChange={(e) => setChoosenMode(e.target.value)} variant='standard' sx={{mt: '10px'}}>
 							<MenuItem key='PUBLIC' value='PUBLIC'>PUBLIC</MenuItem>
 							<MenuItem key='PROTECTED' value='PROTECTED'>PROTECTED</MenuItem>
-							<MenuItem key='PRIVATE' value='PRIVATE'>PRIVATE</MenuItem>
 						</TextField>
 					</Stack>
 					{ choosenMode === 'PROTECTED' ? 

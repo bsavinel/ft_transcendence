@@ -8,7 +8,6 @@ import Game from './Pages/Game/Game';
 import Chat from './Pages/Chat/Chat';
 import Setting from './Pages/Setting/Setting';
 import NoMatch from './Pages/404';
-import TestPage from './Pages/Test/TestPage';
 import LogGuard from './conditionalRender';
 import BrutForce from './Pages/BrutForce/BrutForce';
 import PongOnline from './Component/Pong/PongOnline';
@@ -68,25 +67,15 @@ export default function App() {
 			<CssBaseline />
 			<div className="app">
 				<Routes>
-					<Route path="/test" element={<TestPage />} />
 					<Route path="/force" element={<BrutForce />} />
 					<Route path="/callback" element={<CallBackPage />} />
 					<Route path="/" element={<LogGuard />}>
-						<Route
-							path="/"
-							element={<Layout handleTheme={handleTheme} />}
-						>
+						<Route path="/" element={<Layout handleTheme={handleTheme} />} >
 							<Route path="/profile/:userId" element={<Profile />} />
 							<Route index element={<Home />} />
 							<Route path="game" element={<Game />} />
-							<Route
-								path="game/pong-online"
-								element={<PongOnline />}
-							/>
-							<Route
-								path="game/pong-solo"
-								element={<PongSolo location={location} />}
-							/>
+							<Route path="game/pong-online" element={<PongOnline />} />
+							<Route path="game/pong-solo" element={<PongSolo location={location} />} />
 							<Route path="chat" element={<Chat />} />
 							<Route path="setting" element={<Setting />} />
 							<Route path="*" element={<NoMatch />} />

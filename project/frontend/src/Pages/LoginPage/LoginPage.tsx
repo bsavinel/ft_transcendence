@@ -48,14 +48,6 @@ function SignUpButton() {
 }
 
 export default function LoginPage() {
-	// let fleche = require("../../assets/chevron.png");
-
-	// let ft_scroll_to_bottom = () => {
-	// 	document.getElementById("ScrollPart")!.scrollTo({
-	// 		top: document.getElementById("ScrollPart")!.scrollHeight,
-	// 		behavior: "smooth",
-	// 	});
-	// };
 	return (
 		<>
 			<div id="backgroudStars">
@@ -66,12 +58,6 @@ export default function LoginPage() {
 			<div id="ScrollPart">
 				<div id="upPage">
 					<h1>TRANSCENDENCE</h1>
-					{/* <img
-						id="Fleche"
-						src={fleche}
-						alt="fleche"
-						onClick={ft_scroll_to_bottom}
-					/> */}
 					<SignUpButton />
 				</div>
 				{/* <div id="downPage">

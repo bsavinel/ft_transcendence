@@ -50,10 +50,12 @@ export default function AddChanDialog({isOpen, closeModal, addChan, userFriends,
 				}
 			}
 		} catch(e) {
-			if (e instanceof AxiosError)
-				setError(e.response?.data.message);
+            if (e instanceof AxiosError && e.response)  {
+                setError(e.response.data.message.join(" | "));
+			}
 			else
 				setError('An error occured');
+			console.error(e);
 		}
 		setName('');
 		setPassword('');

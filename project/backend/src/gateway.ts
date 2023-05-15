@@ -263,6 +263,11 @@ export class AppGateway
 		@MessageBody() data: { invit: CreateInvitationDto[]; user: string }
 	) {
 		data.invit.map(async (invit: CreateInvitationDto) => {
+			const isBlocked = await this.usersService.hasBlockedUser(
+				invit.invitedUsers,
+				invit.friendId
+			);
+			if (isBlocked) return;
 			const created: Invitation | null =
 				await this.invitationsService.createInvitation(
 					invit.type,
@@ -317,15 +322,37 @@ export class AppGateway
 		@ConnectedSocket() client: Socket
 	) {
 		if (data.accept) {
-			this.usersService.addFriend(
+			await this.usersService.addFriend(
 				client.data.accessToken.userId,
 				data.friendId
 			);
-			this.usersService.addFriend(
+			await this.usersService.addFriend(
 				data.friendId,
 				client.data.accessToken.userId
 			);
-			this.server.emit('friendListEdited');
+			// On a tous les sockets du mec qui a ban de resfresh l'info
+			const clientAllSockets: Socket[] = this.usersSockets.get(
+				client.data.accessToken.userId
+			);
+			if (clientAllSockets) {
+				clientAllSockets.map((socket) => {
+					this.server
+						.to(`${socket.id}`)
+						.emit('friendAdded', data.friendId);
+					this.server.to(`${socket.id}`).emit('friendListEdited');
+				});
+			}
+			const newFriendSockets: Socket[] = this.usersSockets.get(
+				data.friendId
+			);
+			if (newFriendSockets) {
+				newFriendSockets.map((socket) => {
+					this.server
+						.to(`${socket.id}`)
+						.emit('friendAdded', client.data.accessToken.userId);
+					this.server.to(`${socket.id}`).emit('friendListEdited');
+				});
+			}
 		}
 		try {
 			const invitation = {
@@ -334,7 +361,7 @@ export class AppGateway
 				channelId: null,
 				invitedUsers: client.data.accessToken.userId,
 			};
-			this.invitationsService.deleteInvitation(invitation);
+			await this.invitationsService.deleteInvitation(invitation);
 			return true;
 		} catch (error) {
 			return false;
@@ -557,6 +584,63 @@ export class AppGateway
 		return 'Succes';
 	}
 
+	@SubscribeMessage('unblock')
+	@UseGuards(OptTargetGuard)
+	async onUnblock(
+		@MessageBody() targetId: string,
+		@ConnectedSocket() client: Socket
+	) {
+		await this.usersService.deleteBlockedUser(
+			client.data.accessToken.userId,
+			+targetId
+		);
+		// On a tous les sockets du mec qui a ban de resfresh l'info
+		const clientAllSockets: Socket[] = this.usersSockets.get(
+			client.data.accessToken.userId
+		);
+		if (clientAllSockets) {
+			clientAllSockets.map((socket) => {
+				this.server
+					.to(`${socket.id}`)
+					.emit('youUnblockedUser', +targetId);
+				this.server.to(`${socket.id}`).emit('needReloadMsgList');
+			});
+		}
+		return 'Succes';
+	}
+
+	@SubscribeMessage('removeFriend')
+	@UseGuards(OptTargetGuard)
+	async onRemoveFriend(
+		@MessageBody() targetId: number,
+		@ConnectedSocket() client: Socket
+	) {
+		await this.usersService.deleteFriend(
+			client.data.accessToken.userId,
+			targetId
+		);
+		// On a tous les sockets du mec qui a ban de resfresh l'info
+		const clientAllSockets: Socket[] = this.usersSockets.get(
+			client.data.accessToken.userId
+		);
+		if (clientAllSockets) {
+			clientAllSockets.map((socket) => {
+				this.server.to(`${socket.id}`).emit('friendRemoved', targetId);
+				this.server.to(`${socket.id}`).emit('friendListEdited');
+			});
+		}
+		const newFriendSockets: Socket[] = this.usersSockets.get(targetId);
+		if (newFriendSockets) {
+			newFriendSockets.map((socket) => {
+				this.server
+					.to(`${socket.id}`)
+					.emit('friendRemoved', client.data.accessToken.userId);
+				this.server.to(`${socket.id}`).emit('friendListEdited');
+			});
+		}
+		return 'Succes';
+	}
+
 	@SubscribeMessage('block')
 	@UseGuards(OptTargetGuard)
 	async onBlock(
@@ -567,6 +651,19 @@ export class AppGateway
 			client.data.accessToken.userId,
 			+targetId
 		);
+		this.server.emit('friendListEdited');
+		// On a tous les sockets du mec qui a ban de resfresh l'info
+		const clientAllSockets: Socket[] = this.usersSockets.get(
+			client.data.accessToken.userId
+		);
+		if (clientAllSockets) {
+			clientAllSockets.map((socket) => {
+				this.server
+					.to(`${socket.id}`)
+					.emit('youBlockedUser', +targetId);
+				this.server.to(`${socket.id}`).emit('needReloadMsgList');
+			});
+		}
 		return 'Succes';
 	}
 
@@ -662,20 +759,23 @@ export class AppGateway
 			);
 		if (getUserChan.length > 0) {
 			const nonBanFromChans: string[] = getUserChan
-			.filter((channelProfile) => channelProfile.role !== 'BAN')
-			.map((channelProfile) => `${channelProfile.channelId}`);
+				.filter((channelProfile) => channelProfile.role !== 'BAN')
+				.map((channelProfile) => `${channelProfile.channelId}`);
 			client.join(nonBanFromChans);
-		} 
+		}
 	}
 
 	protected async emitToFriends(userId: number, eventToEmit: string) {
-		const friendOf: User[] = await this.usersService.getFriendsOfWithoutThrow(userId);
+		const friendOf: User[] =
+			await this.usersService.getFriendsOfWithoutThrow(userId);
 		if (friendOf) {
 			friendOf.map((user) => {
 				const friendSockets: Socket[] = this.usersSockets.get(user.id);
 				if (!friendSockets) return;
 				friendSockets.map((socket) => {
-					this.server.to(socket.id).emit(eventToEmit, { user: userId });
+					this.server
+						.to(socket.id)
+						.emit(eventToEmit, { user: userId });
 				});
 			});
 		}

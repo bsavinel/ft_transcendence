@@ -6,7 +6,7 @@ import { getAccessContent } from '../../utils/ApiClient';
 
 import './Home.scss';
 
-export default function TestPage() {
+export default function Home() {
 	return (
 		<div className="HomePage">
 			<NavHome />

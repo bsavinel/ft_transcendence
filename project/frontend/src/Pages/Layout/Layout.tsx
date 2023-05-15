@@ -57,6 +57,10 @@ export default function Layout({ handleTheme }: LayoutProps) {
 			navigate('/setting');
 		}
 
+		function handleClickTitle() {
+			navigate('/');
+		}
+
 		return (
 			<AppBar position="static" sx={{ backgroundColor: (theme) => theme.palette.primary.main}}>
 				<Toolbar disableGutters sx={{ marginLeft: '3vh' }}>
@@ -65,7 +69,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 						variant="h6"
 						noWrap
 						component="a"
-						href="/"
+						onClick={handleClickTitle}
 						sx={{
 						mr: 2,
 						display: { xs: 'none', md: 'flex' },
@@ -74,6 +78,7 @@ export default function Layout({ handleTheme }: LayoutProps) {
 						letterSpacing: '.3rem',
 						color: 'inherit',
 						textDecoration: 'none',
+						userSelect: 'none',
 						}}
 					>
 						Transcendence

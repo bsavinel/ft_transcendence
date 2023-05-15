@@ -1,11 +1,12 @@
 import { GameRequestToGame, Game, GameRequest } from '../utils';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import ApiClient from '../../../utils/ApiClient';
-import { useEffect, useState } from 'react';
+import ApiClient, {getAccessContent} from '../../../utils/ApiClient';
+import { useContext, useEffect, useState } from 'react';
 import './ProfilePart.scss';
-import { id } from 'date-fns/locale';
-import { Box, CircularProgress } from '@mui/material';
-import Paper from '@mui/material/Paper';
+import { Badge, Box, IconButton, styled, CircularProgress, Button } from '@mui/material';
+import { PongSocketContext } from '../../../Component/Pong/PongSocketContext';
+import { Socket } from 'socket.io-client';
+import {ChatSocketContext} from '../../../Component/Chat/ChatSocketContext';
 
 interface UserProfile {
 	userId: string;
@@ -121,24 +122,120 @@ async function getNumberUser(): Promise<number> {
 	}
 }
 
+async function getIsFriend(userId: number) {
+	try {
+		return (await ApiClient.get('/users/isFriend/' + userId)).data;
+	} catch (e) {
+		return false;
+	}
+}
+
+async function getIsBlocked(userId: number) {
+	try {
+		return (await ApiClient.get('/users/IsBlocked/' + userId)).data;
+	} catch (e) {
+		return false;
+	}
+}
+
 export default function ProfilePart({userId}: { userId: number }) {
 	const [user, setUser] = useState<UserProfile | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isFriend, setIsFriend] = useState<boolean>(false);
+	const [isBlocked, setIsBlocked] = useState<boolean>(false);
 	const [game, setGame] = useState<Game[]>([]);
 	const [nbUser, setNbUser] = useState<number>(0);
+	const [status, setStatus] = useState<string>('offline');
+	const pongSocket: Socket | null = useContext(PongSocketContext); 
+	const chatSocket: Socket | null = useContext(ChatSocketContext); 
+	const myId: number = getAccessContent()?.userId as number;
 
 	useEffect(() => {
 		Promise.all([
 			getProfile(userId),
 			getNumberUser(),
-			getGame(userId)
-		]).then(([profile, nbUser, game]) => {
+			getGame(userId),
+			getIsFriend(userId),
+			getIsBlocked(userId),
+		]).then(([profile, nbUser, game, resIsFriend, resIsBlocked]) => {
 			setUser(profile);
 			setNbUser(nbUser);
 			setGame(GameRequestToGame(game, userId));
+			setIsFriend(resIsFriend)
+			setIsBlocked(resIsBlocked)
 			setIsLoading(false);
 		});
 	}, []);
+
+	useEffect(() => {
+		if (!pongSocket || !userId) return ;
+        pongSocket.emit('getUserStatus', userId, (resStatus: string) => {
+			setStatus(resStatus);
+        });
+
+	}, [pongSocket, userId]);
+
+	useEffect(() => {
+		if (!pongSocket || !userId) return ;
+		pongSocket?.on('playerStartsGame', (playerId) => {
+				setStatus('inGame');
+		});
+		pongSocket?.on('playerEndsGame', (playerId) => {
+			if (playerId === userId)
+				setStatus('online');
+		});
+		pongSocket?.on('playerDisconnected', (playerId) => {
+			if (playerId === userId)
+				setStatus('offline');
+		});
+		pongSocket?.on('playerConnected', (playerId) => {
+			if (playerId === userId)
+				setStatus('online');
+		});
+        return  () => {
+            pongSocket?.off('playerStartsGame');
+            pongSocket?.off('playerEndsGame');
+            pongSocket?.off('playerDisconnected');
+            pongSocket?.off('playerConnected');
+        };
+	}, [pongSocket, userId]);
+
+	useEffect(() => {
+		if (!chatSocket) return ;
+		chatSocket.on('youBlockedUser', (targetId) => {
+			if (targetId === userId)
+				setIsBlocked(true);
+		});
+		chatSocket.on('youUnblockedUser', (targetId) => {
+			if (targetId === userId)
+				setIsBlocked(false);
+		});
+		chatSocket.on('friendAdded', (targetId) => {
+			if (targetId === userId)
+				setIsFriend(true);
+		});
+		chatSocket.on('friendRemoved', (targetId) => {
+			if (targetId === userId)
+				setIsFriend(false);
+		});
+        return  () => {
+            chatSocket?.off('youBlockedUser');
+            chatSocket?.off('youUnblockedUser');
+            chatSocket?.off('friendAdded');
+            chatSocket?.off('friendRemoved');
+        };
+
+	}, [chatSocket, userId]);
+
+    async function sendFriendInvite(toUserId: number) {
+        const invitation = [{
+            type: "FRIEND",
+            friendId: myId,
+            invitedUsers: toUserId,
+        }];
+		const myUsername: string = (await ApiClient.get('users/profile/' + myId)).data.username;
+        chatSocket?.emit('newInvit', {invit: invitation, user: myUsername});
+    }
 
 	if (isLoading) {
 		return (
@@ -153,10 +250,40 @@ export default function ProfilePart({userId}: { userId: number }) {
 			</div>
 		);
 	}
+
+	function setBadgeStatusColor(): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" | undefined {
+		if (status === 'online')
+			return "success";
+		if (status === 'offline')
+			return "error";
+		return "warning"; // in game
+	}	
+
+    function emitBlockUser(targetId: number) {
+        chatSocket?.emit('block', targetId);
+    }
+
+    function emitUnblockUser(targetId: number) {
+        chatSocket?.emit('unblock', targetId);
+    }
+
+    function emitRemoveFriend(targetId: number) {
+        chatSocket?.emit('removeFriend', targetId);
+    }
+
 	return (
 		<div className="profile" id="profile">
 			<div className="ProfileInfo">
-				<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + user.userId } />
+				<Badge
+					className='avatar'
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+					overlap='circular'
+					variant='dot'
+					color={setBadgeStatusColor()}
+					sx={{ "& .MuiBadge-badge": {width: '30px', height: '30px', borderRadius: '100%'}  }}
+				>
+					<img className="avatar" src={import.meta.env.VITE_BACK_URL + '/users/avatar/' + user.userId } />
+				</Badge>
 				<div className="PlayerStats">
 					<div className="NameAndClass">
 						<div className="pseudo">
@@ -201,6 +328,16 @@ export default function ProfilePart({userId}: { userId: number }) {
 					</div>
 				</div>
 			</div>
+			{userId !== myId ? 
+				<Box>
+					<Button disabled={isBlocked ? true : false} onClick={isFriend ? () => emitRemoveFriend(userId) : () => sendFriendInvite(userId)} >
+						{isFriend ? 'Remove friend' : 'Add friend'}
+					</Button>
+					<Button onClick={isBlocked ? () => emitUnblockUser(userId) : () => emitBlockUser(userId) } >
+						{isBlocked ?  'Unblock user' : 'Block user'}
+					</Button>
+				</Box>
+			: null}
 			<div className="grid">
 				<DataGrid
 					rows={game.map((e, id) => {

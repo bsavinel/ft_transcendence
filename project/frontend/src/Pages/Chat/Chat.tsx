@@ -166,6 +166,10 @@ export default function Chat() {
 		socket.on('friendListEdited', () => {
 			reloadFriendList();
 		})
+		socket.on('needReloadMsgList', () => {
+			if (!selectedChannel) return ;
+			fetchMessages(selectedChannel.id);
+		})
 		socket?.on('someoneJoinedRoom', (chanId: number, userId: number) => {
 			if (userId !== myId) {
 				if (selectedChannel && selectedChannel.id === chanId)
@@ -219,7 +223,7 @@ export default function Chat() {
 							channelList={channelList}
 							setChannelList={setChannelList}
 							handleSelectChannel={handleSelectChannel}
-							isOwner={users?.find((uoc) => (uoc.userId === myId && (uoc.role === 'CREATOR' || uoc.role === 'ADMIN'))) ? true : false}
+							isOwner={users?.find((uoc) => (uoc.userId === myId && (uoc.role === 'CREATOR'))) ? true : false}
 							majBrowseList={majBrowseList}
 							reloadBrowseList={reloadBrowseList}
 							majChanList={majChanList}
@@ -236,7 +240,6 @@ export default function Chat() {
 								messagesList={messagesList}
 								usersList={users}
 								sendMessage={sendMessage}
-								fetchMessages={fetchMessages}
 							/>
 							: null
 						}

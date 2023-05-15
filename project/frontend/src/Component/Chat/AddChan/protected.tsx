@@ -16,7 +16,9 @@ export default function AddChanProtected ({error, password, setPassword} : AddCh
 	};
 
 	return (
+		<form autoComplete='off'>
 		<TextField 
+			autoComplete='off'
 			id='edit-chan-password' 
 			variant='outlined'  
 			label={error? 'Try again' : "Enter password"}
@@ -36,5 +38,6 @@ export default function AddChanProtected ({error, password, setPassword} : AddCh
 				</InputAdornment>
 			}}
 		/>
+		</form>
 	);
 }

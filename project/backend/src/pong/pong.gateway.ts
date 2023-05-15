@@ -20,6 +20,7 @@ import { instanceOfToken } from '../type/token.type';
 import { InvitationsService } from '../invitations/invitations.service';
 import { CreateInvitationDto } from '../invitations/dto/create-invitation.dto';
 import { get } from 'http';
+import {UsersService} from 'src/users/users.service';
 
 const BOARD_WIDTH = 1000;
 const BOARD_HEIGHT = 500;
@@ -143,7 +144,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		@Inject(GameService) private gameService: GameService,
 		private readonly jwt: JwtService,
-		private readonly invitationsService: InvitationsService
+		private readonly invitationsService: InvitationsService,
+		private readonly usersService: UsersService
 	) {}
 	@WebSocketServer()
 	server: Server;
@@ -191,6 +193,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		// On ajoute le socket au user dans la Map usersSockets
 		const sockets =
 			this.usersSockets.get(client.data.accessToken.userId) || [];
+		//
+		// Si pas present dans la map => se co donc annonce user logged in aux autres
+		if (sockets.length === 0) {
+			client.broadcast.emit('playerConnected', 
+				client.data.accessToken.userId
+			);
+		}
 
 		sockets.push(client);
 		this.usersSockets.set(client.data.accessToken.userId, sockets);
@@ -213,8 +222,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const index = sockets.findIndex((socket) => socket.id === client.id);
 		if (index !== -1) {
 			sockets.splice(index, 1);
+			// Si dernier socket du user, alors deco
+			if (sockets.length === 0) {
+				this.usersSockets.delete(client.data.accessToken.userId);
+				this.server.emit('playerDisconnected', 
+					client.data.accessToken.userId
+				);
+			} else  {
+				this.usersSockets.set(client.data.accessToken.userId, sockets);
+			}
 		}
-		this.usersSockets.set(client.data.accessToken.userId, sockets);
 
 		//DELETE invitSocket
 		let keyToDelete = null;
@@ -281,6 +298,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						arrayRoom.splice(indexPlayerArrayRoom, 1);
 
 					console.log('Player leave the pong:', client.id);
+					this.server.emit('playerEndsGame', client.data.accessToken.userId);
 
 					this.rooms.set(player.room, arrayRoom);
 					player.client.leave(player.room);
@@ -432,6 +450,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       player2.socket.to(room).emit('side', {side: 'left'});
 
       console.log(`New game started with id ${gameId}.`);
+	  this.server.emit('playerStartsGame', player1IdPrisma);
+	  this.server.emit('playerStartsGame', player2IdPrisma);
 
       this.player.set(room, this.getDefaultPlayerState());
       this.ball.set(room, this.getDefaultBallState());
@@ -439,6 +459,28 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.game.set(room, this.getDefaultGameState());
       this.gameIdPrisma.set(room, gameIdPrisma);
     }
+  }
+
+  @SubscribeMessage('getUserStatus')
+  onGetUserStatus(
+	  @MessageBody() userId: number,
+	  @ConnectedSocket() client: Socket
+  ): string {
+	// console.log('demande user ', userId, ' status');
+	const sockets = this.usersSockets.get(userId) || [];
+	if (sockets.length === 0) {
+			// console.log('No such client co: ', userId);
+		return 'offline';
+	}
+	const playerWithUserId = this.players.find((player) => {
+		return player.client?.data?.accessToken?.userId === userId;
+	});
+	if (playerWithUserId) {
+			// console.log('Player in game:', userId);
+			return 'inGame'
+	}
+	// console.log('User juste co: ', userId);
+	return 'online';
   }
 
   @SubscribeMessage('leaveMatchmaking')
@@ -502,6 +544,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       player2.socket.to(room).emit('power', {power: true});
 
       console.log(`New game started with id ${gameId}.`);
+	  this.server.emit('playerStartsGame', player1IdPrisma);
+	  this.server.emit('playerStartsGame', player2IdPrisma);
 
       this.player.set(room, this.getDefaultPlayerState());
       this.ball.set(room, this.getDefaultBallState());
@@ -549,6 +593,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const player1 = {id: player1Id, score: playerState.player1Score};
             const player2 = {id: player2Id, score: playerState.player2Score};
             const gameId = this.gameIdPrisma.get(player.room);
+			this.server.emit('playerEndsGame', player1Id);
+			this.server.emit('playerEndsGame', player2Id);
 
             this.gameService.FinishGame(gameId, player1, player2, side === 'left' ? player1.id : player2.id);
           }
@@ -557,6 +603,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             arrayRoom.splice(indexPlayerArrayRoom, 1);
 
           console.log('Player leave the pong:', client.id);
+		  this.server.emit('playerEndsGame', client.data.accessToken.userId);
 
           this.rooms.set(player.room, arrayRoom);
           player.client.leave(player.room);
@@ -624,6 +671,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       player2.socket.to(room).emit('side', {side: 'left'});
 
       console.log(`New game started with id ${gameId}.`);
+	  this.server.emit('playerStartsGame', player1IdPrisma);
+	  this.server.emit('playerStartsGame', player2IdPrisma);
 
       this.player.set(room, this.getDefaultPlayerState());
       this.ball.set(room, this.getDefaultBallState());
@@ -770,6 +819,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
           console.log('Player leave the pong:', player1Socket.id);
           console.log('Player leave the pong:', player2Socket.id);
+		  this.server.emit('playerEndsGame', player1Socket.data.accessToken.userId);
+		  this.server.emit('playerEndsGame', player2Socket.data.accessToken.userId);
 
           player1Socket.leave(roomId);
           player2Socket.leave(roomId);
@@ -1199,6 +1250,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
           console.log('Player leave the pong:', player1Socket.id);
           console.log('Player leave the pong:', player2Socket.id);
+		  this.server.emit('playerEndsGame', player1Socket.data.accessToken.userId);
+		  this.server.emit('playerEndsGame', player2Socket.data.accessToken.userId);
 
           player1Socket.leave(roomId);
           player2Socket.leave(roomId);
@@ -1342,6 +1395,19 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		@ConnectedSocket() client: Socket
 	) {
 		data.invit.map(async (invit: CreateInvitationDto) => {
+			const isBlocked = await this.usersService.hasBlockedUser(
+				invit.invitedUsers,
+				invit.friendId
+			);
+			if (isBlocked) return;
+			const createInvit = await this.invitationsService.createInvitation(
+				invit.type,
+				invit.channelId,
+				invit.friendId,
+				invit.invitedUsers,
+				data.user
+			);
+			if (createInvit === null) return;
 			const user: Socket[] = this.usersSockets.get(invit.invitedUsers);
 			if (user) {
 				user.forEach((user) => {
@@ -1353,14 +1419,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					});
 				});
 			}
-			const createInvit = await this.invitationsService.createInvitation(
-				invit.type,
-				invit.channelId,
-				invit.friendId,
-				invit.invitedUsers,
-				data.user
-			);
-			if (createInvit.id) {
+			if (createInvit && createInvit.id) {
 				this.launchInvitGame(createInvit.id, client);
 			}
 		});
@@ -1470,6 +1529,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			player2.socket.to(room).emit('power', { power: true });
 
 			console.log(`New game started with id ${gameId}.`);
+			this.server.emit('playerStartsGame', player1IdPrisma);
+			this.server.emit('playerStartsGame', player2IdPrisma);
 
 			this.player.set(room, this.getDefaultPlayerState());
 			this.ball.set(room, this.getDefaultBallState());
