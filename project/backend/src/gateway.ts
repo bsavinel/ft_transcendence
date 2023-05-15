@@ -619,6 +619,10 @@ export class AppGateway
 			client.data.accessToken.userId,
 			targetId
 		);
+		await this.usersService.deleteFriend(
+			targetId,
+			client.data.accessToken.userId
+		);
 		// On a tous les sockets du mec qui a ban de resfresh l'info
 		const clientAllSockets: Socket[] = this.usersSockets.get(
 			client.data.accessToken.userId
