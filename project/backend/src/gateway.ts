@@ -321,6 +321,12 @@ export class AppGateway
 		@MessageBody() data: { friendId: number; accept: boolean },
 		@ConnectedSocket() client: Socket
 	) {
+		const getFriendInvitation =
+			await this.invitationsService.getFriendInvitation(
+				data.friendId,
+				client.data.accessToken.userId
+			);
+		if (!getFriendInvitation) return;
 		if (data.accept) {
 			await this.usersService.addFriend(
 				client.data.accessToken.userId,
@@ -649,7 +655,7 @@ export class AppGateway
 	@UseGuards(OptTargetGuard)
 	async onBlock(
 		@MessageBody() targetId: string,
-		@ConnectedSocket() client: Socket
+		@ConnectedSocket() client: Socket //celui qui block
 	) {
 		await this.usersService.addBlockedUser(
 			client.data.accessToken.userId,
@@ -682,6 +688,24 @@ export class AppGateway
 					.emit('friendRemoved', client.data.accessToken.userId);
 				this.server.to(`${socket.id}`).emit('friendListEdited');
 			});
+		}
+		try {
+			const invitationFriend = {
+				type: invitMode.FRIEND,
+				friendId: client.data.accessToken.userId,
+				channelId: null,
+				invitedUsers: Number(targetId),
+			};
+			this.invitationsService.deleteInvitation(invitationFriend);
+			const invitationGame = {
+				type: invitMode.GAME,
+				friendId: client.data.accessToken.userId,
+				channelId: null,
+				invitedUsers: Number(targetId),
+			};
+			this.invitationsService.deleteInvitation(invitationGame);
+		} catch (error) {
+			console.log(error);
 		}
 		return 'Succes';
 	}

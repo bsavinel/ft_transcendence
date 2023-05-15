@@ -87,6 +87,19 @@ export class InvitationsService {
 		return gameInvit;
 	}
 
+	async getFriendInvitation(friendId: number, userId: number) {
+		const friendInvit = await this.prisma.invitation.findMany({
+			where: {
+				type: invitMode.FRIEND,
+				friendId: friendId,
+				invitedUsers: {
+					some: { id: userId },
+				},
+			},
+		});
+		return friendInvit;
+	}
+
 	// invitMode: Channel
 	// Get all channel invitation for one user
 	async getAllChannelInvitation(userId: number) {
