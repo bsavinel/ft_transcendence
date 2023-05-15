@@ -127,6 +127,8 @@ export default function LeaderPart() {
 	const [world, setWorld] = useState<Profile[]>([]);
 	const navigate = useNavigate();
 
+	world.sort((a, b) => (b.level - a.level));
+
 	useEffect(() => {
 		(async () => {
 			let tmp = await getAllPofile();
@@ -146,7 +148,6 @@ export default function LeaderPart() {
 				<div className="grid">
 					<DataGrid
 						rows={world.map((e, id) => {
-							console.log("coucou", e);
 							return { ...e, id };
 						})}
 						columns={columns}

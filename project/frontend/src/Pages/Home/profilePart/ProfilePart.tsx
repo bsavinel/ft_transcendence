@@ -7,6 +7,9 @@ import { Badge, Box, IconButton, styled, CircularProgress, Button } from '@mui/m
 import { PongSocketContext } from '../../../Component/Pong/PongSocketContext';
 import { Socket } from 'socket.io-client';
 import {ChatSocketContext} from '../../../Component/Chat/ChatSocketContext';
+import { id } from 'date-fns/locale';
+import Paper from '@mui/material/Paper';
+import NoMatch from '../../404';
 
 interface UserProfile {
 	userId: string;
@@ -58,6 +61,7 @@ const columns: GridColDef[] = [
 				</div>
 			);
 		},
+		
 	},
 	{
 		field: 'Your Score',
@@ -245,11 +249,7 @@ export default function ProfilePart({userId}: { userId: number }) {
 			</Box>
 		);
 	} else if (user === undefined) {
-		return (
-			<div className="profile" id="profile">
-				Profile dosen't exist
-			</div>
-		);
+		return <NoMatch/>
 	}
 
 	function setBadgeStatusColor(): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" | undefined {

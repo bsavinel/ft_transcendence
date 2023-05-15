@@ -47,7 +47,6 @@ export class AccessGuard implements CanActivate {
 		if (!authorization || Array.isArray(authorization)) {
 			throw new Error('Invalid Authorization Header');
 		}
-		// console.log(authorization);
 		const [type, token] = authorization.split(' ');
 		if (type !== 'Bearer' || !token)
 			throw new Error('Invalid Authorization Header');

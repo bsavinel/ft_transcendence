@@ -16,7 +16,7 @@ async function initialFetch(
 ) {
 	// console.log('debut');
 	try {
-		await ApiClient.get('/user/me');
+		await ApiClient.get('/users/me');
 	} catch {}
 	// console.log('fin');
 	if (getAccess() && checkLog.isLoading)
